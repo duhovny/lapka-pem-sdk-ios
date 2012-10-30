@@ -149,6 +149,7 @@
 	
 //	float value = amplitude - _smallestLowFrequencyAmplitude;
 	float value = amplitude;
+	value *= 1000;
 	return value;
 }
 
@@ -156,6 +157,7 @@
 - (float)calculateHighFrequencyFieldWithAmplitude:(Float32)amplitude {
 	
 	float value = amplitude - _smallestHighFrequencyAmplitude;
+	value *= 1000;
 	return MAX(value, 0);
 }
 
