@@ -7,6 +7,7 @@
 #import "SFAudioSessionManager.h"
 #import "SFIdentificator.h"
 
+#define kSFFieldSensorFrequency 16000
 #define kSFFieldSensorDualModeMeanSteps 4		// 80ms (60ms delay + 20ms measure)
 #define kSFFieldSensorSingleModeMeanSteps 25
 #define kSFFieldSensorDefaultSmallestMaxForHighFrequencyField 150.0
@@ -78,6 +79,7 @@
 	[[SFAudioSessionManager sharedManager] setHardwareOutputVolumeToRegionMaxValue];
 	
 	// setup signal processor according to state
+	self.signalProcessor.frequency = kSFFieldSensorFrequency;
 	if (self.dualMode) {
 		NSLog(@"SFieldSensor: dual mode");
 		self.signalProcessor.fftAnalyzer.meanSteps = kSFFieldSensorDualModeMeanSteps;
