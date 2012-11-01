@@ -46,6 +46,8 @@
 	// override in real class
 	// don't forget to call super
 	
+	[UIApplication sharedApplication].idleTimerDisabled = YES;
+	
 	if ([self.delegate respondsToSelector:@selector(sensorDidSwitchOn:)]) {
 		[self.delegate sensorDidSwitchOn:self];
 	}
@@ -56,6 +58,8 @@
 	
 	// override in real class
 	// don't forget to call super
+	
+	[UIApplication sharedApplication].idleTimerDisabled = NO;
 	
 	if ([self.delegate respondsToSelector:@selector(sensorDidSwitchOff:)])
 		[self.delegate sensorDidSwitchOff:self];
