@@ -128,7 +128,7 @@
 	
 	self.signalProcessor.leftAmplitude = kSFControlSignalBitOne;
 	self.signalProcessor.rightAmplitude = kSFControlSignalBitOne;
-	self.signalProcessor.fftAnalyzer.useSign = NO;
+	self.signalProcessor.fftAnalyzer.useSign = YES;
 }
 
 
@@ -218,6 +218,7 @@
 				float amplitude = self.signalProcessor.fftAnalyzer.amplitude;
 //				if (amplitude < _smallestLowFrequencyAmplitude)
 //					_smallestLowFrequencyAmplitude = amplitude;
+				NSLog(@"low: %f", amplitude);
 				lowFrequencyField = [self calculateLowFrequencyFieldWithAmplitude:amplitude];
 				meanLowFrequencyField = lowFrequencyField;
 				

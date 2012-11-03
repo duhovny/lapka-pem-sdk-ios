@@ -436,6 +436,15 @@ OSStatus RenderAudio(
 	int frequency_bin = frequency * self.numberOfFrames / self.sampleRate;
 	double optimizedFrequency = frequency_bin * self.sampleRate / self.numberOfFrames;
 	
+//	optimizedFrequency = round(optimizedFrequency);
+	
+	NSLog(@"optimizeFrequency:");
+	NSLog(@"numberOfFrames: %ld", self.numberOfFrames);
+	NSLog(@"sampleRate: %f", self.sampleRate);
+	NSLog(@"frequency: %f", frequency);
+	NSLog(@"frequency_bin: %d", frequency_bin);
+	NSLog(@"optimizedFrequency: %f", optimizedFrequency);
+	
 	return optimizedFrequency;
 }
 

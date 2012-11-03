@@ -99,12 +99,16 @@
 	double requiredReal = fft_complex_split.realp[required_bin];
 	double requiredImag = fft_complex_split.imagp[required_bin];
 	
+	_real = requiredReal;
+	_imag = requiredImag;
+	
 //	double requiredMax = requiredReal;
 //	int sign = _useSign ? 2*signbit(requiredMax) - 1 : 1;
 	
 	if (_useSign) {
 		float angleRad = atan2f(requiredReal,requiredImag);
 		float angle = angleRad / M_PI * 180;
+		_angle = angle;
 		int sign = 1 - 2*signbit(angle);
 		NSLog(@"ang: %0.1f", angle);
 		amplitude = sign * sqrtf(requiredReal * requiredReal + requiredImag * requiredImag);

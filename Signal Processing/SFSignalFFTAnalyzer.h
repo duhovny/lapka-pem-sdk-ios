@@ -35,6 +35,11 @@
 @property (nonatomic, readonly) Float32 meanAmplitude;
 @property (nonatomic, assign) int meanSteps;
 
+// test
+@property (nonatomic, readonly) Float32 real;
+@property (nonatomic, readonly) Float32 imag;
+@property (nonatomic, readonly) Float32 angle;
+
 // refactor: this is so chip, please, analyze DC and do right math in near future, OK?
 @property (nonatomic, assign) BOOL useSign;
 
