@@ -102,7 +102,16 @@
 //	double requiredMax = requiredReal;
 //	int sign = _useSign ? 2*signbit(requiredMax) - 1 : 1;
 	
-	amplitude = sqrtf(requiredReal * requiredReal + requiredImag * requiredImag);
+	if (_useSign) {
+		float angleRad = atan2f(requiredReal,requiredImag);
+		float angle = angleRad / M_PI * 180;
+		int sign = 1 - 2*signbit(angle);
+		NSLog(@"ang: %0.1f", angle);
+		amplitude = sign * sqrtf(requiredReal * requiredReal + requiredImag * requiredImag);
+	} else {
+		amplitude = sqrtf(requiredReal * requiredReal + requiredImag * requiredImag);
+	}
+	
 	[delegate fftAnalyzerDidUpdateAmplitude:amplitude];
 	
 	/* update statistic */
