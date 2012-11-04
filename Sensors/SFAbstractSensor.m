@@ -86,8 +86,8 @@
 	
 	SFAudioSessionManager *audioSessionManager = [SFAudioSessionManager sharedManager];
 	if (audioSessionManager.hardwareOutputVolume != audioSessionManager.currentRegionMaxVolume) {
-		NSLog(@"adjust hardware volume");
-		[audioSessionManager setHardwareOutputVolumeToRegionMaxValue];
+//		NSLog(@"adjust hardware volume");
+//		[audioSessionManager setHardwareOutputVolumeToRegionMaxValue];
 	}
 }
 
