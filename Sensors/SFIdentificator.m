@@ -4,7 +4,6 @@
 //
 
 #import "SFIdentificator.h"
-#import "SFSignalProcessor.h"
 #import "SFAudioSessionManager.h"
 
 #define kSFIdentificationMeanSteps		10
@@ -18,7 +17,6 @@
 	BOOL identificationIsInProcess;
 }
 
-@property (atomic, retain) SFSignalProcessor *signalProcessor;
 @property (nonatomic, assign) SFSensorID sensorID;
 @property (nonatomic, assign) SFSensorIdentificationFingerprint fingerprint;
 

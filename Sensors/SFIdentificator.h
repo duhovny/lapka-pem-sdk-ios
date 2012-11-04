@@ -4,6 +4,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "SFSignalProcessor.h"
 
 #define kSFIdentificationAmplitudeLeftBitOne	1.0
 #define kSFIdentificationAmplitudeRightBitOne	1.0
@@ -47,6 +48,7 @@ typedef struct {
 
 @interface SFIdentificator : NSObject
 
+@property (atomic, retain) SFSignalProcessor *signalProcessor;
 @property (nonatomic, assign) NSObject <SFIdentificatorDelegate> *delegate;
 @property (nonatomic, assign) float identificationThreshold;
 @property (nonatomic, assign) float deviceVolumeLimitThreshold;
