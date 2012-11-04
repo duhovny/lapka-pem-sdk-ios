@@ -83,7 +83,7 @@
 	identificationStep = 0;
 	
 	// set volume up to european default value
-	[[SFAudioSessionManager sharedManager] setHardwareOutputVolume:SFAudioSessionHardwareOutputVolumeDefaultMax];
+//	[[SFAudioSessionManager sharedManager] setHardwareOutputVolumeToRegionMaxValue];
 	
 	// setup signal processor
 	self.signalProcessor.fftAnalyzer.meanSteps = kSFIdentificationMeanSteps;
@@ -157,6 +157,12 @@
 				stepsToSkip--;
 				if (stepsToSkip == 0) {
 					
+					// tell delegate microphone level
+					if ([self.delegate respondsToSelector:@selector(identificatorDidRecognizeDeviceMicrophoneLevel:)])
+						[self.delegate identificatorDidRecognizeDeviceMicrophoneLevel:amplitude];
+					
+					/*
+					 
 					// check device volume limit
 					BOOL deviceVolumeIsLimited = (amplitude < deviceVolumeLimitThreshold);
 					
@@ -173,6 +179,8 @@
 					if ([self.delegate respondsToSelector:@selector(identificatorDidRecognizeDeviceVolumeLimitState:)])
 						[self.delegate identificatorDidRecognizeDeviceVolumeLimitState:deviceVolumeIsLimited];
 					NSLog(@"deviceVolumeIsLimited: %@", deviceVolumeIsLimited?@"YES":@"NO");
+					 
+					 */
 				}
 				return;
 			}
