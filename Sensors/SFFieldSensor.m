@@ -16,6 +16,7 @@
 
 
 @interface SFFieldSensor () {
+	int _stepsToSkip;
 	float _smallestLowFrequencyAmplitude;
 	float _smallestHighFrequencyAmplitude;
 }
@@ -51,6 +52,7 @@
 		self.measureLowFrequencyField = YES;
 		self.measureHighFrequencyField = YES;
 		
+		_stepsToSkip = 0;
 		_smallestLowFrequencyAmplitude = 0;
 		_smallestHighFrequencyAmplitude = kSFFieldSensorDefaultSmallestMaxForHighFrequencyField;
 	}
@@ -83,6 +85,7 @@
 	self.signalProcessor.frequency = [self.signalProcessor optimizeFrequency:kSFFieldSensorFrequency];
 	if (self.dualMode) {
 		NSLog(@"SFieldSensor: dual mode");
+		_stepsToSkip = 30;
 		self.signalProcessor.fftAnalyzer.meanSteps = kSFFieldSensorDualModeMeanSteps;
 		[self setupSignalProcessorForLowFrequencyMeasure];
 		state = kSFFieldSensorStateLowFrequencyMeasurement;
@@ -148,8 +151,7 @@
 
 - (float)calculateLowFrequencyFieldWithAmplitude:(Float32)amplitude {
 	
-//	float value = amplitude - _smallestLowFrequencyAmplitude;
-	float value = amplitude;
+	float value = amplitude - _smallestLowFrequencyAmplitude;
 	return value;
 }
 
@@ -180,8 +182,8 @@
 		case kSFFieldSensorStateLowFrequencyMeasurement:
 		{
 			
-//			if (amplitude < _smallestLowFrequencyAmplitude)
-//				_smallestLowFrequencyAmplitude = amplitude;
+			if (amplitude < _smallestLowFrequencyAmplitude)
+				_smallestLowFrequencyAmplitude = amplitude;
 			lowFrequencyField = [self calculateLowFrequencyFieldWithAmplitude:amplitude];
 			[self.delegate fieldSensorDidUpdateLowFrequencyField:lowFrequencyField];
 			break;
@@ -204,6 +206,12 @@
 
 - (void)signalProcessorDidUpdateMeanAmplitude:(Float32)meanAmplitude {
 		
+	if (_stepsToSkip > 0) {
+		_stepsToSkip--;
+		NSLog(@"skip");
+		return;
+	}
+	
 	if (self.dualMode) {
 		
 		switch (state) {
@@ -216,9 +224,9 @@
 			{
 				// last (not mean) amplitude value
 				float amplitude = self.signalProcessor.fftAnalyzer.amplitude;
-//				if (amplitude < _smallestLowFrequencyAmplitude)
-//					_smallestLowFrequencyAmplitude = amplitude;
-				NSLog(@"low: %f", amplitude);
+				NSLog(@"amplitude: %f", amplitude);
+				if (amplitude < _smallestLowFrequencyAmplitude)
+					_smallestLowFrequencyAmplitude = amplitude;
 				lowFrequencyField = [self calculateLowFrequencyFieldWithAmplitude:amplitude];
 				meanLowFrequencyField = lowFrequencyField;
 				

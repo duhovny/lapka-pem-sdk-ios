@@ -18,6 +18,7 @@
 
 @property (nonatomic, assign) NSObject <SFSignalImpulseDetectorDelegate> *delegate;
 @property (nonatomic, assign) float threshold;
+@property (nonatomic, assign) float impulseAmplitude;
 @property (nonatomic, assign) BOOL previousValueWasAboveThreshold;
 
 - (id)initWithNumberOfFrames:(UInt32)numberOfFrames;

@@ -189,6 +189,9 @@
 	
 	particles++;
 	[self reportRadiationLevelUpdate];
+	
+	if ([self.delegate respondsToSelector:@selector(radiationSensorDidRecognizeImpulse:)])
+		[self.delegate radiationSensorDidRecognizeImpulse:self.signalProcessor.impulseDetector.impulseAmplitude];
 }
 
 

@@ -46,6 +46,7 @@
 	BOOL isAboveThreshold = (max > self.threshold);
 	if (isAboveThreshold && !previousValueWasAboveThreshold) {
 		// we got impulse here
+		_impulseAmplitude = max;
 		[delegate impulseDetectorDidDetectImpulse];
 	}
 	previousValueWasAboveThreshold = isAboveThreshold;

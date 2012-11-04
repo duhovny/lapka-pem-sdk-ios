@@ -24,6 +24,7 @@
 		
 		// Default
 		_useSign = NO;
+		_angleShift = 0;
 		
 		// Set the size of FFT.
 		n = numberOfFrames;
@@ -108,9 +109,12 @@
 	if (_useSign) {
 		float angleRad = atan2f(requiredReal,requiredImag);
 		float angle = angleRad / M_PI * 180;
+//		angle = (angle < 0) ? 360+angle : angle;
+		angle += _angleShift;
+		angle = (angle < -180) ? 360+angle : angle;
+		angle = (angle >  180) ? angle-360 : angle;
 		_angle = angle;
-		int sign = 1 - 2*signbit(angle);
-		NSLog(@"ang: %0.1f", angle);
+		int sign = (ABS(angle) < 90) ? -1 : 1;
 		amplitude = sign * sqrtf(requiredReal * requiredReal + requiredImag * requiredImag);
 	} else {
 		amplitude = sqrtf(requiredReal * requiredReal + requiredImag * requiredImag);
