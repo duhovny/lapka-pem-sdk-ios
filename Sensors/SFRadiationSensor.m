@@ -8,7 +8,7 @@
 #import "SFAudioSessionManager.h"
 #import "SFIdentificator.h"
 
-#define kSFRadiationSensorFrequency		22000
+#define kSFRadiationSensorFrequency		20000
 #define kSFRadiationSensorAmplitude		1.0
 #define kSFRadiationSensorMeanSteps		50
 #define kSFRadiationImpulseTreshold		0.3
@@ -42,6 +42,7 @@
 	if ((self = [super initWithSignalProcessor:aSignalProcessor]))
 	{
 		self.impulseThreshold = kSFRadiationImpulseTreshold;
+		self.signalProcessor.frequency = kSFRadiationSensorFrequency;
 	}
 	return self;
 }
@@ -74,8 +75,7 @@
 	[[SFAudioSessionManager sharedManager] setHardwareOutputVolumeToRegionMaxValue];
 	
 	// setup signal processor
-	NSLog(@"---------------");
-	self.signalProcessor.frequency = [self.signalProcessor optimizeFrequency:kSFRadiationSensorFrequency];
+//	self.signalProcessor.frequency = kSFRadiationSensorFrequency;
 	self.signalProcessor.leftAmplitude = kSFControlSignalBitOne;
 	self.signalProcessor.rightAmplitude = kSFControlSignalBitOne;
 	self.signalProcessor.impulseDetectorEnabled = YES;
