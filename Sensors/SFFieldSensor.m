@@ -151,7 +151,8 @@
 
 - (float)calculateLowFrequencyFieldWithAmplitude:(Float32)amplitude {
 	
-	float value = amplitude - _smallestLowFrequencyAmplitude;
+//	float value = amplitude - _smallestLowFrequencyAmplitude;
+	float value = amplitude;
 	return value;
 }
 
