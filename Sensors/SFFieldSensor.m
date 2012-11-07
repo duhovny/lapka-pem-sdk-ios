@@ -79,7 +79,11 @@
 	}
 	
 	// set volume up
-	[[SFAudioSessionManager sharedManager] setHardwareOutputVolumeToRegionMaxValue];
+	float outputVolume;
+	id field_volume = [[NSUserDefaults standardUserDefaults] objectForKey:@"field_volume"];
+	if (field_volume) outputVolume = [[NSUserDefaults standardUserDefaults] floatForKey:@"field_volume"];
+	else outputVolume = [[SFAudioSessionManager sharedManager] currentRegionMaxVolume];
+	[[SFAudioSessionManager sharedManager] setHardwareOutputVolume:outputVolume];
 	
 	// setup signal processor according to state
 	self.signalProcessor.frequency = [self.signalProcessor optimizeFrequency:kSFFieldSensorFrequency];
