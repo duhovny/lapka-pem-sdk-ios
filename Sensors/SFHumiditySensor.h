@@ -7,9 +7,10 @@
 
 typedef enum {
 	kSFHumiditySensorStateOff = 0,
-	kSFHumiditySensorStateOn,
 	kSFHumiditySensorStateResetting,
 	kSFHumiditySensorStateCalibrateMeasurement,
+	kSFHumiditySensorStateFirstTemperatureMeasurement,
+	kSFHumiditySensorStateHumidityMeasurement,
 	kSFHumiditySensorStateTemperatureMeasurement
 } SFHumiditySensorState;
 
