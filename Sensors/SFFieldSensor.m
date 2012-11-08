@@ -89,7 +89,7 @@
 	self.signalProcessor.frequency = [self.signalProcessor optimizeFrequency:kSFFieldSensorFrequency];
 	if (self.dualMode) {
 		NSLog(@"SFieldSensor: dual mode");
-		_stepsToSkip = 30;
+//		_stepsToSkip = 30;
 		self.signalProcessor.fftAnalyzer.meanSteps = kSFFieldSensorDualModeMeanSteps;
 		[self setupSignalProcessorForLowFrequencyMeasure];
 		state = kSFFieldSensorStateLowFrequencyMeasurement;
