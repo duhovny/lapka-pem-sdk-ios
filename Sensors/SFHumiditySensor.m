@@ -10,8 +10,8 @@
 #define kSFHumiditySensorResettingMeanSteps	   250	// 5 sec
 #define kSFHumiditySensorCalibratingMeanSteps	10	// 0.2 sec
 #define kSFHumiditySensorFirstTemperatureMeanSteps  200	// 4 sec
-#define kSFHumiditySensorTemperatureMeanSteps   10	// 0.2 sec
-#define kSFHumiditySensorHumidityMeanSteps		10	// 0.2 sec
+#define kSFHumiditySensorTemperatureMeanSteps   50	// 1.0 sec
+#define kSFHumiditySensorHumidityMeanSteps		50	// 1.0 sec
 
 #define kSFHumiditySensorDefaultK1	53.0
 #define kSFHumiditySensorDefaultK2	71.3
@@ -288,13 +288,16 @@
 			
 		case kSFHumiditySensorStateHumidityMeasurement:
 		{
+			// for humidity let's take last (not mean) amplitude value
+			float amplitude = self.signalProcessor.fftAnalyzer.amplitude;
+			
 			// save humidity level
-			humidityLevel = meanAmplitude;
+			humidityLevel = amplitude;
 			
 //			NSLog(@"humidityLevel: %f", humidityLevel);
 			
 			// update humidity
-			humidity = [self calculateHumidityWithTemparature:temperature amplitude:meanAmplitude trace:NO];
+			humidity = [self calculateHumidityWithTemparature:temperature amplitude:amplitude trace:NO];
 			
 //			NSLog(@"humidity: %f", humidity);
 			
