@@ -80,6 +80,7 @@
 	self.signalProcessor.leftAmplitude = kSFControlSignalBitZero;
 	self.signalProcessor.rightAmplitude = kSFControlSignalBitZero;
 	self.signalProcessor.fftAnalyzer.meanSteps = kSFHumiditySensorResettingMeanSteps;
+	self.signalProcessor.antiphase = NO;
 	[self.signalProcessor start];
 	
 	[super switchOn];
