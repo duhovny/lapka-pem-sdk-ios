@@ -135,7 +135,7 @@
 	
 	self.signalProcessor.leftAmplitude = kSFControlSignalBitOne;
 	self.signalProcessor.rightAmplitude = kSFControlSignalBitOne;
-	self.signalProcessor.fftAnalyzer.useSign = YES;
+	self.signalProcessor.fftAnalyzer.useSign = NO;
 }
 
 
