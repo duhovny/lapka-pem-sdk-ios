@@ -82,8 +82,13 @@
 	stepsToSkip = kSFIdentificationStepsToSkip;
 	identificationStep = 0;
 	
-	// set volume up to european default value
-	[[SFAudioSessionManager sharedManager] setHardwareOutputVolumeToRegionMaxValue];
+	// set volume up
+	float outputVolume;
+	id identification_volume = [[NSUserDefaults standardUserDefaults] objectForKey:@"identification_volume"];
+	if (identification_volume) outputVolume = [[NSUserDefaults standardUserDefaults] floatForKey:@"identification_volume"];
+	else outputVolume = [[SFAudioSessionManager sharedManager] currentRegionMaxVolume];
+	[[SFAudioSessionManager sharedManager] setHardwareOutputVolume:outputVolume];
+	
 	
 	// setup signal processor
 	self.signalProcessor.fftAnalyzer.meanSteps = kSFIdentificationMeanSteps;
@@ -161,8 +166,12 @@
 					if ([self.delegate respondsToSelector:@selector(identificatorDidRecognizeDeviceMicrophoneLevel:)])
 						[self.delegate identificatorDidRecognizeDeviceMicrophoneLevel:amplitude];
 					
-					// set volume back to logic max
-					[[SFAudioSessionManager sharedManager] setHardwareOutputVolumeToRegionMaxValue];
+					// set volume up
+					float outputVolume;
+					id identification_volume = [[NSUserDefaults standardUserDefaults] objectForKey:@"identification_volume"];
+					if (identification_volume) outputVolume = [[NSUserDefaults standardUserDefaults] floatForKey:@"identification_volume"];
+					else outputVolume = [[SFAudioSessionManager sharedManager] currentRegionMaxVolume];
+					[[SFAudioSessionManager sharedManager] setHardwareOutputVolume:outputVolume];
 					
 					/*
 					 
