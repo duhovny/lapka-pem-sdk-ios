@@ -83,7 +83,7 @@
 	identificationStep = 0;
 	
 	// set volume up to european default value
-	[[SFAudioSessionManager sharedManager] setHardwareOutputVolumeToRegionMaxValue];
+//	[[SFAudioSessionManager sharedManager] setHardwareOutputVolumeToRegionMaxValue];
 	
 	// setup signal processor
 	self.signalProcessor.fftAnalyzer.meanSteps = kSFIdentificationMeanSteps;
@@ -160,9 +160,6 @@
 					// tell delegate microphone level
 					if ([self.delegate respondsToSelector:@selector(identificatorDidRecognizeDeviceMicrophoneLevel:)])
 						[self.delegate identificatorDidRecognizeDeviceMicrophoneLevel:amplitude];
-					
-					// set volume back to logic max
-					[[SFAudioSessionManager sharedManager] setHardwareOutputVolumeToRegionMaxValue];
 					
 					/*
 					 
