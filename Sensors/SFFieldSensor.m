@@ -224,7 +224,6 @@
 			{
 				// last (not mean) amplitude value
 				float amplitude = self.signalProcessor.fftAnalyzer.amplitude;
-				NSLog(@"amplitude: %f", amplitude);
 				if (amplitude < _smallestLowFrequencyAmplitude)
 					_smallestLowFrequencyAmplitude = amplitude;
 				lowFrequencyField = [self calculateLowFrequencyFieldWithAmplitude:amplitude];
