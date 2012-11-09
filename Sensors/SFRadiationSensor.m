@@ -42,6 +42,7 @@
 	if ((self = [super initWithSignalProcessor:aSignalProcessor]))
 	{
 		self.impulseThreshold = kSFRadiationImpulseTreshold;
+		self.signalProcessor.frequency = kSFRadiationSensorFrequency;
 	}
 	return self;
 }
@@ -71,10 +72,14 @@
 	}
 	
 	// set volume up
-	[[SFAudioSessionManager sharedManager] setHardwareOutputVolumeToRegionMaxValue];
+	float outputVolume;
+	id radiation_volume = [[NSUserDefaults standardUserDefaults] objectForKey:@"radiation_volume"];
+	if (radiation_volume) outputVolume = [[NSUserDefaults standardUserDefaults] floatForKey:@"radiation_volume"];
+	else outputVolume = [[SFAudioSessionManager sharedManager] currentRegionMaxVolume];
+	[[SFAudioSessionManager sharedManager] setHardwareOutputVolume:outputVolume];
 	
 	// setup signal processor
-	self.signalProcessor.frequency = kSFRadiationSensorFrequency;
+//	self.signalProcessor.frequency = kSFRadiationSensorFrequency;
 	self.signalProcessor.leftAmplitude = kSFControlSignalBitOne;
 	self.signalProcessor.rightAmplitude = kSFControlSignalBitOne;
 	self.signalProcessor.impulseDetectorEnabled = YES;

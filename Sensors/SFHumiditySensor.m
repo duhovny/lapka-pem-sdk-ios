@@ -9,8 +9,9 @@
 
 #define kSFHumiditySensorResettingMeanSteps	   250	// 5 sec
 #define kSFHumiditySensorCalibratingMeanSteps	10	// 0.2 sec
-#define kSFHumiditySensorTemperatureMeanSteps  200	// 4 sec
-#define kSFHumiditySensorHumidityMeanSteps		50	// 1 sec
+#define kSFHumiditySensorFirstTemperatureMeanSteps  200	// 4 sec
+#define kSFHumiditySensorTemperatureMeanSteps   50	// 1.0 sec
+#define kSFHumiditySensorHumidityMeanSteps		50	// 1.0 sec
 
 #define kSFHumiditySensorDefaultK1	53.0
 #define kSFHumiditySensorDefaultK2	71.3
@@ -69,7 +70,11 @@
 	isOn = YES;
 	
 	// set volume up
-	[[SFAudioSessionManager sharedManager] setHardwareOutputVolumeToRegionMaxValue];
+	float outputVolume;
+	id humidity_volume = [[NSUserDefaults standardUserDefaults] objectForKey:@"humidity_volume"];
+	if (humidity_volume) outputVolume = [[NSUserDefaults standardUserDefaults] floatForKey:@"humidity_volume"];
+	else outputVolume = [[SFAudioSessionManager sharedManager] currentRegionMaxVolume];
+	[[SFAudioSessionManager sharedManager] setHardwareOutputVolume:outputVolume];
 	
 	// setup signal processor for resetting (00 signal)
 	self.signalProcessor.leftAmplitude = kSFControlSignalBitZero;
@@ -214,9 +219,39 @@
 			// setup for temperature (01 signal)
 			self.signalProcessor.leftAmplitude = kSFControlSignalBitZero;
 			self.signalProcessor.rightAmplitude = kSFControlSignalBitOne;
-			self.signalProcessor.fftAnalyzer.meanSteps = kSFHumiditySensorTemperatureMeanSteps;
+			self.signalProcessor.fftAnalyzer.meanSteps = kSFHumiditySensorFirstTemperatureMeanSteps;
 			
-			state = kSFHumiditySensorStateTemperatureMeasurement;
+			state = kSFHumiditySensorStateFirstTemperatureMeasurement;
+			
+			break;
+		}
+			
+		case kSFHumiditySensorStateFirstTemperatureMeasurement:
+		{
+			// for temparature let's take last (not mean) amplitude value
+			float amplitude = self.signalProcessor.fftAnalyzer.amplitude;
+			
+			// save temperature level
+			temperatureLevel = amplitude;
+			
+			NSLog(@"temperatureLevel: %f", temperatureLevel);
+			
+			// update temperature value
+			temperature = [self calculateTemparatureWithAmplitude:amplitude trace:NO];
+			
+			NSLog(@"temperature: %f", temperature);
+			
+			// tell delegate
+			if ([delegate respondsToSelector:@selector(humiditySensorDidUpdateTemperature:)])
+				[delegate humiditySensorDidUpdateTemperature:temperature];
+			
+			// setup for measure (11 signal)
+			self.signalProcessor.leftAmplitude = kSFControlSignalBitOne;
+			self.signalProcessor.rightAmplitude = kSFControlSignalBitOne;
+			self.signalProcessor.fftAnalyzer.meanSteps = kSFHumiditySensorHumidityMeanSteps;
+			
+			// go on
+			state = kSFHumiditySensorStateHumidityMeasurement;
 			
 			break;
 		}
@@ -246,26 +281,36 @@
 			self.signalProcessor.fftAnalyzer.meanSteps = kSFHumiditySensorHumidityMeanSteps;
 			
 			// go on
-			state = kSFHumiditySensorStateOn;
+			state = kSFHumiditySensorStateHumidityMeasurement;
 
 			break;
 		}
 			
-		case kSFHumiditySensorStateOn:
+		case kSFHumiditySensorStateHumidityMeasurement:
 		{
+			// for humidity let's take last (not mean) amplitude value
+			float amplitude = self.signalProcessor.fftAnalyzer.amplitude;
+			
 			// save humidity level
-			humidityLevel = meanAmplitude;
+			humidityLevel = amplitude;
 			
 //			NSLog(@"humidityLevel: %f", humidityLevel);
 			
 			// update humidity
-			humidity = [self calculateHumidityWithTemparature:temperature amplitude:meanAmplitude trace:NO];
+			humidity = [self calculateHumidityWithTemparature:temperature amplitude:amplitude trace:NO];
 			
 //			NSLog(@"humidity: %f", humidity);
 			
 			// tell delegate
 			if ([delegate respondsToSelector:@selector(humiditySensorDidUpdateMeanHumidity:)])
 				[delegate humiditySensorDidUpdateMeanHumidity:humidity];
+			
+			// setup for temperature (01 signal)
+			self.signalProcessor.leftAmplitude = kSFControlSignalBitZero;
+			self.signalProcessor.rightAmplitude = kSFControlSignalBitOne;
+			self.signalProcessor.fftAnalyzer.meanSteps = kSFHumiditySensorTemperatureMeanSteps;
+			
+			state = kSFHumiditySensorStateTemperatureMeasurement;
 			
 			break;
 		}
@@ -278,7 +323,7 @@
 
 - (void)signalProcessorDidUpdateAmplitude:(Float32)amplitude {
 	
-	if (state == kSFHumiditySensorStateOn) {
+	if (state == kSFHumiditySensorStateHumidityMeasurement) {
 		if ([delegate respondsToSelector:@selector(humiditySensorDidUpdateHumidity:)]) {
 			float currentHumidity = [self calculateHumidityWithTemparature:temperature amplitude:amplitude trace:NO];
 			[delegate humiditySensorDidUpdateHumidity:currentHumidity];

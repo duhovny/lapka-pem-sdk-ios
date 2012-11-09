@@ -79,13 +79,17 @@
 	}
 	
 	// set volume up
-	[[SFAudioSessionManager sharedManager] setHardwareOutputVolumeToRegionMaxValue];
+	float outputVolume;
+	id field_volume = [[NSUserDefaults standardUserDefaults] objectForKey:@"field_volume"];
+	if (field_volume) outputVolume = [[NSUserDefaults standardUserDefaults] floatForKey:@"field_volume"];
+	else outputVolume = [[SFAudioSessionManager sharedManager] currentRegionMaxVolume];
+	[[SFAudioSessionManager sharedManager] setHardwareOutputVolume:outputVolume];
 	
 	// setup signal processor according to state
 	self.signalProcessor.frequency = [self.signalProcessor optimizeFrequency:kSFFieldSensorFrequency];
 	if (self.dualMode) {
 		NSLog(@"SFieldSensor: dual mode");
-		_stepsToSkip = 30;
+//		_stepsToSkip = 30;
 		self.signalProcessor.fftAnalyzer.meanSteps = kSFFieldSensorDualModeMeanSteps;
 		[self setupSignalProcessorForLowFrequencyMeasure];
 		state = kSFFieldSensorStateLowFrequencyMeasurement;
@@ -131,7 +135,7 @@
 	
 	self.signalProcessor.leftAmplitude = kSFControlSignalBitOne;
 	self.signalProcessor.rightAmplitude = kSFControlSignalBitOne;
-	self.signalProcessor.fftAnalyzer.useSign = YES;
+	self.signalProcessor.fftAnalyzer.useSign = NO;
 }
 
 
@@ -151,7 +155,8 @@
 
 - (float)calculateLowFrequencyFieldWithAmplitude:(Float32)amplitude {
 	
-	float value = amplitude - _smallestLowFrequencyAmplitude;
+//	float value = amplitude - _smallestLowFrequencyAmplitude;
+	float value = amplitude;
 	return value;
 }
 

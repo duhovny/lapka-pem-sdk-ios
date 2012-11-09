@@ -43,6 +43,7 @@ typedef struct {
 @optional
 - (void)identificatorDidObtainSensorIdentificationFingerprint:(SFSensorIdentificationFingerprint)fingerprint;
 - (void)identificatorDidRecognizeDeviceVolumeLimitState:(BOOL)deviceVolumeIsLimited;
+- (void)identificatorDidRecognizeDeviceMicrophoneLevel:(float)microphoneLevel;
 @end
 
 

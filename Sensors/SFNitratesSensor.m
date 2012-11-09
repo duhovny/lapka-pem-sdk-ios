@@ -128,7 +128,11 @@
 	_nitrates = 0;
 	
 	// set volume up
-	[[SFAudioSessionManager sharedManager] setHardwareOutputVolumeToRegionMaxValue];
+	float outputVolume;
+	id nitrat_volume = [[NSUserDefaults standardUserDefaults] objectForKey:@"nitrat_volume"];
+	if (nitrat_volume) outputVolume = [[NSUserDefaults standardUserDefaults] floatForKey:@"nitrat_volume"];
+	else outputVolume = [[SFAudioSessionManager sharedManager] currentRegionMaxVolume];
+	[[SFAudioSessionManager sharedManager] setHardwareOutputVolume:outputVolume];
 	
 	[self setupForSafeDelay];
 	[self.signalProcessor start];

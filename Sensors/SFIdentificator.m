@@ -82,8 +82,13 @@
 	stepsToSkip = kSFIdentificationStepsToSkip;
 	identificationStep = 0;
 	
-	// set volume up to european default value
-	[[SFAudioSessionManager sharedManager] setHardwareOutputVolume:SFAudioSessionHardwareOutputVolumeDefaultMax];
+	// set volume up
+	float outputVolume;
+	id identification_volume = [[NSUserDefaults standardUserDefaults] objectForKey:@"identification_volume"];
+	if (identification_volume) outputVolume = [[NSUserDefaults standardUserDefaults] floatForKey:@"identification_volume"];
+	else outputVolume = [[SFAudioSessionManager sharedManager] currentRegionMaxVolume];
+	[[SFAudioSessionManager sharedManager] setHardwareOutputVolume:outputVolume];
+	
 	
 	// setup signal processor
 	self.signalProcessor.fftAnalyzer.meanSteps = kSFIdentificationMeanSteps;
@@ -157,6 +162,19 @@
 				stepsToSkip--;
 				if (stepsToSkip == 0) {
 					
+					// tell delegate microphone level
+					if ([self.delegate respondsToSelector:@selector(identificatorDidRecognizeDeviceMicrophoneLevel:)])
+						[self.delegate identificatorDidRecognizeDeviceMicrophoneLevel:amplitude];
+					
+					// set volume up
+					float outputVolume;
+					id identification_volume = [[NSUserDefaults standardUserDefaults] objectForKey:@"identification_volume"];
+					if (identification_volume) outputVolume = [[NSUserDefaults standardUserDefaults] floatForKey:@"identification_volume"];
+					else outputVolume = [[SFAudioSessionManager sharedManager] currentRegionMaxVolume];
+					[[SFAudioSessionManager sharedManager] setHardwareOutputVolume:outputVolume];
+					
+					/*
+					 
 					// check device volume limit
 					BOOL deviceVolumeIsLimited = (amplitude < deviceVolumeLimitThreshold);
 					
@@ -173,6 +191,8 @@
 					if ([self.delegate respondsToSelector:@selector(identificatorDidRecognizeDeviceVolumeLimitState:)])
 						[self.delegate identificatorDidRecognizeDeviceVolumeLimitState:deviceVolumeIsLimited];
 					NSLog(@"deviceVolumeIsLimited: %@", deviceVolumeIsLimited?@"YES":@"NO");
+					 
+					 */
 				}
 				return;
 			}
