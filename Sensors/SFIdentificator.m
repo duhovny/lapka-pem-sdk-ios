@@ -130,7 +130,7 @@
 	else if ( sid.bit00 && sid.bit01 && !sid.bit10 && !sid.bit11 )	// 1100 - Radiation
 		sensorType = SFSensorTypeRadiation;
 	
-	else if ( sid.bit00 && !sid.bit01 && !sid.bit10 && sid.bit11 )	// 1001 - Humidity
+	else if ( sid.bit00 && sid.bit01 && sid.bit10 && sid.bit11 )	// 1111 - Humidity
 		sensorType = SFSensorTypeHumidity;
 	
 	else if ( sid.bit00 && !sid.bit01 && sid.bit10 && !sid.bit11 )	// 1010 - Nitrates
