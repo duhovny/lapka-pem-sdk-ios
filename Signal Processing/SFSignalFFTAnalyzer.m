@@ -25,6 +25,10 @@
 		// Default
 		_useSign = NO;
 		_angleShift = 0;
+		_useZeroShift = NO;
+		
+		_realShift = 0;
+		_imagShift = 0;
 		
 		// Set the size of FFT.
 		n = numberOfFrames;
@@ -99,6 +103,11 @@
 	
 	double requiredReal = fft_complex_split.realp[required_bin];
 	double requiredImag = fft_complex_split.imagp[required_bin];
+	
+	if (_useZeroShift) {
+		requiredReal += _realShift;
+		requiredImag += _imagShift;
+	}
 	
 	_real = requiredReal;
 	_imag = requiredImag;

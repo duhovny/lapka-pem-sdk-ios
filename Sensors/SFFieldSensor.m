@@ -21,10 +21,15 @@
 	float _smallestLowFrequencyAmplitude;
 	float _smallestHighFrequencyAmplitude;
 	
-	// for LF field only
+	// FFT Sign (for LF field only)
 	BOOL _fftSignEnabled;
 	BOOL _fftSignVerified;
 	float _fftLFFieldAngle;
+	
+	// FFT Zero Shift (for LF field only)
+	BOOL _fftZeroShiftEnabled;
+	float _fftLFFieldReal;
+	float _fftLFFieldImag;
 }
 
 - (Float32)verifyFFTSignWithAmplitude:(Float32)amplitude;
@@ -132,6 +137,8 @@
 	_fftSignEnabled = NO;
 	_fftSignVerified = NO;
 	
+	_fftZeroShiftEnabled = NO;
+	
 	[super switchOff];
 }
 
@@ -147,6 +154,7 @@
 	self.signalProcessor.leftAmplitude = kSFControlSignalBitOne;
 	self.signalProcessor.rightAmplitude = kSFControlSignalBitOne;
 	self.signalProcessor.fftAnalyzer.useSign = _fftSignEnabled;
+	self.signalProcessor.fftAnalyzer.useZeroShift = _fftZeroShiftEnabled;
 }
 
 
@@ -155,6 +163,7 @@
 	self.signalProcessor.leftAmplitude = kSFControlSignalBitZero;
 	self.signalProcessor.rightAmplitude = kSFControlSignalBitOne;
 	self.signalProcessor.fftAnalyzer.useSign = NO;
+	self.signalProcessor.fftAnalyzer.useZeroShift = NO;
 }
 
 
@@ -162,6 +171,15 @@
 
 #pragma mark -
 #pragma mark FFT Sign
+
+
+- (void)enableFFTZeroShiftForLowFrequencyField {
+	
+	self.signalProcessor.fftAnalyzer.realShift -= _fftLFFieldReal;
+	self.signalProcessor.fftAnalyzer.imagShift -= _fftLFFieldImag;
+	
+	_fftZeroShiftEnabled = YES;
+}
 
 
 - (void)enableFFTSignForLowFrequencyField {
@@ -233,6 +251,8 @@
 			
 		case kSFFieldSensorStateLowFrequencyMeasurement:
 		{
+			_fftLFFieldReal = self.signalProcessor.fftAnalyzer.real;
+			_fftLFFieldImag = self.signalProcessor.fftAnalyzer.imag;
 			_fftLFFieldAngle = self.signalProcessor.fftAnalyzer.angle;
 			if (!_fftSignVerified)
 				amplitude = [self verifyFFTSignWithAmplitude:amplitude];
@@ -278,6 +298,8 @@
 			{
 				// last (not mean) amplitude value
 				float amplitude = self.signalProcessor.fftAnalyzer.amplitude;
+				_fftLFFieldReal = self.signalProcessor.fftAnalyzer.real;
+				_fftLFFieldImag = self.signalProcessor.fftAnalyzer.imag;
 				_fftLFFieldAngle = self.signalProcessor.fftAnalyzer.angle;
 				if (!_fftSignVerified)
 					amplitude = [self verifyFFTSignWithAmplitude:amplitude];
