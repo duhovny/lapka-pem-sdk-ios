@@ -95,7 +95,7 @@
 	
 	UInt32 required_bin = frequency * n / sampleRate;
 	
-	/* Sign */
+	/* FFT Parts */
 	
 	double requiredReal = fft_complex_split.realp[required_bin];
 	double requiredImag = fft_complex_split.imagp[required_bin];
@@ -103,18 +103,17 @@
 	_real = requiredReal;
 	_imag = requiredImag;
 	
-//	double requiredMax = requiredReal;
-//	int sign = _useSign ? 2*signbit(requiredMax) - 1 : 1;
+	/* Angle */
+	
+	float angleInRadians = atan2f(requiredReal,requiredImag);
+	_angle = angleInRadians / M_PI * 180;
+		
+	_angle += _angleShift;
+	_angle = (_angle < -180) ? 360+_angle : _angle;
+	_angle = (_angle >  180) ? _angle-360 : _angle;
 	
 	if (_useSign) {
-		float angleRad = atan2f(requiredReal,requiredImag);
-		float angle = angleRad / M_PI * 180;
-//		angle = (angle < 0) ? 360+angle : angle;
-		angle += _angleShift;
-		angle = (angle < -180) ? 360+angle : angle;
-		angle = (angle >  180) ? angle-360 : angle;
-		_angle = angle;
-		int sign = (ABS(angle) < 90) ? -1 : 1;
+		int sign = (ABS(_angle) < 90) ? -1 : 1;
 		amplitude = sign * sqrtf(requiredReal * requiredReal + requiredImag * requiredImag);
 	} else {
 		amplitude = sqrtf(requiredReal * requiredReal + requiredImag * requiredImag);
