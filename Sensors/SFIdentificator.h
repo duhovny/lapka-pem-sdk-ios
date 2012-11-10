@@ -6,8 +6,6 @@
 #import <Foundation/Foundation.h>
 #import "SFSignalProcessor.h"
 
-#define IDENTIFICATION_THIRD_BIT_AMPLITUDE_KEY @"identification_third_bit_amplitude_key"
-
 #define kSFIdentificationAmplitudeLeftBitOne	1.0
 #define kSFIdentificationAmplitudeRightBitOne	1.0
 #define kSFIdentificationAmplitudeLeftBitZero	0.2
