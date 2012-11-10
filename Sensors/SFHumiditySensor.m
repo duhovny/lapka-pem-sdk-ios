@@ -231,6 +231,10 @@
 			// for temparature let's take last (not mean) amplitude value
 			float amplitude = self.signalProcessor.fftAnalyzer.amplitude;
 			
+			// correct amplitude by subtract third bit identification amplitude
+			float identification_third_bit_amplitude = [[NSUserDefaults standardUserDefaults] floatForKey:IDENTIFICATION_THIRD_BIT_AMPLITUDE_KEY];
+			amplitude -= identification_third_bit_amplitude;
+			
 			// save temperature level
 			temperatureLevel = amplitude;
 			
@@ -260,6 +264,10 @@
 		{
 			// for temparature let's take last (not mean) amplitude value
 			float amplitude = self.signalProcessor.fftAnalyzer.amplitude;
+			
+			// correct amplitude by subtract third bit identification amplitude
+			float identification_third_bit_amplitude = [[NSUserDefaults standardUserDefaults] floatForKey:IDENTIFICATION_THIRD_BIT_AMPLITUDE_KEY];
+			amplitude -= identification_third_bit_amplitude;
 			
 			// save temperature level
 			temperatureLevel = amplitude;
