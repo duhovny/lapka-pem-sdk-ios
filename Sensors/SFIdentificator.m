@@ -294,10 +294,4 @@
 }
 
 
-- (void)saveThirdBitAmplitudeToUserDefaults:(float)amplitude {
-	
-	[[NSUserDefaults standardUserDefaults] setFloat:amplitude forKey:IDENTIFICATION_THIRD_BIT_AMPLITUDE_KEY];
-}
-
-
 @end
