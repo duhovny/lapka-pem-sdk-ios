@@ -89,7 +89,7 @@
 	self.signalProcessor.frequency = [self.signalProcessor optimizeFrequency:kSFFieldSensorFrequency];
 	if (self.dualMode) {
 		NSLog(@"SFieldSensor: dual mode");
-		_stepsToSkip = 30;
+//		_stepsToSkip = 30;
 		self.signalProcessor.fftAnalyzer.meanSteps = kSFFieldSensorDualModeMeanSteps;
 		[self setupSignalProcessorForLowFrequencyMeasure];
 		state = kSFFieldSensorStateLowFrequencyMeasurement;
@@ -135,7 +135,7 @@
 	
 	self.signalProcessor.leftAmplitude = kSFControlSignalBitOne;
 	self.signalProcessor.rightAmplitude = kSFControlSignalBitOne;
-	self.signalProcessor.fftAnalyzer.useSign = YES;
+	self.signalProcessor.fftAnalyzer.useSign = NO;
 }
 
 
@@ -229,7 +229,6 @@
 			{
 				// last (not mean) amplitude value
 				float amplitude = self.signalProcessor.fftAnalyzer.amplitude;
-				NSLog(@"amplitude: %f", amplitude);
 				if (amplitude < _smallestLowFrequencyAmplitude)
 					_smallestLowFrequencyAmplitude = amplitude;
 				lowFrequencyField = [self calculateLowFrequencyFieldWithAmplitude:amplitude];

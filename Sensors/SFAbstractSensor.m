@@ -11,6 +11,9 @@
 @synthesize delegate;
 
 
+#define VOLUME_ADJUST_LIMIT 0.07
+
+
 #pragma mark -
 #pragma mark Lifecycle
 
@@ -85,9 +88,13 @@
 	if (!self.isPluggedIn) return;
 	
 	SFAudioSessionManager *audioSessionManager = [SFAudioSessionManager sharedManager];
-	if (audioSessionManager.hardwareOutputVolume != audioSessionManager.currentRegionMaxVolume) {
-//		NSLog(@"adjust hardware volume");
-//		[audioSessionManager setHardwareOutputVolumeToRegionMaxValue];
+	if (audioSessionManager.audioRouteIsHeadsetInOut &&
+		audioSessionManager.hardwareOutputVolume != audioSessionManager.currentRegionMaxVolume) {
+		float step = audioSessionManager.currentRegionMaxVolume - audioSessionManager.hardwareOutputVolume;
+		if (step < VOLUME_ADJUST_LIMIT) {
+			NSLog(@"adjust hardware volume (from %0.2f to %0.2f with %0.4f step)", audioSessionManager.hardwareOutputVolume, audioSessionManager.currentRegionMaxVolume, step);
+			[audioSessionManager setHardwareOutputVolumeToRegionMaxValue];
+		}
 	}
 }
 
