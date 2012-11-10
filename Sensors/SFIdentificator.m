@@ -106,7 +106,9 @@
 - (void)identificationDidComplete {
 	
 	[self.signalProcessor stop];
-			
+	
+	
+	
 	if ([self.delegate respondsToSelector:@selector(identificatorDidObtainSensorIdentificationFingerprint:)])
 		[self.delegate identificatorDidObtainSensorIdentificationFingerprint:fingerprint];
 	
@@ -289,6 +291,12 @@
 	}
 	
 	return type;
+}
+
+
+- (void)saveThirdBitAmplitudeToUserDefaults:(float)amplitude {
+	
+	[[NSUserDefaults standardUserDefaults] setFloat:amplitude forKey:IDENTIFICATION_THIRD_BIT_AMPLITUDE_KEY];
 }
 
 
