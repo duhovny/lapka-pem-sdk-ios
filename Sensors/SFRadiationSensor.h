@@ -17,6 +17,7 @@ typedef enum {
 @optional
 - (void)radiationSensorDidUpdateMaxSignalAmplitude:(float)maxAmplitude;
 - (void)radiationSensorDidRecognizeImpulse:(float)impulseAmplitude;
+- (void)radiationSensorDidReceiveParticle;
 @end
 
 
