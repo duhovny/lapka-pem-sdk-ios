@@ -192,8 +192,8 @@
 		{
 			NSLog(@"Resetting done");
 			
-			// setup for calibrating (11 signal)
-			self.signalProcessor.leftAmplitude = kSFControlSignalBitOne;
+			// setup for calibrating (01 signal)
+			self.signalProcessor.leftAmplitude = kSFControlSignalBitZero;
 			self.signalProcessor.rightAmplitude = kSFControlSignalBitOne;
 			self.signalProcessor.fftAnalyzer.meanSteps = kSFHumiditySensorCalibratingMeanSteps;
 			
