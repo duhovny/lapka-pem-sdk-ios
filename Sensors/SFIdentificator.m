@@ -124,13 +124,13 @@
 	
 	SFSensorType sensorType = SFSensorTypeUnknown;
 	
-	if ( sid.bit00 && !sid.bit01 && sid.bit10 && sid.bit11 )		// 1011 - Fields
+	if ( sid.bit00 && sid.bit01 && sid.bit10 && sid.bit11 )			// 1111 - Fields
 		sensorType = SFSensorTypeFields;
 	
 	else if ( sid.bit00 && sid.bit01 && !sid.bit10 && !sid.bit11 )	// 1100 - Radiation
 		sensorType = SFSensorTypeRadiation;
 	
-	else if ( sid.bit00 && sid.bit01 && sid.bit10 && sid.bit11 )	// 1111 - Humidity
+	else if ( sid.bit00 && !sid.bit01 && sid.bit10 && sid.bit11 )	// 1011 - Humidity
 		sensorType = SFSensorTypeHumidity;
 	
 	else if ( sid.bit00 && !sid.bit01 && sid.bit10 && !sid.bit11 )	// 1010 - Nitrates
