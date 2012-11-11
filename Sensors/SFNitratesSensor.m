@@ -211,14 +211,8 @@
 	float N = (1 - 0.01 * (20 - T)) * K1 * (U2 - U3 - K4) / U3;
 	
 	// limit to (0..5000)
-	N = MAX(N, 0);
-	N = MIN(N, 5000);
-	
-//	NSLog(@"-------------------");
-//	NSLog(@"calibration level: %f", _calibration_level);
-//	NSLog(@"nitrates level: %f", _nitrates_level);
-//	NSLog(@"nitrates: %f", N);
-//	NSLog(@"-------------------");
+//	N = MAX(N, 0);
+//	N = MIN(N, 5000);
 	
 	return N;
 }
