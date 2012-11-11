@@ -14,10 +14,10 @@
 #define kSFHumiditySensorTemperatureMeanSteps   50	// 1.0 sec
 #define kSFHumiditySensorHumidityMeanSteps		50	// 1.0 sec
 
-#define kSFHumiditySensorDefaultK1	53.0
-#define kSFHumiditySensorDefaultK2	71.3
-#define kSFHumiditySensorDefaultK3	0.073
-#define kSFHumiditySensorDefaultK4	0.161
+#define kSFHumiditySensorDefaultK1	103.0
+#define kSFHumiditySensorDefaultK2	 68.0
+#define kSFHumiditySensorDefaultK3	0.321
+#define kSFHumiditySensorDefaultK4	0.660
 
 
 @implementation SFHumiditySensor
