@@ -9,6 +9,7 @@
 
 #define kSFHumiditySensorResettingMeanSteps	   250	// 5 sec
 #define kSFHumiditySensorCalibratingMeanSteps	10	// 0.2 sec
+#define kSFHumiditySensorSecondResettingMeanSteps	25	// 0.5 sec
 #define kSFHumiditySensorFirstTemperatureMeanSteps  200	// 4 sec
 #define kSFHumiditySensorTemperatureMeanSteps   50	// 1.0 sec
 #define kSFHumiditySensorHumidityMeanSteps		50	// 1.0 sec
@@ -27,6 +28,7 @@
 @synthesize humidity;
 @synthesize temperature;
 @synthesize calibratingLevel;
+@synthesize secondCalibratingLevel;
 @synthesize temperatureLevel;
 @synthesize humidityLevel;
 
@@ -118,11 +120,6 @@
 	
 	Float32 T = K2 - K1 * (U2/U1);
 	
-	if (trace) {
-		NSLog(@"Calculate temparature: Т = (U2/U1)K1 – K2");
-		NSLog(@"%f = (%f/%f)%f – %f", T, U2, U1, K1, K2);
-	}
-	
 	return T;
 }
 
@@ -133,12 +130,12 @@
 	// where U3 is humidity level
 	// K3, K4 – coefficients
 	
-	Float32 U1 = calibratingLevel;
 	Float32 U3 = amplitude;
+	Float32 U4 = secondCalibratingLevel;
 	Float32 K3 = self.K3;
 	Float32 K4 = self.K4;
 	
-	Float32 h = (U3 / (4 * U1) - K3) / K4 * 100;
+	Float32 h = (U3 / U4 - K3) / K4 * 100;
 	
 	// temperature correction:
 	// H  =  h/(1.0546 – 0.00216T)
@@ -147,16 +144,6 @@
 	
 	Float32 T = withTemperature;
 	Float32 H = h/(1.0546 - 0.00216 * T);
-	
-	if (trace) {
-		NSLog(@"---");
-		
-		NSLog(@"Calculate humidity: h = (U3 – K3) / К4 х 100");
-		NSLog(@"%f = (%f – %0.3f) / %0.3f х 100", h, U3, K3, K4);
-		
-		NSLog(@"temperature correction: H  =  h/(1.0546 – 0.00216 x T)");
-		NSLog(@"%f  =  %f/(1.0546 – 0.00216 x %0.1f)", H, h, T);
-	}
 	
 	return H;
 }
@@ -215,6 +202,42 @@
 			// tell delegate
 			if ([delegate respondsToSelector:@selector(humiditySensorDidUpdateCalibratingLevel:)])
 				[delegate humiditySensorDidUpdateCalibratingLevel:calibratingLevel];
+			
+			// setup for second resetting (00 signal)
+			self.signalProcessor.leftAmplitude = kSFControlSignalBitZero;
+			self.signalProcessor.rightAmplitude = kSFControlSignalBitZero;
+			self.signalProcessor.fftAnalyzer.meanSteps = kSFHumiditySensorSecondResettingMeanSteps;
+			
+			state = kSFHumiditySensorStateSecondResetting;
+			
+			break;
+		}
+			
+		case kSFHumiditySensorStateSecondResetting:
+		{	
+			// setup for second calibrating (11 signal)
+			self.signalProcessor.leftAmplitude = kSFControlSignalBitOne;
+			self.signalProcessor.rightAmplitude = kSFControlSignalBitOne;
+			self.signalProcessor.fftAnalyzer.meanSteps = kSFHumiditySensorCalibratingMeanSteps;
+			
+			state = kSFHumiditySensorStateSecondCalibrateMeasurement;
+			
+			break;
+		}
+			
+		case kSFHumiditySensorStateSecondCalibrateMeasurement:
+		{
+			// for calibrating let's take last (not mean) amplitude value
+			float amplitude = self.signalProcessor.fftAnalyzer.amplitude;
+			
+			// save calibrating level
+			secondCalibratingLevel = amplitude;
+			
+			NSLog(@"secondCalibratingLevel: %f", secondCalibratingLevel);
+			
+			// tell delegate
+			if ([delegate respondsToSelector:@selector(humiditySensorDidUpdateSecondCalibratingLevel:)])
+				[delegate humiditySensorDidUpdateSecondCalibratingLevel:secondCalibratingLevel];
 			
 			// setup for temperature (01 signal)
 			self.signalProcessor.leftAmplitude = kSFControlSignalBitZero;

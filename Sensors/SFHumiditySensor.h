@@ -9,6 +9,8 @@ typedef enum {
 	kSFHumiditySensorStateOff = 0,
 	kSFHumiditySensorStateResetting,
 	kSFHumiditySensorStateCalibrateMeasurement,
+	kSFHumiditySensorStateSecondResetting,
+	kSFHumiditySensorStateSecondCalibrateMeasurement,
 	kSFHumiditySensorStateFirstTemperatureMeasurement,
 	kSFHumiditySensorStateHumidityMeasurement,
 	kSFHumiditySensorStateTemperatureMeasurement
@@ -18,6 +20,7 @@ typedef enum {
 @optional
 - (void)humiditySensorDidUpdateTemperature:(float)temperature;
 - (void)humiditySensorDidUpdateCalibratingLevel:(float)calibratingLevel;
+- (void)humiditySensorDidUpdateSecondCalibratingLevel:(float)secondCalibratingLevel;
 - (void)humiditySensorDidUpdateMeanHumidity:(float)meanHumidity;
 - (void)humiditySensorDidUpdateHumidity:(float)humidity;
 @end
@@ -33,6 +36,7 @@ typedef enum {
 
 // unmodified signal levels
 @property (nonatomic, readonly) float calibratingLevel;
+@property (nonatomic, readonly) float secondCalibratingLevel;
 @property (nonatomic, readonly) float temperatureLevel;
 @property (nonatomic, readonly) float humidityLevel;
 
