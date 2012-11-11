@@ -15,10 +15,10 @@
 
 #define kSFNitratesSensorSignalToNitratesCoef		395.37
 
-#define kSFNitratesSensorDefaultK1 306.0
-#define kSFNitratesSensorDefaultK2 209.0
-#define kSFNitratesSensorDefaultK3 111.0
-#define kSFNitratesSensorDefaultK4 0.071
+#define kSFNitratesSensorDefaultK1  26.0
+#define kSFNitratesSensorDefaultK2 205.0
+#define kSFNitratesSensorDefaultK3 118.0
+#define kSFNitratesSensorDefaultK4 0.012
 
 
 
