@@ -15,6 +15,8 @@
 	int identificationStep;
 	int stepsToSkip;
 	BOOL identificationIsInProcess;
+	BOOL repeatIdetificationOnEUVolume;
+	SFSensorType rememberedSensorTypeUntilEUSwitchPermissionGranted;
 }
 
 @property (nonatomic, assign) SFSensorID sensorID;
@@ -82,8 +84,21 @@
 	stepsToSkip = kSFIdentificationStepsToSkip;
 	identificationStep = 0;
 	
-	// set volume up to european default value
-//	[[SFAudioSessionManager sharedManager] setHardwareOutputVolumeToRegionMaxValue];
+	// get european_preference
+	id european_preference = [[NSUserDefaults standardUserDefaults] objectForKey:@"european_preference"];
+	if (european_preference) {
+		// if it was already defined – set prefered volume
+		[[SFAudioSessionManager sharedManager] setHardwareOutputVolumeToRegionMaxValue];
+		NSLog(@"european_preference defined, set volume to: %g", [[SFAudioSessionManager sharedManager] hardwareOutputVolume]);
+		BOOL deviceVolumeLimited = [[NSUserDefaults standardUserDefaults] boolForKey:@"european_preference"];
+		if ([self.delegate respondsToSelector:@selector(identificatorDidRecognizeDeviceVolumeLimitState:)])
+			[self.delegate identificatorDidRecognizeDeviceVolumeLimitState:deviceVolumeLimited];
+	} else {
+		// if it wasn't defined yet — set volume depends on identification mode (normal or repeat_on_eu_level)
+		float outputVolume = (repeatIdetificationOnEUVolume) ? SFAudioSessionHardwareOutputVolumeEuropeanMax : SFAudioSessionHardwareOutputVolumeDefaultMax;
+		[[SFAudioSessionManager sharedManager] setHardwareOutputVolume:outputVolume];
+		NSLog(@"european_preference not defined, set volume to: %g", outputVolume);
+	}
 	
 	// setup signal processor
 	self.signalProcessor.fftAnalyzer.meanSteps = kSFIdentificationMeanSteps;
@@ -107,16 +122,57 @@
 	
 	[self.signalProcessor stop];
 	
-	
-	
 	if ([self.delegate respondsToSelector:@selector(identificatorDidObtainSensorIdentificationFingerprint:)])
 		[self.delegate identificatorDidObtainSensorIdentificationFingerprint:fingerprint];
 	
 	SFSensorType sensorType = [self convertSensorIDtoSensorType:sensorID];
+	
+	if (sensorType != SFSensorTypeUnknown) {
+		// if known sensor detected
+		if (repeatIdetificationOnEUVolume) {
+			repeatIdetificationOnEUVolume = NO;
+			if ([self.delegate respondsToSelector:@selector(identificatorAskToGrantPermissionToSwitchToEU)]) {
+				rememberedSensorTypeUntilEUSwitchPermissionGranted = sensorType;
+				[self.delegate identificatorAskToGrantPermissionToSwitchToEU];
+				return;
+			} else {
+				NSLog(@"Warning: Lapka sensor detected in EU mode, but we can't switch to EU because delegate doesn't response to identificatorAskToGrantPermissionToSwitchToEU method which is required if you plan to use Lapka with EU devices.");
+				[self.delegate identificatorDidRecognizeSensor:SFSensorTypeUnknown];
+				identificationIsInProcess = NO;
+				return;
+			}
+		} else {
+			id european_preference = [[NSUserDefaults standardUserDefaults] objectForKey:@"european_preference"];
+			if (!european_preference) {
+				// this is US device, set preference
+				NSLog(@"this is US device, set preference");
+				[[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"european_preference"];
+				if ([self.delegate respondsToSelector:@selector(identificatorDidRecognizeDeviceVolumeLimitState:)])
+					[self.delegate identificatorDidRecognizeDeviceVolumeLimitState:NO];
+			}
+			NSLog(@"Identification complete: %@", [SFIdentificator sensorTypeToString:sensorType]);
+			[self.delegate identificatorDidRecognizeSensor:sensorType];
+			identificationIsInProcess = NO;
+			return;
+		}
+	}
+	
+	id european_preference = [[NSUserDefaults standardUserDefaults] objectForKey:@"european_preference"];
+	if (!repeatIdetificationOnEUVolume && !european_preference && [self sidlooksLikeDeviceIsEuropean:sensorID]) {
+		NSLog(@"SID looks like device is European, so repeat on EU level");
+		repeatIdetificationOnEUVolume = YES;
+		// restart identification
+		[self.signalProcessor stop];
+		identificationIsInProcess = NO;
+		[self identificate];
+		return;
+	}
+	
 	NSLog(@"Identification complete: %@", [SFIdentificator sensorTypeToString:sensorType]);
 	[self.delegate identificatorDidRecognizeSensor:sensorType];
 	
 	identificationIsInProcess = NO;
+	repeatIdetificationOnEUVolume = NO;
 }
 
 
@@ -124,7 +180,7 @@
 	
 	SFSensorType sensorType = SFSensorTypeUnknown;
 	
-	if ( sid.bit00 && sid.bit01 && sid.bit10 && sid.bit11 )			// 1111 - Fields
+	if ( sid.bit00 && sid.bit01 && sid.bit10 && !sid.bit11 )		// 1110 - Fields
 		sensorType = SFSensorTypeFields;
 	
 	else if ( sid.bit00 && sid.bit01 && !sid.bit10 && !sid.bit11 )	// 1100 - Radiation
@@ -139,6 +195,52 @@
 	else NSLog(@"SIdentificator: warning, can't identify sid %d%d%d%d", sid.bit00, sid.bit01, sid.bit10, sid.bit11);
 	
 	return sensorType;
+}
+
+
+- (void)handleFirstBitEqualZero {
+	
+	// first bit equal zero means this is not Lapka device, so tell delegate
+	if ([self.delegate respondsToSelector:@selector(identificatorDidRecognizeNotLapkaBeingPluggedIn)])
+		[self.delegate identificatorDidRecognizeNotLapkaBeingPluggedIn];
+}
+
+
+- (BOOL)sidlooksLikeDeviceIsEuropean:(SFSensorID)sid {
+	
+	BOOL looksLike = NO;
+	
+	if ( sid.bit00 && sid.bit01 && sid.bit10 && sid.bit11 )			// 1111 - Lapka unswer in US mode on EU device
+		looksLike = YES;
+	
+	return looksLike;
+}
+
+
+#pragma mark -
+#pragma mark Granted Switch To EU
+
+
+- (void)userGrantedPermissionToSwitchToEU {
+	
+	NSLog(@"User granted permission to switch to EU");
+	
+	[self.delegate identificatorDidRecognizeSensor:rememberedSensorTypeUntilEUSwitchPermissionGranted];
+	identificationIsInProcess = NO;
+	[[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"european_preference"];
+	NSLog(@"this is EU device, set preference");
+	
+	if ([self.delegate respondsToSelector:@selector(identificatorDidRecognizeDeviceVolumeLimitState:)])
+		[self.delegate identificatorDidRecognizeDeviceVolumeLimitState:YES];
+}
+
+
+- (void)userProhibitedPermissionToSwitchToEU {
+	
+	NSLog(@"User prohibited permission to switch to EU");
+	
+	rememberedSensorTypeUntilEUSwitchPermissionGranted = SFSensorTypeUnknown;
+	identificationIsInProcess = NO;
 }
 
 
@@ -159,30 +261,15 @@
 				stepsToSkip--;
 				if (stepsToSkip == 0) {
 					
+					// set identification threshold to one third of microphone level
+					identificationThreshold = amplitude * 1.0 / 3.0;
+					
+					NSLog(@"set identification threshold to half of microphone level: %g", identificationThreshold);
+					
 					// tell delegate microphone level
 					if ([self.delegate respondsToSelector:@selector(identificatorDidRecognizeDeviceMicrophoneLevel:)])
 						[self.delegate identificatorDidRecognizeDeviceMicrophoneLevel:amplitude];
 					
-					/*
-					 
-					// check device volume limit
-					BOOL deviceVolumeIsLimited = (amplitude < deviceVolumeLimitThreshold);
-					
-					// update system preferences if user agreed
-					BOOL canSetRegionAutomatically = [[NSUserDefaults standardUserDefaults] boolForKey:@"set_region_automatically_preference"];
-					if (canSetRegionAutomatically) {
-						[[NSUserDefaults standardUserDefaults] setBool:deviceVolumeIsLimited forKey:@"european_preference"];
-					}
-					
-					// set volume back to logic max
-					[[SFAudioSessionManager sharedManager] setHardwareOutputVolumeToRegionMaxValue];
-					
-					// tell delegate
-					if ([self.delegate respondsToSelector:@selector(identificatorDidRecognizeDeviceVolumeLimitState:)])
-						[self.delegate identificatorDidRecognizeDeviceVolumeLimitState:deviceVolumeIsLimited];
-					NSLog(@"deviceVolumeIsLimited: %@", deviceVolumeIsLimited?@"YES":@"NO");
-					 
-					 */
 				}
 				return;
 			}
@@ -196,6 +283,7 @@
 					NSLog(@"Measure 00 bit: %d", bit?1:0);
 					sensorID.bit00 = bit;
 					fingerprint.amplitude00 = amplitude;
+					if (bit == 0) [self handleFirstBitEqualZero];
 					// 01 setup
 					self.signalProcessor.rightAmplitude = kSFIdentificationAmplitudeRightBitZero;
 					self.signalProcessor.leftAmplitude = kSFIdentificationAmplitudeLeftBitOne;
@@ -231,6 +319,7 @@
 					fingerprint.amplitude11 = amplitude;
 					// done
 					[self identificationDidComplete];
+					return;
 					break;
 				}
 					
