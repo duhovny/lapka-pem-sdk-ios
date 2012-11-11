@@ -32,7 +32,6 @@
 
 @implementation SFIdentificator
 
-@synthesize deviceVolumeLimitThreshold;
 @synthesize identificationThreshold;
 @synthesize signalProcessor;
 @synthesize fingerprint;
@@ -55,7 +54,6 @@
 		
 		// default values
 		identificationThreshold = SFSensorIdentificationThreshold;
-		deviceVolumeLimitThreshold = SFDeviceVolumeLimitThreshold;
 		
 	}
 	return self;

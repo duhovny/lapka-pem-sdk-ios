@@ -12,7 +12,6 @@
 #define kSFIdentificationAmplitudeRightBitZero	0.0
 
 #define SFSensorIdentificationThreshold	 0.08
-#define SFDeviceVolumeLimitThreshold	 0.15
 
 
 typedef enum {
@@ -54,7 +53,6 @@ typedef struct {
 @property (atomic, retain) SFSignalProcessor *signalProcessor;
 @property (nonatomic, assign) NSObject <SFIdentificatorDelegate> *delegate;
 @property (nonatomic, assign) float identificationThreshold;
-@property (nonatomic, assign) float deviceVolumeLimitThreshold;
 
 - (void)identificate;
 - (void)abortIdentification;
