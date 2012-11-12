@@ -15,6 +15,7 @@
 #define kSFRadiationSensorSafeStartTime	1.0
 #define kSFRadiationParticlesPerMinuteToMicrosievertsPerHourCoef 0.04
 #define kSFRadiationParticlesPerMinuteToMicrorentgensPerHourCoef 4.0
+#define SFRadiationSensorMeanAmplitudeToImpulseTresholdCoef 4.0
 
 
 @implementation SFRadiationSensor
@@ -213,6 +214,31 @@
 //			NSLog(@"max: %f", maxAmplitude);
 			if ([self.delegate respondsToSelector:@selector(radiationSensorDidUpdateMaxSignalAmplitude:)])
 				[self.delegate radiationSensorDidUpdateMaxSignalAmplitude:maxAmplitude];
+			
+			break;
+		}
+			
+		default:
+			break;
+	}
+}
+
+
+- (void)signalProcessorDidUpdateMeanAmplitude:(Float32)meanAmplitude {
+	
+	switch (state) {
+			
+		case kSFRadiationSensorStateOff:
+			NSLog(@"Warning: SFRadiationSensor get something when off.");
+			break;
+			
+		case kSFRadiationSensorStateOn:
+		{	
+			impulseThreshold = meanAmplitude * SFRadiationSensorMeanAmplitudeToImpulseTresholdCoef;
+			self.signalProcessor.impulseDetector.threshold = impulseThreshold;
+			
+			if ([self.delegate respondsToSelector:@selector(radiationSensorDidUpdateImpulseTreshold:)])
+				[self.delegate radiationSensorDidUpdateImpulseTreshold:impulseThreshold];
 			
 			break;
 		}

@@ -15,8 +15,8 @@
 - (id)initWithNumberOfFrames:(UInt32)numberOfFrames {
 	if ((self = [super init])) {
 		
-		// Set the size of FFT.
 		n = numberOfFrames;
+		_absoluteData = (Float32 *)malloc(n * sizeof(Float32));
 		
 		self.threshold = kSFSignalImpulseDetectorDefaultThreshold;
 	}
@@ -25,6 +25,7 @@
 
 
 - (void)dealloc {
+	free(_absoluteData);
 }
 
 
@@ -35,7 +36,17 @@
 - (void)processImpulseDetectionWithData:(Float32 *)data {
 
 	vDSP_Stride stride = 1;
+	Float32 mean;
 	Float32 max;
+	
+	// calculate absolute vector of vector
+	vDSP_vabs(data, stride, _absoluteData, stride, n);
+	
+	// calculate mean value of absolute vector
+	// that is mean signal amplitude level
+	vDSP_meanv(_absoluteData, stride, &mean, n);
+	
+	[delegate impulseDetectorDidUpdateMeanAmplitude:mean];
 	
 	// calculate maximum value of vector
 	// that is maximum amplitude of signal

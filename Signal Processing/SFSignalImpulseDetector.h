@@ -9,11 +9,13 @@
 @protocol SFSignalImpulseDetectorDelegate <NSObject>
 - (void)impulseDetectorDidDetectImpulse;
 - (void)impulseDetectorDidUpdateMaxAmplitude:(Float32)maxAmplitude;
+- (void)impulseDetectorDidUpdateMeanAmplitude:(Float32)meanAmplitude;
 @end
 
 @interface SFSignalImpulseDetector : NSObject {
 	
 	uint32_t n;
+	Float32 *_absoluteData;
 }
 
 @property (nonatomic, assign) NSObject <SFSignalImpulseDetectorDelegate> *delegate;

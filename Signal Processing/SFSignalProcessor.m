@@ -345,6 +345,13 @@ OSStatus RenderAudio(
 #pragma mark SSignalImpulseDetectorDelegate
 
 
+- (void)impulseDetectorDidUpdateMeanAmplitude:(Float32)meanAmplitude {
+	
+	if ([delegate respondsToSelector:@selector(signalProcessorDidUpdateMeanAmplitude:)])
+		[delegate signalProcessorDidUpdateMeanAmplitude:meanAmplitude];
+}
+
+
 - (void)impulseDetectorDidUpdateMaxAmplitude:(Float32)maxAmplitude {
 	
 	if ([delegate respondsToSelector:@selector(signalProcessorDidUpdateMaxAmplitude:)])
