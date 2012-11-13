@@ -8,7 +8,7 @@
 #import "SFAudioSessionManager.h"
 #import "SFIdentificator.h"
 
-#define kSFRadiationSensorFrequency		20000
+#define kSFRadiationSensorFrequency		19000
 #define kSFRadiationSensorAmplitude		1.0
 #define kSFRadiationSensorMeanSteps		50
 #define kSFRadiationImpulseTreshold		0.3
