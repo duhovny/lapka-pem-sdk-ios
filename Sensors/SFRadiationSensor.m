@@ -198,6 +198,9 @@
 	
 	if ([self.delegate respondsToSelector:@selector(radiationSensorDidRecognizeImpulse:)])
 		[self.delegate radiationSensorDidRecognizeImpulse:self.signalProcessor.impulseDetector.impulseAmplitude];
+	
+	if ([self.delegate respondsToSelector:@selector(radiationSensorDidReceiveParticle)])
+		[self.delegate radiationSensorDidReceiveParticle];
 }
 
 
