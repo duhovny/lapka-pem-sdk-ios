@@ -20,4 +20,13 @@
 }
 
 
++ (float)celsiusFromFahrenheit:(float)fahrenheit {
+	
+	// convertion formula: (°F  -  32)  x  5/9 = °C
+	// source: http://www.manuelsweb.com/temp.htm
+	
+	return (fahrenheit - 32.0) * 5.0 / 9.0;
+}
+
+
 @end
