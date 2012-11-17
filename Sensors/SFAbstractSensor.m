@@ -92,8 +92,8 @@
 		audioSessionManager.hardwareOutputVolume != audioSessionManager.currentRegionMaxVolume) {
 		float step = audioSessionManager.currentRegionMaxVolume - audioSessionManager.hardwareOutputVolume;
 		if (step < VOLUME_ADJUST_LIMIT) {
-//			NSLog(@"adjust hardware volume (from %0.2f to %0.2f with %0.4f step)", audioSessionManager.hardwareOutputVolume, audioSessionManager.currentRegionMaxVolume, step);
-//			[audioSessionManager setHardwareOutputVolumeToRegionMaxValue];
+			NSLog(@"adjust hardware volume (from %0.2f to %0.2f with %0.4f step)", audioSessionManager.hardwareOutputVolume, audioSessionManager.currentRegionMaxVolume, step);
+			[audioSessionManager setHardwareOutputVolumeToRegionMaxValue];
 		}
 	}
 }
