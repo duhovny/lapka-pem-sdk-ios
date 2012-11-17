@@ -111,6 +111,8 @@
 
 - (void)abortIdentification {
 	
+	NSLog(@"abortIdentification");
+	
 	[self.signalProcessor stop];
 	identificationIsInProcess = NO;
 }
