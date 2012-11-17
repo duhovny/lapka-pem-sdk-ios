@@ -262,8 +262,6 @@
 			// update temperature value
 			temperature = [self calculateTemparatureWithAmplitude:amplitude trace:NO];
 			
-			NSLog(@"temperature: %f", temperature);
-			
 			// tell delegate
 			if ([delegate respondsToSelector:@selector(humiditySensorDidUpdateTemperature:)])
 				[delegate humiditySensorDidUpdateTemperature:temperature];
@@ -287,12 +285,8 @@
 			// save temperature level
 			temperatureLevel = amplitude;
 			
-			NSLog(@"temperatureLevel: %f", temperatureLevel);
-			
 			// update temperature value
 			temperature = [self calculateTemparatureWithAmplitude:amplitude trace:NO];
-			
-			NSLog(@"temperature: %f", temperature);
 			
 			// tell delegate
 			if ([delegate respondsToSelector:@selector(humiditySensorDidUpdateTemperature:)])
@@ -317,12 +311,8 @@
 			// save humidity level
 			humidityLevel = amplitude;
 			
-//			NSLog(@"humidityLevel: %f", humidityLevel);
-			
 			// update humidity
 			humidity = [self calculateHumidityWithTemparature:temperature amplitude:amplitude trace:NO];
-			
-//			NSLog(@"humidity: %f", humidity);
 			
 			// tell delegate
 			if ([delegate respondsToSelector:@selector(humiditySensorDidUpdateMeanHumidity:)])

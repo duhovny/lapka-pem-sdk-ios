@@ -28,7 +28,6 @@
 @synthesize time;
 @synthesize particles;
 @synthesize impulseThreshold;
-@synthesize useSievert;
 
 
 
@@ -148,7 +147,7 @@
 - (double)radiationLevel {
 	
 	float level;
-	if (useSievert) {
+	if (_useSievert) {
 		float microsievertsPerHour = [self convertParticlesPerMinutesToMicrosievertsPerHour:self.particlesPerMinute];
 		level = microsievertsPerHour;
 	} else {
