@@ -10,4 +10,5 @@
 
 @interface SFUtilities : NSObject
 + (float)fahrenheitFromCelsius:(float)celsius;
++ (float)celsiusFromFahrenheit:(float)fahrenheit;
 @end
