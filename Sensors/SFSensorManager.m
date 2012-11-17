@@ -13,6 +13,7 @@ NSString *const SFSensorManagerWillStartSensorIdentification = @"SFSensorManager
 NSString *const SFSensorManagerDidFinishSensorIdentification = @"SFSensorManagerDidFinishSensorIdentification";
 NSString *const SFSensorManagerDidRecognizeSensorPluggedInNotification = @"SFSensorManagerDidRecognizeSensorPluggedInNotification";
 NSString *const SFSensorManagerDidRecognizeSensorPluggedOutNotification = @"SFSensorManagerDidRecognizeSensorPluggedOutNotification";
+NSString *const SFSensorManagerNeedUserPermissionToSwitchToEU = @"SFSensorManagerNeedUserPermissionToSwitchToEU";
 
 
 @interface SFSensorManager () <SFIdentificatorDelegate>
@@ -94,6 +95,22 @@ NSString *const SFSensorManagerDidRecognizeSensorPluggedOutNotification = @"SFSe
 
 
 #pragma mark -
+#pragma mark EU Switch Permission
+
+
+- (void)userGrantedPermissionToSwitchToEU {
+	
+	[identificator userGrantedPermissionToSwitchToEU];
+}
+
+
+- (void)userProhibitedPermissionToSwitchToEU {
+	
+	[identificator userProhibitedPermissionToSwitchToEU];
+}
+
+
+#pragma mark -
 #pragma mark Identificator Delegate
 
 
@@ -109,6 +126,19 @@ NSString *const SFSensorManagerDidRecognizeSensorPluggedOutNotification = @"SFSe
 	} else {
 		[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorManagerDidRecognizeSensorPluggedInNotification object:nil];
 	}
+}
+
+
+- (void)identificatorDidRecognizeNotLapkaBeingPluggedIn {
+	
+	NSLog(@"identificatorDidRecognizeNotLapkaBeingPluggedIn");
+	[identificator abortIdentification];
+}
+
+
+- (void)identificatorAskToGrantPermissionToSwitchToEU {
+	
+	[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorManagerNeedUserPermissionToSwitchToEU object:nil];
 }
 
 

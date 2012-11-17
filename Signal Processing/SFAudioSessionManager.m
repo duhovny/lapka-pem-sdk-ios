@@ -185,6 +185,8 @@ void propListener(	void *                  inClientData,
 	hardwareOutputVolume = value > 1.0 ? 1.0 : value;
 	hardwareOutputVolume = value < 0.0 ? 0.0 : value;
 	
+	NSLog(@"setHardwareOutputVolume: %0.3f", hardwareOutputVolume);
+	
 	MPMusicPlayerController *musicPlayer = [MPMusicPlayerController iPodMusicPlayer];
 	musicPlayer.volume = hardwareOutputVolume;
 }

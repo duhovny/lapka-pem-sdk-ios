@@ -12,6 +12,7 @@ extern NSString *const SFSensorManagerWillStartSensorIdentification;
 extern NSString *const SFSensorManagerDidFinishSensorIdentification;
 extern NSString *const SFSensorManagerDidRecognizeSensorPluggedInNotification;
 extern NSString *const SFSensorManagerDidRecognizeSensorPluggedOutNotification;
+extern NSString *const SFSensorManagerNeedUserPermissionToSwitchToEU;
 
 
 @interface SFSensorManager : NSObject
@@ -26,5 +27,12 @@ extern NSString *const SFSensorManagerDidRecognizeSensorPluggedOutNotification;
  * on launch, on coming back from background, etc
  */
 - (void)updateCurrentState;
+
+/*
+ * use this methods to confirm user's permission grant/pfohibit
+ * on SFSensorManagerNeedUserPermissionToSwitchToEU
+ */
+- (void)userGrantedPermissionToSwitchToEU;
+- (void)userProhibitedPermissionToSwitchToEU;
 
 @end
