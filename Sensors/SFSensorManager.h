@@ -28,7 +28,7 @@ typedef enum {
 @interface SFSensorManager : NSObject
 
 @property (nonatomic, readonly) SFSensorType currentSensorType;
-@property (nonatomic, readonly) SFDeviceHardwarePlatform hardwarePlatform;
+@property (nonatomic, assign) SFDeviceHardwarePlatform hardwarePlatform;
 
 + (SFSensorManager *)sharedManager;
 
