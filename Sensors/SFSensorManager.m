@@ -20,6 +20,9 @@ NSString *const SFSensorManagerNeedUserPermissionToSwitchToEU = @"SFSensorManage
 
 @property (nonatomic, retain) SFIdentificator *identificator;
 
+- (void)setupActiveMode;
+- (void)unsetupActiveMode;
+
 @end
 
 
@@ -50,26 +53,52 @@ NSString *const SFSensorManagerNeedUserPermissionToSwitchToEU = @"SFSensorManage
 	if (self) {
 		
 		// default
+		_activeMode = NO;
 		_currentSensorType = SFSensorTypeUnknown;
 		_hardwarePlatform = SFDeviceHardwarePlatform_Default;
-		
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioSessionDidChangeAudioRoute) name:SFAudioSessionDidChangeAudioRouteNotification object:nil];
-		
-		[[SFAudioSessionManager sharedManager] activateAudioSession];
-		
-		self.identificator = [[SFIdentificator alloc] init];
-		self.identificator.delegate = self;
-		
 	}
 	return self;
 }
 
 
 - (void)dealloc {
+	[self setActiveMode:NO];
+}
+
+
+#pragma mark -
+#pragma mark Active Mode
+
+
+- (void)setupActiveMode {
+	
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioSessionDidChangeAudioRoute) name:SFAudioSessionDidChangeAudioRouteNotification object:nil];
+	
+	[[SFAudioSessionManager sharedManager] activateAudioSession];
+	
+	self.identificator = [[SFIdentificator alloc] init];
+	self.identificator.delegate = self;
+}
+
+
+- (void)unsetupActiveMode {
 	
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:SFAudioSessionDidChangeAudioRouteNotification object:nil];
 	[[SFAudioSessionManager sharedManager] deactivateAudioSession];
 	self.identificator = nil;
+}
+
+
+#pragma mark Active Mode Setter
+
+
+- (void)setActiveMode:(BOOL)value {
+	
+	if (_activeMode == value) return;
+	_activeMode = value;
+	
+	if (_activeMode) [self setupActiveMode];
+	else [self unsetupActiveMode];
 }
 
 
