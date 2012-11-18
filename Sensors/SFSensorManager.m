@@ -24,7 +24,6 @@ NSString *const SFSensorManagerNeedUserPermissionToSwitchToEU = @"SFSensorManage
 
 
 @implementation SFSensorManager
-@synthesize currentSensorType;
 @synthesize identificator;
 
 
@@ -78,8 +77,8 @@ NSString *const SFSensorManagerNeedUserPermissionToSwitchToEU = @"SFSensorManage
 	
 	if (![[SFAudioSessionManager sharedManager] audioRouteIsHeadsetInOut]) {
 		
-		if (currentSensorType != SFSensorTypeUnknown) {
-			self.currentSensorType = SFSensorTypeUnknown;
+		if (_currentSensorType != SFSensorTypeUnknown) {
+			_currentSensorType = SFSensorTypeUnknown;
 			[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorManagerDidRecognizeSensorPluggedOutNotification object:nil];
 		}
 	} else {
@@ -118,10 +117,10 @@ NSString *const SFSensorManagerNeedUserPermissionToSwitchToEU = @"SFSensorManage
 	
 	[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorManagerDidFinishSensorIdentification object:nil];
 	
-	if (currentSensorType == sensorType) return;
-	self.currentSensorType = sensorType;
+	if (_currentSensorType == sensorType) return;
+	_currentSensorType = sensorType;
 	
-	if (currentSensorType == SFSensorTypeUnknown) {
+	if (_currentSensorType == SFSensorTypeUnknown) {
 		[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorManagerDidRecognizeSensorPluggedOutNotification object:nil];
 	} else {
 		[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorManagerDidRecognizeSensorPluggedInNotification object:nil];
