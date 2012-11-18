@@ -6,6 +6,7 @@
 #import "SFNitratesSensor.h"
 #import "SFAudioSessionManager.h"
 #import "SFIdentificator.h"
+#import "SFSensorManager.h"
 
 #define kSFNitratesSensorSafeDelayMeanSteps					200	// 4 sec
 #define kSFNitratesSensorCalibrationMeanSteps				  3	// 0.06 sec (0.04 wait + 0.02 measure)
@@ -19,6 +20,11 @@
 #define kSFNitratesSensorDefaultK2 205.0
 #define kSFNitratesSensorDefaultK3 118.0
 #define kSFNitratesSensorDefaultK4 0.012
+
+#define kSFNitratesSensoriPhone5K1  23.0
+#define kSFNitratesSensoriPhone5K2 205.0
+#define kSFNitratesSensoriPhone5K3 118.0
+#define kSFNitratesSensoriPhone5K4 0.000
 
 
 
@@ -40,10 +46,18 @@
 	
 	if ((self = [super initWithSignalProcessor:aSignalProcessor]))
 	{
-		self.K1 = kSFNitratesSensorDefaultK1;
-		self.K2 = kSFNitratesSensorDefaultK2;
-		self.K3 = kSFNitratesSensorDefaultK3;
-		self.K4 = kSFNitratesSensorDefaultK4;
+		SFDeviceHardwarePlatform hardwarePlatform = [[SFSensorManager sharedManager] hardwarePlatform];
+		if (hardwarePlatform == SFDeviceHardwarePlatform_iPhone_5) {
+			self.K1 = kSFNitratesSensoriPhone5K1;
+			self.K2 = kSFNitratesSensoriPhone5K2;
+			self.K3 = kSFNitratesSensoriPhone5K3;
+			self.K4 = kSFNitratesSensoriPhone5K4;
+		} else {
+			self.K1 = kSFNitratesSensorDefaultK1;
+			self.K2 = kSFNitratesSensorDefaultK2;
+			self.K3 = kSFNitratesSensorDefaultK3;
+			self.K4 = kSFNitratesSensorDefaultK4;
+		}
 		
 	}
 	return self;
