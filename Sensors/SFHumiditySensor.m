@@ -6,6 +6,7 @@
 #import "SFHumiditySensor.h"
 #import "SFAudioSessionManager.h"
 #import "SFIdentificator.h"
+#import "SFSensorManager.h"
 
 #define kSFHumiditySensorResettingMeanSteps	   250	// 5 sec
 #define kSFHumiditySensorCalibratingMeanSteps	10	// 0.2 sec
@@ -18,6 +19,11 @@
 #define kSFHumiditySensorDefaultK2	 68.4
 #define kSFHumiditySensorDefaultK3	0.321
 #define kSFHumiditySensorDefaultK4	0.660
+
+#define kSFHumiditySensoriPhone5K1	103.5
+#define kSFHumiditySensoriPhone5K2	 68.4
+#define kSFHumiditySensoriPhone5K3	0.261
+#define kSFHumiditySensoriPhone5K4	0.758
 
 
 @implementation SFHumiditySensor
@@ -43,10 +49,18 @@
 	
 	if ((self = [super initWithSignalProcessor:aSignalProcessor]))
 	{
-		self.K1 = kSFHumiditySensorDefaultK1;
-		self.K2 = kSFHumiditySensorDefaultK2;
-		self.K3 = kSFHumiditySensorDefaultK3;
-		self.K4 = kSFHumiditySensorDefaultK4;
+		SFDeviceHardwarePlatform hardwarePlatform = [[SFSensorManager sharedManager] hardwarePlatform];
+		if (hardwarePlatform == SFDeviceHardwarePlatform_iPhone_5) {
+			self.K1 = kSFHumiditySensoriPhone5K1;
+			self.K2 = kSFHumiditySensoriPhone5K2;
+			self.K3 = kSFHumiditySensoriPhone5K3;
+			self.K4 = kSFHumiditySensoriPhone5K4;
+		} else {
+			self.K1 = kSFHumiditySensorDefaultK1;
+			self.K2 = kSFHumiditySensorDefaultK2;
+			self.K3 = kSFHumiditySensorDefaultK3;
+			self.K4 = kSFHumiditySensorDefaultK4;
+		}
 		
 	}
 	return self;
