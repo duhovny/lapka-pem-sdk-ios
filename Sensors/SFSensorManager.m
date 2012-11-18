@@ -49,6 +49,10 @@ NSString *const SFSensorManagerNeedUserPermissionToSwitchToEU = @"SFSensorManage
 	self = [super init];
 	if (self) {
 		
+		// default
+		_currentSensorType = SFSensorTypeUnknown;
+		_hardwarePlatform = SFDeviceHardwarePlatform_Default;
+		
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioSessionDidChangeAudioRoute) name:SFAudioSessionDidChangeAudioRouteNotification object:nil];
 		
 		[[SFAudioSessionManager sharedManager] activateAudioSession];

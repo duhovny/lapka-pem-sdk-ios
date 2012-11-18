@@ -15,9 +15,20 @@ extern NSString *const SFSensorManagerDidRecognizeSensorPluggedOutNotification;
 extern NSString *const SFSensorManagerNeedUserPermissionToSwitchToEU;
 
 
+/*
+ * List of all hardware platforms
+ * which need specific SenseFramework settings
+ */
+typedef enum {
+	SFDeviceHardwarePlatform_Default,
+	SFDeviceHardwarePlatform_iPhone_5
+} SFDeviceHardwarePlatform;
+
+
 @interface SFSensorManager : NSObject
 
-@property (nonatomic, assign) SFSensorType currentSensorType;
+@property (nonatomic, readonly) SFSensorType currentSensorType;
+@property (nonatomic, readonly) SFDeviceHardwarePlatform hardwarePlatform;
 
 + (SFSensorManager *)sharedManager;
 
@@ -34,5 +45,7 @@ extern NSString *const SFSensorManagerNeedUserPermissionToSwitchToEU;
  */
 - (void)userGrantedPermissionToSwitchToEU;
 - (void)userProhibitedPermissionToSwitchToEU;
+
+
 
 @end
