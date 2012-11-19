@@ -15,10 +15,10 @@
 #define kSFHumiditySensorTemperatureMeanSteps   50	// 1.0 sec
 #define kSFHumiditySensorHumidityMeanSteps		50	// 1.0 sec
 
-#define kSFHumiditySensorDefaultK1	103.5
-#define kSFHumiditySensorDefaultK2	 68.4
-#define kSFHumiditySensorDefaultK3	0.321
-#define kSFHumiditySensorDefaultK4	0.660
+#define kSFHumiditySensorDefaultK1	103.0
+#define kSFHumiditySensorDefaultK2	 67.4
+#define kSFHumiditySensorDefaultK3	0.283
+#define kSFHumiditySensorDefaultK4	0.955
 
 #define kSFHumiditySensoriPhone5K1	103.5
 #define kSFHumiditySensoriPhone5K2	 68.4
