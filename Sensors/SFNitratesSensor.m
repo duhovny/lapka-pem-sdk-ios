@@ -160,6 +160,11 @@
 
 - (void)switchOff {
 	
+	if (![self isOn]) {
+		NSLog(@"SFNitratesSensor is already off.");
+		return;
+	}
+	
 	[self.signalProcessor stop];
 	_state = SFNitratesSensorStateOff;
 	
