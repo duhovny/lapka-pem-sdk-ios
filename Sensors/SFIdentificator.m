@@ -133,11 +133,9 @@
 			repeatIdetificationOnEUVolume = NO;
 			if ([self.delegate respondsToSelector:@selector(identificatorAskToGrantPermissionToSwitchToEU)]) {
 				rememberedSensorTypeUntilEUSwitchPermissionGranted = sensorType;
-				/*
 				[self.delegate identificatorAskToGrantPermissionToSwitchToEU];
-				 */
 				// we gonna automatically grant permission to switch to EU for now
-				[self userGrantedPermissionToSwitchToEU];
+//				[self userGrantedPermissionToSwitchToEU];
 				return;
 			} else {
 				NSLog(@"Warning: Lapka sensor detected in EU mode, but we can't switch to EU because delegate doesn't response to identificatorAskToGrantPermissionToSwitchToEU method which is required if you plan to use Lapka with EU devices.");
@@ -148,12 +146,11 @@
 		} else {
 			id european_preference = [[NSUserDefaults standardUserDefaults] objectForKey:@"european_preference"];
 			if (!european_preference) {
-				/*
+				
 				// this is US device, set preference
 				NSLog(@"this is US device, set preference");
 				[[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"european_preference"];
-				 */
-				// this is US device
+				
 				if ([self.delegate respondsToSelector:@selector(identificatorDidRecognizeDeviceVolumeLimitState:)])
 					[self.delegate identificatorDidRecognizeDeviceVolumeLimitState:NO];
 			}
@@ -235,10 +232,8 @@
 	[self.delegate identificatorDidRecognizeSensor:rememberedSensorTypeUntilEUSwitchPermissionGranted];
 	identificationIsInProcess = NO;
 	
-	/*
 	[[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"european_preference"];
 	NSLog(@"this is EU device, set preference");
-	 */
 	
 	if ([self.delegate respondsToSelector:@selector(identificatorDidRecognizeDeviceVolumeLimitState:)])
 		[self.delegate identificatorDidRecognizeDeviceVolumeLimitState:YES];
