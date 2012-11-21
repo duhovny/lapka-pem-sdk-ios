@@ -88,9 +88,14 @@
 	// set volume up
 	float outputVolume;
 	id humidity_volume = [[NSUserDefaults standardUserDefaults] objectForKey:@"humidity_volume"];
-	if (humidity_volume) outputVolume = [[NSUserDefaults standardUserDefaults] floatForKey:@"humidity_volume"];
-	else outputVolume = [[SFAudioSessionManager sharedManager] currentRegionMaxVolume];
-	[[SFAudioSessionManager sharedManager] setHardwareOutputVolume:outputVolume];
+	id european_preference = [[NSUserDefaults standardUserDefaults] objectForKey:@"european_preference"];
+	if (humidity_volume) {
+		outputVolume = [[NSUserDefaults standardUserDefaults] floatForKey:@"humidity_volume"];
+		[[SFAudioSessionManager sharedManager] setHardwareOutputVolume:outputVolume];
+	} else if (european_preference) {
+		outputVolume = [[SFAudioSessionManager sharedManager] currentRegionMaxVolume];
+		[[SFAudioSessionManager sharedManager] setHardwareOutputVolume:outputVolume];
+	}
 	
 	// setup signal processor for resetting (00 signal)
 	self.signalProcessor.leftAmplitude = kSFControlSignalBitZero;

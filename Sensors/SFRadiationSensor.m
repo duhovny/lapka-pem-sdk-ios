@@ -74,9 +74,14 @@
 	// set volume up
 	float outputVolume;
 	id radiation_volume = [[NSUserDefaults standardUserDefaults] objectForKey:@"radiation_volume"];
-	if (radiation_volume) outputVolume = [[NSUserDefaults standardUserDefaults] floatForKey:@"radiation_volume"];
-	else outputVolume = [[SFAudioSessionManager sharedManager] currentRegionMaxVolume];
-	[[SFAudioSessionManager sharedManager] setHardwareOutputVolume:outputVolume];
+	id european_preference = [[NSUserDefaults standardUserDefaults] objectForKey:@"european_preference"];
+	if (radiation_volume) {
+		outputVolume = [[NSUserDefaults standardUserDefaults] floatForKey:@"radiation_volume"];
+		[[SFAudioSessionManager sharedManager] setHardwareOutputVolume:outputVolume];
+	} else if (european_preference) {
+		outputVolume = [[SFAudioSessionManager sharedManager] currentRegionMaxVolume];
+		[[SFAudioSessionManager sharedManager] setHardwareOutputVolume:outputVolume];
+	}
 	
 	// setup signal processor
 //	self.signalProcessor.frequency = kSFRadiationSensorFrequency;
