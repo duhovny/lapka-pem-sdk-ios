@@ -109,7 +109,6 @@
 	self.signalProcessor.frequency = [self.signalProcessor optimizeFrequency:kSFFieldSensorFrequency];
 	if (self.dualMode) {
 		NSLog(@"SFieldSensor: dual mode");
-//		_stepsToSkip = 30;
 		self.signalProcessor.fftAnalyzer.meanSteps = kSFFieldSensorDualModeMeanSteps;
 		[self setupSignalProcessorForLowFrequencyMeasure];
 		state = kSFFieldSensorStateLowFrequencyMeasurement;
@@ -121,6 +120,7 @@
 			state = kSFFieldSensorStateLowFrequencyMeasurement;
 		} else if (measureHighFrequencyField) {
 			NSLog(@"SFieldSensor: single mode: high frequency");
+			_stepsToSkip = 1;
 			[self setupSignalProcessorForHighFrequencyMeasure];
 			state = kSFFieldSensorStateHighFrequencyMeasurement;
 		}
@@ -252,6 +252,7 @@
 
 - (void)signalProcessorDidUpdateAmplitude:(Float32)amplitude {
 	
+	if (_stepsToSkip > 0) return;
 	if (self.dualMode) return;
 	
 	// single mode
@@ -293,7 +294,6 @@
 		
 	if (_stepsToSkip > 0) {
 		_stepsToSkip--;
-		NSLog(@"skip");
 		return;
 	}
 	
