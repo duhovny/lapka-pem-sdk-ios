@@ -186,6 +186,10 @@
 	self.signalProcessor.fftAnalyzer.imagShift -= _fftLFFieldImag;
 	
 	_fftZeroShiftEnabled = YES;
+	
+	if (state == kSFFieldSensorStateLowFrequencyMeasurement) {
+		self.signalProcessor.fftAnalyzer.useZeroShift = _fftZeroShiftEnabled;
+	}
 }
 
 
