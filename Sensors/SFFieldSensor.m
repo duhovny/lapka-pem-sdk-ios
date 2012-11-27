@@ -243,6 +243,7 @@
 - (float)calculateLowFrequencyFieldWithAmplitude:(Float32)amplitude {
 	
 	float value = amplitude;
+	value *= _outputHighFrequencyScale;
 	return value;
 }
 
