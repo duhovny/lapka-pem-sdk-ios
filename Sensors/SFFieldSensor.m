@@ -16,7 +16,7 @@
 
 #define kSF_PositiveLFFieldThreshold 0.0100
 
-#define kSFFieldSensorOutputHighFrequencyScale_iPhone5 4.8
+#define kSFFieldSensorPlatformDependenceScale_iPhone5 4.8
 
 
 @interface SFFieldSensor () {
@@ -34,7 +34,7 @@
 	float _fftLFFieldImag;
 	
 	// platform depended coefs
-	float _outputHighFrequencyScale;
+	float _platformDependenceScaleCoef;
 }
 
 - (Float32)verifyFFTSignWithAmplitude:(Float32)amplitude;
@@ -72,12 +72,11 @@
 		
 		_stepsToSkip = 0;
 		_smallestHighFrequencyAmplitude = kSFFieldSensorDefaultSmallestMaxForHighFrequencyField;
-		_outputHighFrequencyScale = 1.0;
+		_platformDependenceScaleCoef = 1.0;
 		
 		SFDeviceHardwarePlatform hardwarePlatform = [[SFSensorManager sharedManager] hardwarePlatform];
 		if (hardwarePlatform == SFDeviceHardwarePlatform_iPhone_5) {
-			NSLog(@"SFDeviceHardwarePlatform_iPhone_5");
-			_outputHighFrequencyScale = kSFFieldSensorOutputHighFrequencyScale_iPhone5;
+			_platformDependenceScaleCoef = kSFFieldSensorPlatformDependenceScale_iPhone5;
 		}
 	}
 	return self;
@@ -243,7 +242,7 @@
 - (float)calculateLowFrequencyFieldWithAmplitude:(Float32)amplitude {
 	
 	float value = amplitude;
-	value *= _outputHighFrequencyScale;
+	value *= _platformDependenceScaleCoef;
 	return value;
 }
 
@@ -251,7 +250,7 @@
 - (float)calculateHighFrequencyFieldWithAmplitude:(Float32)amplitude {
 	
 	float value = amplitude - _smallestHighFrequencyAmplitude;
-	value *= _outputHighFrequencyScale;
+	value *= _platformDependenceScaleCoef;
 	return MAX(value, 0);
 }
 
