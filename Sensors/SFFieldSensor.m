@@ -7,6 +7,7 @@
 #import "SFAudioSessionManager.h"
 #import "SFSignalProcessor.h"
 #import "SFIdentificator.h"
+#import "SFSensorManager.h"
 
 #define kSFFieldSensorFrequency 16000
 #define kSFFieldSensorDualModeMeanSteps 4		// 80ms (60ms delay + 20ms measure)
@@ -15,10 +16,11 @@
 
 #define kSF_PositiveLFFieldThreshold 0.0100
 
+#define kSFFieldSensorPlatformDependenceScale_iPhone5 4.8
+
 
 @interface SFFieldSensor () {
 	int _stepsToSkip;
-	float _smallestLowFrequencyAmplitude;
 	float _smallestHighFrequencyAmplitude;
 	
 	// FFT Sign (for LF field only)
@@ -30,6 +32,9 @@
 	BOOL _fftZeroShiftEnabled;
 	float _fftLFFieldReal;
 	float _fftLFFieldImag;
+	
+	// platform depended coefs
+	float _platformDependenceScaleCoef;
 }
 
 - (Float32)verifyFFTSignWithAmplitude:(Float32)amplitude;
@@ -66,8 +71,13 @@
 		self.measureHighFrequencyField = YES;
 		
 		_stepsToSkip = 0;
-		_smallestLowFrequencyAmplitude = 0;
 		_smallestHighFrequencyAmplitude = kSFFieldSensorDefaultSmallestMaxForHighFrequencyField;
+		_platformDependenceScaleCoef = 1.0;
+		
+		SFDeviceHardwarePlatform hardwarePlatform = [[SFSensorManager sharedManager] hardwarePlatform];
+		if (hardwarePlatform == SFDeviceHardwarePlatform_iPhone_5) {
+			_platformDependenceScaleCoef = kSFFieldSensorPlatformDependenceScale_iPhone5;
+		}
 	}
 	return self;
 }
@@ -231,8 +241,8 @@
 
 - (float)calculateLowFrequencyFieldWithAmplitude:(Float32)amplitude {
 	
-//	float value = amplitude - _smallestLowFrequencyAmplitude;
 	float value = amplitude;
+	value *= _platformDependenceScaleCoef;
 	return value;
 }
 
@@ -240,6 +250,7 @@
 - (float)calculateHighFrequencyFieldWithAmplitude:(Float32)amplitude {
 	
 	float value = amplitude - _smallestHighFrequencyAmplitude;
+	value *= _platformDependenceScaleCoef;
 	return MAX(value, 0);
 }
 
@@ -268,8 +279,6 @@
 			_fftLFFieldAngle = self.signalProcessor.fftAnalyzer.angle;
 			if (!_fftSignVerified)
 				amplitude = [self verifyFFTSignWithAmplitude:amplitude];
-			if (amplitude < _smallestLowFrequencyAmplitude)
-				_smallestLowFrequencyAmplitude = amplitude;
 			lowFrequencyField = [self calculateLowFrequencyFieldWithAmplitude:amplitude];
 			[self.delegate fieldSensorDidUpdateLowFrequencyField:lowFrequencyField];
 			break;
@@ -277,8 +286,6 @@
 			
 		case kSFFieldSensorStateHighFrequencyMeasurement:
 		{
-			if (amplitude < _smallestHighFrequencyAmplitude)
-				_smallestHighFrequencyAmplitude = MAX(amplitude, 0);
 			highFrequencyField = [self calculateHighFrequencyFieldWithAmplitude:amplitude];
 			[self.delegate fieldSensorDidUpdateHighFrequencyField:highFrequencyField];
 			break;
@@ -314,8 +321,6 @@
 				_fftLFFieldAngle = self.signalProcessor.fftAnalyzer.angle;
 				if (!_fftSignVerified)
 					amplitude = [self verifyFFTSignWithAmplitude:amplitude];
-				if (amplitude < _smallestLowFrequencyAmplitude)
-					_smallestLowFrequencyAmplitude = amplitude;
 				lowFrequencyField = [self calculateLowFrequencyFieldWithAmplitude:amplitude];
 				meanLowFrequencyField = lowFrequencyField;
 				
@@ -367,6 +372,8 @@
 				
 			case kSFFieldSensorStateHighFrequencyMeasurement:
 			{
+				if (meanAmplitude < _smallestHighFrequencyAmplitude)
+					_smallestHighFrequencyAmplitude = meanAmplitude;
 				meanHighFrequencyField = [self calculateHighFrequencyFieldWithAmplitude:meanAmplitude];
 				[self.delegate fieldSensorDidUpdateMeanHighFrequencyField:meanHighFrequencyField];
 				break;
