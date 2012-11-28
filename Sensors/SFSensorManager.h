@@ -48,6 +48,11 @@ typedef enum {
 - (void)userGrantedPermissionToSwitchToEU;
 - (void)userProhibitedPermissionToSwitchToEU;
 
+/*
+ * use this method when app fall asleep with sensor
+ * and don't know what is plugged in on wake up
+ */
+- (void)simulateSensorPlugOut;
 
 
 @end
