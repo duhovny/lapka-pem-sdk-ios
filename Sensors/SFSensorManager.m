@@ -116,12 +116,14 @@ NSString *const SFSensorManagerNeedUserPermissionToSwitchToEU = @"SFSensorManage
 		}
 	} else {
 		
-		[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorManagerWillStartSensorIdentification object:nil];
-		float delayInSeconds = 0.1;
-		dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
-		dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-			[self.identificator identificate];
-		});
+		if (_currentSensorType == SFSensorTypeUnknown) {
+			[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorManagerWillStartSensorIdentification object:nil];
+			float delayInSeconds = 0.1;
+			dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
+			dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+				[self.identificator identificate];
+			});
+		}
 	}
 }
 
@@ -139,6 +141,17 @@ NSString *const SFSensorManagerNeedUserPermissionToSwitchToEU = @"SFSensorManage
 - (void)userProhibitedPermissionToSwitchToEU {
 	
 	[identificator userProhibitedPermissionToSwitchToEU];
+}
+
+
+#pragma mark -
+#pragma mark Plug Out Simulation
+
+
+- (void)simulateSensorPlugOut {
+	
+	if (_currentSensorType == SFSensorTypeUnknown) return;
+	[self identificatorDidRecognizeSensor:SFSensorTypeUnknown];
 }
 
 

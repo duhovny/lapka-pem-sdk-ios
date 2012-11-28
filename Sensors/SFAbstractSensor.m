@@ -5,6 +5,7 @@
 
 #import "SFAbstractSensor.h"
 #import "SFAudioSessionManager.h"
+#import "SFSensorManager.h"
 
 @implementation SFAbstractSensor
 @synthesize signalProcessor;
@@ -75,6 +76,9 @@
 
 - (void)audioSessionDidChangeAudioRoute {
 	
+	if ([[SFSensorManager sharedManager] activeMode]) return;
+	if ([[UIApplication sharedApplication] applicationState] != UIApplicationStateActive) return;
+	
 	if ([[SFAudioSessionManager sharedManager] audioRouteIsHeadsetInOut]) {
 		[self switchOn];
 	} else {
@@ -88,8 +92,10 @@
 	if (!self.isPluggedIn) return;
 	
 	SFAudioSessionManager *audioSessionManager = [SFAudioSessionManager sharedManager];
+	SFSensorManager *sensorManager = [SFSensorManager sharedManager];
 	if (audioSessionManager.audioRouteIsHeadsetInOut &&
-		audioSessionManager.hardwareOutputVolume != audioSessionManager.currentRegionMaxVolume) {
+		audioSessionManager.hardwareOutputVolume != audioSessionManager.currentRegionMaxVolume &&
+		sensorManager.currentSensorType != SFSensorTypeUnknown) {
 		float step = audioSessionManager.currentRegionMaxVolume - audioSessionManager.hardwareOutputVolume;
 		if (step < VOLUME_ADJUST_LIMIT) {
 			NSLog(@"adjust hardware volume (from %0.2f to %0.2f with %0.4f step)", audioSessionManager.hardwareOutputVolume, audioSessionManager.currentRegionMaxVolume, step);
