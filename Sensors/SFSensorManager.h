@@ -21,7 +21,8 @@ extern NSString *const SFSensorManagerNeedUserPermissionToSwitchToEU;
  */
 typedef enum {
 	SFDeviceHardwarePlatform_Default,
-	SFDeviceHardwarePlatform_iPhone_5
+	SFDeviceHardwarePlatform_iPhone_5,
+	SFDeviceHardwarePlatform_iPad_2
 } SFDeviceHardwarePlatform;
 
 

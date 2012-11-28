@@ -15,15 +15,20 @@
 #define kSFHumiditySensorTemperatureMeanSteps   50	// 1.0 sec
 #define kSFHumiditySensorHumidityMeanSteps		50	// 1.0 sec
 
-#define kSFHumiditySensorDefaultK1	103.0
+#define kSFHumiditySensorDefaultK1	103.5
 #define kSFHumiditySensorDefaultK2	 67.4
 #define kSFHumiditySensorDefaultK3	0.283
 #define kSFHumiditySensorDefaultK4	0.955
 
 #define kSFHumiditySensoriPhone5K1	103.5
-#define kSFHumiditySensoriPhone5K2	 68.4
-#define kSFHumiditySensoriPhone5K3	0.261
-#define kSFHumiditySensoriPhone5K4	0.758
+#define kSFHumiditySensoriPhone5K2	 67.4
+#define kSFHumiditySensoriPhone5K3	0.283
+#define kSFHumiditySensoriPhone5K4	0.955
+
+#define kSFHumiditySensoriPad2K1	103.5
+#define kSFHumiditySensoriPad2K2	 64.4
+#define kSFHumiditySensoriPad2K3	0.294
+#define kSFHumiditySensoriPad2K4	1.000
 
 
 @implementation SFHumiditySensor
@@ -55,6 +60,11 @@
 			self.K2 = kSFHumiditySensoriPhone5K2;
 			self.K3 = kSFHumiditySensoriPhone5K3;
 			self.K4 = kSFHumiditySensoriPhone5K4;
+		} else if (hardwarePlatform == SFDeviceHardwarePlatform_iPad_2) {
+			self.K1 = kSFHumiditySensoriPad2K1;
+			self.K2 = kSFHumiditySensoriPad2K2;
+			self.K3 = kSFHumiditySensoriPad2K3;
+			self.K4 = kSFHumiditySensoriPad2K4;
 		} else {
 			self.K1 = kSFHumiditySensorDefaultK1;
 			self.K2 = kSFHumiditySensorDefaultK2;
