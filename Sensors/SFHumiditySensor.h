@@ -19,6 +19,7 @@ typedef enum {
 @protocol SFHumiditySensorDelegate <SFAbstractSensorDelegate>
 @optional
 - (void)humiditySensorDidUpdateTemperature:(float)temperature;
+- (void)humiditySensorDidUpdateFirstTemperature:(float)temperature;
 - (void)humiditySensorDidUpdateCalibratingLevel:(float)calibratingLevel;
 - (void)humiditySensorDidUpdateSecondCalibratingLevel:(float)secondCalibratingLevel;
 - (void)humiditySensorDidUpdateMeanHumidity:(float)meanHumidity;

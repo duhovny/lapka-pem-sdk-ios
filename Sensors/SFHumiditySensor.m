@@ -205,9 +205,7 @@
 			break;
 		
 		case kSFHumiditySensorStateResetting:
-		{
-			NSLog(@"Resetting done");
-			
+		{	
 			// setup for calibrating (01 signal)
 			self.signalProcessor.leftAmplitude = kSFControlSignalBitZero;
 			self.signalProcessor.rightAmplitude = kSFControlSignalBitOne;
@@ -226,8 +224,6 @@
 			// save calibrating level
 			calibratingLevel = amplitude;
 			
-			NSLog(@"calibratingLevel: %f", calibratingLevel);
-			
 			// tell delegate
 			if ([delegate respondsToSelector:@selector(humiditySensorDidUpdateCalibratingLevel:)])
 				[delegate humiditySensorDidUpdateCalibratingLevel:calibratingLevel];
@@ -243,7 +239,7 @@
 		}
 			
 		case kSFHumiditySensorStateSecondResetting:
-		{	
+		{
 			// setup for second calibrating (11 signal)
 			self.signalProcessor.leftAmplitude = kSFControlSignalBitOne;
 			self.signalProcessor.rightAmplitude = kSFControlSignalBitOne;
@@ -261,8 +257,6 @@
 			
 			// save calibrating level
 			secondCalibratingLevel = amplitude;
-			
-			NSLog(@"secondCalibratingLevel: %f", secondCalibratingLevel);
 			
 			// tell delegate
 			if ([delegate respondsToSelector:@selector(humiditySensorDidUpdateSecondCalibratingLevel:)])
@@ -286,14 +280,12 @@
 			// save temperature level
 			temperatureLevel = amplitude;
 			
-			NSLog(@"temperatureLevel: %f", temperatureLevel);
-			
 			// update temperature value
 			temperature = [self calculateTemparatureWithAmplitude:amplitude trace:NO];
 			
 			// tell delegate
-			if ([delegate respondsToSelector:@selector(humiditySensorDidUpdateTemperature:)])
-				[delegate humiditySensorDidUpdateTemperature:temperature];
+			if ([delegate respondsToSelector:@selector(humiditySensorDidUpdateFirstTemperature:)])
+				[delegate humiditySensorDidUpdateFirstTemperature:temperature];
 			
 			// setup for measure (11 signal)
 			self.signalProcessor.leftAmplitude = kSFControlSignalBitOne;
