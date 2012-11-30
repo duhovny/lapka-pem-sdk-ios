@@ -12,7 +12,7 @@
 #define kSFFieldSensorFrequency 16000
 #define kSFFieldSensorDualModeMeanSteps 4		// 80ms (60ms delay + 20ms measure)
 #define kSFFieldSensorSingleModeMeanSteps 25
-#define kSFFieldSensorDefaultSmallestMaxForHighFrequencyField 0.0
+#define kSFFieldSensorDefaultSmallestMaxForHighFrequencyField 150.0
 
 #define kSF_PositiveLFFieldThreshold 0.0100
 
