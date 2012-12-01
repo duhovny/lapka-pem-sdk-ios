@@ -184,6 +184,10 @@
 	Float32 T = withTemperature;
 	Float32 H = h/(1.0546 - 0.00216 * T);
 	
+	// limit by 0..100 range
+	H = MAX(H, 0);
+	H = MIN(H, 100);
+	
 	return H;
 }
 
