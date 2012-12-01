@@ -15,20 +15,25 @@
 #define kSFHumiditySensorTemperatureMeanSteps   50	// 1.0 sec
 #define kSFHumiditySensorHumidityMeanSteps		50	// 1.0 sec
 
-#define kSFHumiditySensorDefaultK1	103.5
-#define kSFHumiditySensorDefaultK2	 67.4
-#define kSFHumiditySensorDefaultK3	0.283
-#define kSFHumiditySensorDefaultK4	0.955
+#define kSFHumiditySensorDefaultK1	104.0
+#define kSFHumiditySensorDefaultK2	 68.6
+#define kSFHumiditySensorDefaultK3	0.298
+#define kSFHumiditySensorDefaultK4	1.026
 
-#define kSFHumiditySensoriPhone5K1	103.5
-#define kSFHumiditySensoriPhone5K2	 67.4
-#define kSFHumiditySensoriPhone5K3	0.283
-#define kSFHumiditySensoriPhone5K4	0.955
+#define kSFHumiditySensoriPhone5K1	103.4
+#define kSFHumiditySensoriPhone5K2	 68.5
+#define kSFHumiditySensoriPhone5K3	0.241
+#define kSFHumiditySensoriPhone5K4	1.109
 
-#define kSFHumiditySensoriPad2K1	103.5
+#define kSFHumiditySensoriPad2K1	104.0
 #define kSFHumiditySensoriPad2K2	 64.4
 #define kSFHumiditySensoriPad2K3	0.294
-#define kSFHumiditySensoriPad2K4	1.000
+#define kSFHumiditySensoriPad2K4	1.026
+
+#define kSFHumiditySensoriPod4K1	103.5
+#define kSFHumiditySensoriPod4K2	 67.9
+#define kSFHumiditySensoriPod4K3	0.297
+#define kSFHumiditySensoriPod4K4	1.039
 
 
 @implementation SFHumiditySensor
@@ -60,11 +65,16 @@
 			self.K2 = kSFHumiditySensoriPhone5K2;
 			self.K3 = kSFHumiditySensoriPhone5K3;
 			self.K4 = kSFHumiditySensoriPhone5K4;
-		} else if (hardwarePlatform == SFDeviceHardwarePlatform_iPad_2) {
+		} else if (hardwarePlatform == SFDeviceHardwarePlatform_iPad) {
 			self.K1 = kSFHumiditySensoriPad2K1;
 			self.K2 = kSFHumiditySensoriPad2K2;
 			self.K3 = kSFHumiditySensoriPad2K3;
 			self.K4 = kSFHumiditySensoriPad2K4;
+		} else if (hardwarePlatform == SFDeviceHardwarePlatform_iPod) {
+			self.K1 = kSFHumiditySensoriPod4K1;
+			self.K2 = kSFHumiditySensoriPod4K2;
+			self.K3 = kSFHumiditySensoriPod4K3;
+			self.K4 = kSFHumiditySensoriPod4K4;
 		} else {
 			self.K1 = kSFHumiditySensorDefaultK1;
 			self.K2 = kSFHumiditySensorDefaultK2;
