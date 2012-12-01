@@ -12,11 +12,9 @@
 #define kSFFieldSensorFrequency 16000
 #define kSFFieldSensorDualModeMeanSteps 4		// 80ms (60ms delay + 20ms measure)
 #define kSFFieldSensorSingleModeMeanSteps 25
-#define kSFFieldSensorDefaultSmallestMaxForHighFrequencyField 0.0
+#define kSFFieldSensorDefaultSmallestMaxForHighFrequencyField 150.0
 
 #define kSF_PositiveLFFieldThreshold 0.0100
-
-#define kSFFieldSensorPlatformDependenceScale_iPhone5 4.8
 
 
 @interface SFFieldSensor () {
@@ -32,9 +30,6 @@
 	BOOL _fftZeroShiftEnabled;
 	float _fftLFFieldReal;
 	float _fftLFFieldImag;
-	
-	// platform depended coefs
-	float _platformDependenceScaleCoef;
 }
 
 - (Float32)verifyFFTSignWithAmplitude:(Float32)amplitude;
@@ -72,12 +67,6 @@
 		
 		_stepsToSkip = 0;
 		_smallestHighFrequencyAmplitude = kSFFieldSensorDefaultSmallestMaxForHighFrequencyField;
-		_platformDependenceScaleCoef = 1.0;
-		
-		SFDeviceHardwarePlatform hardwarePlatform = [[SFSensorManager sharedManager] hardwarePlatform];
-		if (hardwarePlatform == SFDeviceHardwarePlatform_iPhone_5) {
-			_platformDependenceScaleCoef = kSFFieldSensorPlatformDependenceScale_iPhone5;
-		}
 	}
 	return self;
 }
@@ -242,16 +231,21 @@
 - (float)calculateLowFrequencyFieldWithAmplitude:(Float32)amplitude {
 	
 	float value = amplitude;
-	value *= _platformDependenceScaleCoef;
 	return value;
 }
 
 
 - (float)calculateHighFrequencyFieldWithAmplitude:(Float32)amplitude {
 	
+	// shift by minimal value
 	float value = amplitude - _smallestHighFrequencyAmplitude;
-	value *= _platformDependenceScaleCoef;
-	return MAX(value, 0);
+	
+	float Up = 0.0550;
+	float K1 = 33.0;
+	float K2 = 230.0;
+	float U = MIN(value, Up) * K1 + MAX(value - Up, 0) * K2;
+	
+	return MAX(U, 0);
 }
 
 
