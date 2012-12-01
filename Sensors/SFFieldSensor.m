@@ -241,7 +241,7 @@
 	float value = amplitude - _smallestHighFrequencyAmplitude;
 	
 	float Up = 0.0550;
-	float K1 = 33.0;
+	float K1 = 130.0;
 	float K2 = 230.0;
 	float U = MIN(value, Up) * K1 + MAX(value - Up, 0) * K2;
 	
