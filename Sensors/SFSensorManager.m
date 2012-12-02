@@ -112,6 +112,8 @@ NSString *const SFSensorManagerNeedUserPermissionToSwitchToEU = @"SFSensorManage
 		
 		if (_currentSensorType != SFSensorTypeUnknown) {
 			_currentSensorType = SFSensorTypeUnknown;
+			NSLog(@"remove european_preference");
+			[[NSUserDefaults standardUserDefaults] removeObjectForKey:@"european_preference"];
 			[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorManagerDidRecognizeSensorPluggedOutNotification object:nil];
 		}
 	} else {

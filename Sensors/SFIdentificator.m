@@ -148,7 +148,7 @@
 			if (!european_preference) {
 				
 				// this is US device, set preference
-				NSLog(@"this is US device, set preference");
+				NSLog(@"this is US device, set european_preference NO");
 				[[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"european_preference"];
 				
 				if ([self.delegate respondsToSelector:@selector(identificatorDidRecognizeDeviceVolumeLimitState:)])
@@ -233,7 +233,7 @@
 	identificationIsInProcess = NO;
 	
 	[[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"european_preference"];
-	NSLog(@"this is EU device, set preference");
+	NSLog(@"this is EU device, set european_preference YES");
 	
 	if ([self.delegate respondsToSelector:@selector(identificatorDidRecognizeDeviceVolumeLimitState:)])
 		[self.delegate identificatorDidRecognizeDeviceVolumeLimitState:YES];
