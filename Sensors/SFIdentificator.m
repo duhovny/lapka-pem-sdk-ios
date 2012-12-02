@@ -9,6 +9,8 @@
 #define kSFIdentificationMeanSteps		10
 #define kSFIdentificationStepsToSkip	 3
 
+#define IDENTIFICATION_THRESHOLD_MINIMUM 0.0013
+
 
 @interface SFIdentificator () <SFSignalProcessorDelegate> {
 	
@@ -202,9 +204,11 @@
 }
 
 
-- (void)handleFirstBitEqualZero {
+- (void)handleIdentificationThresholdLessThanMinimum {
 	
-	// first bit equal zero means this is not Lapka device, so tell delegate
+	NSLog(@"Identification threshold is less than minimum");
+	
+	// means this is not Lapka device, so tell delegate
 	if ([self.delegate respondsToSelector:@selector(identificatorDidRecognizeNotLapkaBeingPluggedIn)])
 		[self.delegate identificatorDidRecognizeNotLapkaBeingPluggedIn];
 }
@@ -269,7 +273,11 @@
 					// set identification threshold to one third of microphone level
 					identificationThreshold = amplitude * 1.0 / 3.0;
 					
-					NSLog(@"set identification threshold to half of microphone level: %g", identificationThreshold);
+					NSLog(@"set identification threshold to third (%g) of microphone level (%g)", identificationThreshold, amplitude);
+					
+					if (identificationThreshold < IDENTIFICATION_THRESHOLD_MINIMUM) {
+						[self handleIdentificationThresholdLessThanMinimum];
+					}
 					
 					// tell delegate microphone level
 					if ([self.delegate respondsToSelector:@selector(identificatorDidRecognizeDeviceMicrophoneLevel:)])
@@ -288,7 +296,6 @@
 					NSLog(@"Measure 00 bit: %d", bit?1:0);
 					sensorID.bit00 = bit;
 					fingerprint.amplitude00 = amplitude;
-					if (bit == 0) [self handleFirstBitEqualZero];
 					// 01 setup
 					self.signalProcessor.rightAmplitude = kSFIdentificationAmplitudeRightBitZero;
 					self.signalProcessor.leftAmplitude = kSFIdentificationAmplitudeLeftBitOne;
