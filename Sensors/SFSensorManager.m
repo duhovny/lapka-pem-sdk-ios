@@ -180,6 +180,8 @@ NSString *const SFSensorManagerNeedUserPermissionToSwitchToEU = @"SFSensorManage
 	
 	NSLog(@"identificatorDidRecognizeNotLapkaBeingPluggedIn");
 	[identificator abortIdentification];
+	
+	[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorManagerDidFinishSensorIdentification object:nil];
 }
 
 
