@@ -143,6 +143,10 @@
 	_fftSignEnabled = NO;
 	_fftSignVerified = NO;
 	
+	self.signalProcessor.fftAnalyzer.realShift = 0;
+	self.signalProcessor.fftAnalyzer.imagShift = 0;
+	self.signalProcessor.fftAnalyzer.useZeroShift = NO;
+	
 	_fftZeroShiftEnabled = NO;
 	
 	[super switchOff];
