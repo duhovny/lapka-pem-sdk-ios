@@ -225,7 +225,7 @@
 	float T = _temperature;
 	
 	// nitrates
-	float N = (1 - 0.01 * (T - 20)) * K1 * (U2 - U3) / U3 + K4;
+	float N = (1 - 0.01 * (T - 20)) * K1 * (U2 - U3 - K4) / U3;
 	
 	return N;
 }
