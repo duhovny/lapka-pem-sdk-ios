@@ -207,13 +207,6 @@
 	// temperature
 	float T = K3 - K2 * U1 / U2;
 	
-	
-//	NSLog(@"-------------------");
-//	NSLog(@"calibration level: %f", _calibration_level);
-//	NSLog(@"temperature level: %f", _temperature_level);
-//	NSLog(@"temperature: %f", T);
-//	NSLog(@"-------------------");
-	
 	return T;
 }
 
@@ -232,11 +225,7 @@
 	float T = _temperature;
 	
 	// nitrates
-	float N = (1 - 0.01 * (20 - T)) * K1 * (U2 - U3 - K4) / U3;
-	
-	// limit to (0..5000)
-//	N = MAX(N, 0);
-//	N = MIN(N, 5000);
+	float N = (1 - 0.01 * (T - 20)) * K1 * (U2 - U3) / U3 + K4;
 	
 	return N;
 }
