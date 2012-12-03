@@ -275,8 +275,6 @@
 					// set identification threshold to one third of microphone level
 					identificationThreshold = amplitude * 1.0 / 3.0;
 					
-					NSLog(@"set identification threshold to third (%g) of microphone level (%g)", identificationThreshold, amplitude);
-					
 					if (identificationThreshold < IDENTIFICATION_THRESHOLD_MINIMUM) {
 						[self handleIdentificationThresholdLessThanMinimum];
 					}
@@ -295,7 +293,6 @@
 					
 				// 00
 				case 0: {
-					NSLog(@"Measure 00 bit: %d", bit?1:0);
 					sensorID.bit00 = bit;
 					fingerprint.amplitude00 = amplitude;
 					// 01 setup
@@ -306,7 +303,6 @@
 					
 				// 01
 				case 1: {
-					NSLog(@"Measure 01 bit: %d", bit?1:0);
 					sensorID.bit01 = bit;
 					fingerprint.amplitude01 = amplitude;
 					// 10 setup
@@ -317,7 +313,6 @@
 					
 				// 10
 				case 2: {
-					NSLog(@"Measure 10 bit: %d", bit?1:0);
 					sensorID.bit10 = bit;
 					fingerprint.amplitude10 = amplitude;
 					// 11 setup
@@ -328,7 +323,6 @@
 					
 				// 11
 				case 3: {
-					NSLog(@"Measure 11 bit: %d", bit?1:0);
 					sensorID.bit11 = bit;
 					fingerprint.amplitude11 = amplitude;
 					// done
