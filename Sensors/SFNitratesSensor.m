@@ -12,7 +12,8 @@
 #define kSFNitratesSensorCalibrationMeanSteps				  3	// 0.06 sec (0.04 wait + 0.02 measure)
 #define kSFNitratesSensorFirstTemperatureMeasureMeanSteps	200	// 4 sec
 #define kSFNitratesSensorTemperatureMeasureMeanSteps		 10	// 0.2 sec
-#define kSFNitratesSensorNitratesMeasureMeanSteps			 10	// 0.2 sec
+#define kSFNitratesSensorEmptyNitratesMeasureMeanSteps		 25	// 0.5 sec
+#define kSFNitratesSensorNitratesMeasureMeanSteps			200	// 4.0 sec
 
 #define kSFNitratesSensorSignalToNitratesCoef		395.37
 
@@ -90,7 +91,7 @@
 
 - (void)setupForFirstTemperatureMeasurement {
 	
-	_state = SFNitratesSensorStateTemperatureMeasurement;
+	_state = SFNitratesSensorStateFirstTemperatureMeasurement;
 	
 	self.signalProcessor.leftAmplitude = kSFControlSignalBitZero;
 	self.signalProcessor.rightAmplitude = kSFControlSignalBitOne;
@@ -105,6 +106,16 @@
 	self.signalProcessor.leftAmplitude = kSFControlSignalBitZero;
 	self.signalProcessor.rightAmplitude = kSFControlSignalBitOne;
 	self.signalProcessor.fftAnalyzer.meanSteps = kSFNitratesSensorTemperatureMeasureMeanSteps;
+}
+
+
+- (void)setupForEmptyNitratesMeasurement {
+	
+	_state = SFNitratesSensorStateEmptyNitratesMeasurement;
+	
+	self.signalProcessor.leftAmplitude = kSFControlSignalBitOne;
+	self.signalProcessor.rightAmplitude = kSFControlSignalBitOne;
+	self.signalProcessor.fftAnalyzer.meanSteps = kSFNitratesSensorEmptyNitratesMeasureMeanSteps;
 }
 
 
@@ -136,8 +147,10 @@
 	
 	_temperature_level = 0;
 	_calibration_level = 0;
+	_empty_nitrates_level = 0;
 	_nitrates_level = 0;
 	
+	_empty_nitrates = 0;
 	_temperature = 0;
 	_nitrates = 0;
 	
@@ -190,6 +203,13 @@
 }
 
 
+- (void)measureNitrates {
+	
+	if (_state != SFNitratesSensorStateCalibrationComplete) return;
+	[self setupForNitratesMeasurement];
+}
+
+
 #pragma mark -
 #pragma mark Calculation
 
@@ -211,7 +231,7 @@
 }
 
 
-- (float)calculateNitrates {
+- (float)calculateNitratesWithNitratesLevel:(float)nitratesLevel {
 	
 	// coefficients
 	float K1 = _K1;
@@ -219,7 +239,7 @@
 	
 	// measurements
 	float U2 = _calibration_level;
-	float U3 = _nitrates_level;
+	float U3 = nitratesLevel;
 	
 	// temperature
 	float T = _temperature;
@@ -249,23 +269,45 @@
 			[self setupForCalibration];
 			break;
 			
-		case SFNitratesSensorStateCalibration:
+		case SFNitratesSensorStateCalibration: {
 			_calibration_level = amplitude;
 			[self setupForFirstTemperatureMeasurement];
 			break;
+		}
 			
-		case SFNitratesSensorStateTemperatureMeasurement:
+		case SFNitratesSensorStateFirstTemperatureMeasurement: {
+			_temperature_level = amplitude;
+			_temperature = [self calculateTemperature];
+			[self setupForEmptyNitratesMeasurement];
+			break;
+		}
+			
+		case SFNitratesSensorStateEmptyNitratesMeasurement: {
+			_empty_nitrates_level = amplitude;
+			_empty_nitrates = [self calculateNitratesWithNitratesLevel:_empty_nitrates_level];
+			NSLog(@"_empty_nitrates %g", _empty_nitrates);
+			[self.delegate nitratesSensorCalibrationComplete];
+			_state = SFNitratesSensorStateCalibrationComplete;
+			break;
+		}
+			
+		case SFNitratesSensorStateNitratesMeasurement: {
+			_nitrates_level = amplitude;
+			_nitrates = [self calculateNitratesWithNitratesLevel:_nitrates_level];
+			NSLog(@"_nitrates %g", _nitrates);
+			_nitrates = MAX(_nitrates - _empty_nitrates, 0);
+			NSLog(@"zeroed _nitrates %g", _nitrates);
+			[self.delegate nitratesSensorGotNitrates:_nitrates];
+			[self setupForTemperatureMeasurement];
+			break;
+		}
+			
+		case SFNitratesSensorStateTemperatureMeasurement: {
 			_temperature_level = amplitude;
 			_temperature = [self calculateTemperature];
 			[self setupForNitratesMeasurement];
 			break;
-			
-		case SFNitratesSensorStateNitratesMeasurement:
-			_nitrates_level = amplitude;
-			_nitrates = [self calculateNitrates];
-			[self.delegate nitratesSensorGotNitrates:_nitrates];
-			[self setupForTemperatureMeasurement];
-			break;
+		}
 			
 		default:
 			break;
