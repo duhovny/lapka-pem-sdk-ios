@@ -30,6 +30,12 @@ typedef enum {
 @property (nonatomic, assign) BOOL measureLowFrequencyField;
 @property (nonatomic, assign) BOOL measureHighFrequencyField;
 @property (nonatomic, readonly) BOOL dualMode;
+@property (nonatomic, readonly) float smallestHighFrequencyAmplitude;
+
+@property (nonatomic, assign) float hfScale;
+@property (nonatomic, assign) float hfUp;
+@property (nonatomic, assign) float hfK1;
+@property (nonatomic, assign) float hfK2;
 
 // measures
 @property (nonatomic, readonly) float lowFrequencyField;
