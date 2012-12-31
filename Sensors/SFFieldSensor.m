@@ -14,12 +14,16 @@
 #define kSFFieldSensorSingleModeMeanSteps 25
 #define kSFFieldSensorDefaultSmallestMaxForHighFrequencyField 150.0
 
+#define kSFFieldSensorDefaultHFScaleCoef 1.0
+#define kSFFieldSensorDefaultHFUpCoef 0.0550
+#define kSFFieldSensorDefaultHFK1Coef 130.0
+#define kSFFieldSensorDefaultHFK2Coef 230.0
+
 #define kSF_PositiveLFFieldThreshold 0.0100
 
 
 @interface SFFieldSensor () {
 	int _stepsToSkip;
-	float _smallestHighFrequencyAmplitude;
 	
 	// FFT Sign (for LF field only)
 	BOOL _fftSignEnabled;
@@ -67,6 +71,12 @@
 		
 		_stepsToSkip = 0;
 		_smallestHighFrequencyAmplitude = kSFFieldSensorDefaultSmallestMaxForHighFrequencyField;
+		
+		self.hfScale = kSFFieldSensorDefaultHFScaleCoef;
+		self.hfUp = kSFFieldSensorDefaultHFUpCoef;
+		self.hfK1 = kSFFieldSensorDefaultHFK1Coef;
+		self.hfK2 = kSFFieldSensorDefaultHFK2Coef;
+		
 	}
 	return self;
 }
@@ -240,9 +250,12 @@
 	// shift by minimal value
 	float value = amplitude - _smallestHighFrequencyAmplitude;
 	
-	float Up = 0.0550;
-	float K1 = 130.0;
-	float K2 = 230.0;
+	// scale
+	value = value * _hfScale;
+	
+	float Up = _hfUp;
+	float K1 = _hfK1;
+	float K2 = _hfK2;
 	float U = MIN(value, Up) * K1 + MAX(value - Up, 0) * K2;
 	
 	return MAX(U, 0);
