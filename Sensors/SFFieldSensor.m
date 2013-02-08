@@ -70,7 +70,7 @@
 		self.measureHighFrequencyField = YES;
 		
 		_stepsToSkip = 0;
-		_smallestHighFrequencyAmplitude = kSFFieldSensorDefaultSmallestMaxForHighFrequencyField;
+		_smallestHighFrequencyAmplitude = 0;
 		
 		self.hfScale = kSFFieldSensorDefaultHFScaleCoef;
 		self.hfUp = kSFFieldSensorDefaultHFUpCoef;
