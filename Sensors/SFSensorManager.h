@@ -23,8 +23,9 @@ typedef enum {
 	SFDeviceHardwarePlatform_Default,
 	SFDeviceHardwarePlatform_iPhone_5,
 	SFDeviceHardwarePlatform_iPad,
+	SFDeviceHardwarePlatform_iPad_4,
 	SFDeviceHardwarePlatform_iPad_Mini,
-	SFDeviceHardwarePlatform_iPod
+	SFDeviceHardwarePlatform_iPod_Touch
 } SFDeviceHardwarePlatform;
 
 

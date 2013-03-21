@@ -30,6 +30,11 @@
 #define kSFHumiditySensoriPad2K3	0.294
 #define kSFHumiditySensoriPad2K4	1.026
 
+#define kSFHumiditySensoriPad4K1	157.7
+#define kSFHumiditySensoriPad4K2	 99.8
+#define kSFHumiditySensoriPad4K3	0.328
+#define kSFHumiditySensoriPad4K4	1.046
+
 #define kSFHumiditySensoriPadMiniK1	144.4
 #define kSFHumiditySensoriPadMiniK2	 91.6
 #define kSFHumiditySensoriPadMiniK3	0.319
@@ -75,12 +80,17 @@
 			self.K2 = kSFHumiditySensoriPad2K2;
 			self.K3 = kSFHumiditySensoriPad2K3;
 			self.K4 = kSFHumiditySensoriPad2K4;
+		} else if (hardwarePlatform == SFDeviceHardwarePlatform_iPad_4) {
+			self.K1 = kSFHumiditySensoriPad4K1;
+			self.K2 = kSFHumiditySensoriPad4K2;
+			self.K3 = kSFHumiditySensoriPad4K3;
+			self.K4 = kSFHumiditySensoriPad4K4;
 		} else if (hardwarePlatform == SFDeviceHardwarePlatform_iPad_Mini) {
 			self.K1 = kSFHumiditySensoriPadMiniK1;
 			self.K2 = kSFHumiditySensoriPadMiniK2;
 			self.K3 = kSFHumiditySensoriPadMiniK3;
 			self.K4 = kSFHumiditySensoriPadMiniK4;
-		} else if (hardwarePlatform == SFDeviceHardwarePlatform_iPod) {
+		} else if (hardwarePlatform == SFDeviceHardwarePlatform_iPod_Touch) {
 			self.K1 = kSFHumiditySensoriPod4K1;
 			self.K2 = kSFHumiditySensoriPod4K2;
 			self.K3 = kSFHumiditySensoriPod4K3;
