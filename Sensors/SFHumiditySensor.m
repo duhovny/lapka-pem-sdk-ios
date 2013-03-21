@@ -90,7 +90,7 @@
 			self.K2 = kSFHumiditySensoriPadMiniK2;
 			self.K3 = kSFHumiditySensoriPadMiniK3;
 			self.K4 = kSFHumiditySensoriPadMiniK4;
-		} else if (hardwarePlatform == SFDeviceHardwarePlatform_iPod) {
+		} else if (hardwarePlatform == SFDeviceHardwarePlatform_iPod_Touch) {
 			self.K1 = kSFHumiditySensoriPod4K1;
 			self.K2 = kSFHumiditySensoriPod4K2;
 			self.K3 = kSFHumiditySensoriPod4K3;

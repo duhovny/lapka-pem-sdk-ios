@@ -17,15 +17,30 @@
 
 #define kSFNitratesSensorSignalToNitratesCoef		395.37
 
-#define kSFNitratesSensorDefaultK1  26.0
-#define kSFNitratesSensorDefaultK2 205.0
-#define kSFNitratesSensorDefaultK3 118.0
-#define kSFNitratesSensorDefaultK4 0.012
+#define kSFNitratesSensoriPhone4K1		 26.0
+#define kSFNitratesSensoriPhone4K2		151.0
+#define kSFNitratesSensoriPhone4K3		 93.0
+#define kSFNitratesSensoriPhone4K4		0.000
 
-#define kSFNitratesSensoriPhone5K1  23.0
-#define kSFNitratesSensoriPhone5K2 205.0
-#define kSFNitratesSensoriPhone5K3 118.0
-#define kSFNitratesSensoriPhone5K4 0.000
+#define kSFNitratesSensoriPhone5K1		 23.0
+#define kSFNitratesSensoriPhone5K2		205.0
+#define kSFNitratesSensoriPhone5K3		118.0
+#define kSFNitratesSensoriPhone5K4		0.000
+
+#define kSFNitratesSensoriPad4K1		 26.0
+#define kSFNitratesSensoriPad4K2		164.0
+#define kSFNitratesSensoriPad4K3		100.0
+#define kSFNitratesSensoriPad4K4		0.000
+
+#define kSFNitratesSensoriPadMiniK1		 26.0
+#define kSFNitratesSensoriPadMiniK2		137.0
+#define kSFNitratesSensoriPadMiniK3		 80.0
+#define kSFNitratesSensoriPadMiniK4		0.000
+
+#define kSFNitratesSensoriPodTouch4K1	 26.0
+#define kSFNitratesSensoriPodTouch4K2	154.0
+#define kSFNitratesSensoriPodTouch4K3	 97.0
+#define kSFNitratesSensoriPodTouch4K4	0.000
 
 
 
@@ -53,11 +68,26 @@
 			self.K2 = kSFNitratesSensoriPhone5K2;
 			self.K3 = kSFNitratesSensoriPhone5K3;
 			self.K4 = kSFNitratesSensoriPhone5K4;
+		} else if (hardwarePlatform == SFDeviceHardwarePlatform_iPad_4) {
+			self.K1 = kSFNitratesSensoriPad4K1;
+			self.K2 = kSFNitratesSensoriPad4K2;
+			self.K3 = kSFNitratesSensoriPad4K3;
+			self.K4 = kSFNitratesSensoriPad4K4;
+		} else if (hardwarePlatform == SFDeviceHardwarePlatform_iPad_Mini) {
+			self.K1 = kSFNitratesSensoriPadMiniK1;
+			self.K2 = kSFNitratesSensoriPadMiniK2;
+			self.K3 = kSFNitratesSensoriPadMiniK3;
+			self.K4 = kSFNitratesSensoriPadMiniK4;
+		} else if (hardwarePlatform == SFDeviceHardwarePlatform_iPod_Touch) {
+			self.K1 = kSFNitratesSensoriPodTouch4K1;
+			self.K2 = kSFNitratesSensoriPodTouch4K2;
+			self.K3 = kSFNitratesSensoriPodTouch4K3;
+			self.K4 = kSFNitratesSensoriPodTouch4K4;
 		} else {
-			self.K1 = kSFNitratesSensorDefaultK1;
-			self.K2 = kSFNitratesSensorDefaultK2;
-			self.K3 = kSFNitratesSensorDefaultK3;
-			self.K4 = kSFNitratesSensorDefaultK4;
+			self.K1 = kSFNitratesSensoriPhone4K1;
+			self.K2 = kSFNitratesSensoriPhone4K2;
+			self.K3 = kSFNitratesSensoriPhone4K3;
+			self.K4 = kSFNitratesSensoriPhone4K4;
 		}
 		
 	}
