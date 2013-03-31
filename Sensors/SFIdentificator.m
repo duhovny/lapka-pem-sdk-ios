@@ -6,8 +6,8 @@
 #import "SFIdentificator.h"
 #import "SFAudioSessionManager.h"
 
-#define kSFIdentificationMeanSteps		10
-#define kSFIdentificationStepsToSkip	 3
+#define kSFIdentificationMeanSteps		20
+#define kSFIdentificationStepsToSkip	 6
 
 #define IDENTIFICATION_THRESHOLD_MINIMUM 0.0013
 
