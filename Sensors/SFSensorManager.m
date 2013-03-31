@@ -56,7 +56,7 @@ NSString *const SFSensorManagerNeedUserPermissionToSwitchToEU = @"SFSensorManage
 		// default
 		_activeMode = NO;
 		_currentSensorType = SFSensorTypeUnknown;
-		_hardwarePlatform = SFDeviceHardwarePlatform_Default;
+		_hardwarePlatform = SFDeviceHardwarePlatform_iPhone_5;
 	}
 	return self;
 }

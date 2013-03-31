@@ -68,7 +68,9 @@
 			self.K2 = kSFNitratesSensoriPhone5K2;
 			self.K3 = kSFNitratesSensoriPhone5K3;
 			self.K4 = kSFNitratesSensoriPhone5K4;
-		} else if (hardwarePlatform == SFDeviceHardwarePlatform_iPad_4) {
+		} else if (hardwarePlatform == SFDeviceHardwarePlatform_iPad_2 ||
+				   hardwarePlatform == SFDeviceHardwarePlatform_iPad_3 ||
+				   hardwarePlatform == SFDeviceHardwarePlatform_iPad_4) {
 			self.K1 = kSFNitratesSensoriPad4K1;
 			self.K2 = kSFNitratesSensoriPad4K2;
 			self.K3 = kSFNitratesSensoriPad4K3;
@@ -78,7 +80,8 @@
 			self.K2 = kSFNitratesSensoriPadMiniK2;
 			self.K3 = kSFNitratesSensoriPadMiniK3;
 			self.K4 = kSFNitratesSensoriPadMiniK4;
-		} else if (hardwarePlatform == SFDeviceHardwarePlatform_iPod_Touch) {
+		} else if (hardwarePlatform == SFDeviceHardwarePlatform_iPod_Touch_4G ||
+				   hardwarePlatform == SFDeviceHardwarePlatform_iPod_Touch_5G) {
 			self.K1 = kSFNitratesSensoriPodTouch4K1;
 			self.K2 = kSFNitratesSensoriPodTouch4K2;
 			self.K3 = kSFNitratesSensoriPodTouch4K3;
