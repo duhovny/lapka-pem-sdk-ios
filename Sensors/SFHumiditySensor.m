@@ -75,12 +75,13 @@
 			self.K2 = kSFHumiditySensoriPhone5K2;
 			self.K3 = kSFHumiditySensoriPhone5K3;
 			self.K4 = kSFHumiditySensoriPhone5K4;
-		} else if (hardwarePlatform == SFDeviceHardwarePlatform_iPad) {
+		} else if (hardwarePlatform == SFDeviceHardwarePlatform_iPad_2) {
 			self.K1 = kSFHumiditySensoriPad2K1;
 			self.K2 = kSFHumiditySensoriPad2K2;
 			self.K3 = kSFHumiditySensoriPad2K3;
 			self.K4 = kSFHumiditySensoriPad2K4;
-		} else if (hardwarePlatform == SFDeviceHardwarePlatform_iPad_4) {
+		} else if (hardwarePlatform == SFDeviceHardwarePlatform_iPad_3 ||
+				   hardwarePlatform == SFDeviceHardwarePlatform_iPad_4) {
 			self.K1 = kSFHumiditySensoriPad4K1;
 			self.K2 = kSFHumiditySensoriPad4K2;
 			self.K3 = kSFHumiditySensoriPad4K3;
@@ -90,7 +91,8 @@
 			self.K2 = kSFHumiditySensoriPadMiniK2;
 			self.K3 = kSFHumiditySensoriPadMiniK3;
 			self.K4 = kSFHumiditySensoriPadMiniK4;
-		} else if (hardwarePlatform == SFDeviceHardwarePlatform_iPod_Touch) {
+		} else if (hardwarePlatform == SFDeviceHardwarePlatform_iPod_Touch_4G ||
+				   hardwarePlatform == SFDeviceHardwarePlatform_iPod_Touch_5G) {
 			self.K1 = kSFHumiditySensoriPod4K1;
 			self.K2 = kSFHumiditySensoriPod4K2;
 			self.K3 = kSFHumiditySensoriPod4K3;
