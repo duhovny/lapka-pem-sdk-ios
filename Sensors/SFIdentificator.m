@@ -13,7 +13,7 @@
 
 #define kSFIdentificationFingerprintThreshold_iPhone_3GS
 #define kSFIdentificationFingerprintThreshold_iPhone_4			0.191
-#define kSFIdentificationFingerprintThreshold_iPhone_4S
+#define kSFIdentificationFingerprintThreshold_iPhone_4S			0.225
 #define kSFIdentificationFingerprintThreshold_iPhone_5			0.074
 #define kSFIdentificationFingerprintThreshold_iPod_Touch_4G		0.127
 #define kSFIdentificationFingerprintThreshold_iPod_Touch_5G
@@ -21,8 +21,6 @@
 #define kSFIdentificationFingerprintThreshold_iPad_3
 #define kSFIdentificationFingerprintThreshold_iPad_4
 #define kSFIdentificationFingerprintThreshold_iPad_Mini			0.226
-
-#define IDENTIFICATION_THRESHOLD_MINIMUM 0.0013
 
 
 @interface SFIdentificator () <SFSignalProcessorDelegate> {
@@ -228,16 +226,6 @@
 }
 
 
-- (void)handleIdentificationThresholdLessThanMinimum {
-	
-	NSLog(@"Identification threshold is less than minimum");
-	
-	// means this is not Lapka device, so tell delegate
-	if ([self.delegate respondsToSelector:@selector(identificatorDidRecognizeNotLapkaBeingPluggedIn)])
-		[self.delegate identificatorDidRecognizeNotLapkaBeingPluggedIn];
-}
-
-
 - (BOOL)sidlooksLikeDeviceIsEuropean:(SFSensorID)sid {
 	
 	// refactor: remove this method
@@ -349,12 +337,6 @@
 					
 					// set identification threshold to one third of microphone level
 					identificationThreshold = amplitude * 1.0 / 3.0;
-					
-					/*
-					if (identificationThreshold < IDENTIFICATION_THRESHOLD_MINIMUM) {
-						[self handleIdentificationThresholdLessThanMinimum];
-					}
-					*/
 					
 					// tell delegate microphone level
 					if ([self.delegate respondsToSelector:@selector(identificatorDidRecognizeDeviceMicrophoneLevel:)])

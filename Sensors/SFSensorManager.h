@@ -10,7 +10,6 @@
 
 extern NSString *const SFSensorManagerWillStartSensorIdentification;
 extern NSString *const SFSensorManagerDidFinishSensorIdentification;
-extern NSString *const SFSensorManagerDidRecognizeNotLapkaPluggedInNotification;
 extern NSString *const SFSensorManagerDidRecognizeSensorPluggedInNotification;
 extern NSString *const SFSensorManagerDidRecognizeSensorPluggedOutNotification;
 extern NSString *const SFSensorManagerNeedUserPermissionToSwitchToEU;
