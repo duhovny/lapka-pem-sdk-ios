@@ -259,8 +259,11 @@
 		
 		case SFDeviceHardwarePlatform_iPhone_3GS:
 		case SFDeviceHardwarePlatform_iPhone_4:
-		case SFDeviceHardwarePlatform_iPhone_4S:
 			fingerprintThreshold = kSFIdentificationFingerprintThreshold_iPhone_4;
+			break;
+			
+		case SFDeviceHardwarePlatform_iPhone_4S:
+			fingerprintThreshold = kSFIdentificationFingerprintThreshold_iPhone_4S;
 			break;
 			
 		case SFDeviceHardwarePlatform_iPhone_5:
