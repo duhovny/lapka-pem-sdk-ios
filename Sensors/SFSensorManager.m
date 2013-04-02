@@ -11,7 +11,6 @@
 // Notifications
 NSString *const SFSensorManagerWillStartSensorIdentification = @"SFSensorManagerWillStartSensorIdentification";
 NSString *const SFSensorManagerDidFinishSensorIdentification = @"SFSensorManagerDidFinishSensorIdentification";
-NSString *const SFSensorManagerDidRecognizeNotLapkaPluggedInNotification = @"SFSensorManagerDidRecognizeNotLapkaPluggedInNotification";
 NSString *const SFSensorManagerDidRecognizeSensorPluggedInNotification = @"SFSensorManagerDidRecognizeSensorPluggedInNotification";
 NSString *const SFSensorManagerDidRecognizeSensorPluggedOutNotification = @"SFSensorManagerDidRecognizeSensorPluggedOutNotification";
 NSString *const SFSensorManagerNeedUserPermissionToSwitchToEU = @"SFSensorManagerNeedUserPermissionToSwitchToEU";
@@ -174,17 +173,6 @@ NSString *const SFSensorManagerNeedUserPermissionToSwitchToEU = @"SFSensorManage
 	} else {
 		[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorManagerDidRecognizeSensorPluggedInNotification object:nil];
 	}
-}
-
-
-- (void)identificatorDidRecognizeNotLapkaBeingPluggedIn {
-	
-	NSLog(@"identificatorDidRecognizeNotLapkaBeingPluggedIn");
-	[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorManagerDidRecognizeNotLapkaPluggedInNotification object:nil];
-	
-	[identificator abortIdentification];
-	
-	[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorManagerDidFinishSensorIdentification object:nil];
 }
 
 
