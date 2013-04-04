@@ -17,9 +17,9 @@
 #define kSFIdentificationFingerprintThreshold_iPhone_5			0.074
 #define kSFIdentificationFingerprintThreshold_iPod_Touch_4G		0.127
 #define kSFIdentificationFingerprintThreshold_iPod_Touch_5G
-#define kSFIdentificationFingerprintThreshold_iPad_2
+#define kSFIdentificationFingerprintThreshold_iPad_2			0.225
 #define kSFIdentificationFingerprintThreshold_iPad_3
-#define kSFIdentificationFingerprintThreshold_iPad_4
+#define kSFIdentificationFingerprintThreshold_iPad_4			0.251
 #define kSFIdentificationFingerprintThreshold_iPad_Mini			0.226
 
 
@@ -276,8 +276,14 @@
 			break;
 		
 		case SFDeviceHardwarePlatform_iPad_2:
+			fingerprintThreshold = kSFIdentificationFingerprintThreshold_iPad_2;
+			break;
+			
 		case SFDeviceHardwarePlatform_iPad_3:
 		case SFDeviceHardwarePlatform_iPad_4:
+			fingerprintThreshold = kSFIdentificationFingerprintThreshold_iPad_4;
+			break;
+			
 		case SFDeviceHardwarePlatform_iPad_Mini:
 			fingerprintThreshold = kSFIdentificationFingerprintThreshold_iPad_Mini;
 			break;
