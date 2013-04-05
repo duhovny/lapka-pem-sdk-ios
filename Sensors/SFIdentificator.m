@@ -11,14 +11,14 @@
 #define kSFIdentificationStepsToSkip	 3
 #define kSFIdentificationNotHumToHumFingerprintThresholdCoef	1.51
 
-#define kSFIdentificationFingerprintThreshold_iPhone_3GS
+#define kSFIdentificationFingerprintThreshold_iPhone_3GS		0.195
 #define kSFIdentificationFingerprintThreshold_iPhone_4			0.191
 #define kSFIdentificationFingerprintThreshold_iPhone_4S			0.225
 #define kSFIdentificationFingerprintThreshold_iPhone_5			0.074
 #define kSFIdentificationFingerprintThreshold_iPod_Touch_4G		0.127
 #define kSFIdentificationFingerprintThreshold_iPod_Touch_5G
 #define kSFIdentificationFingerprintThreshold_iPad_2			0.225
-#define kSFIdentificationFingerprintThreshold_iPad_3
+#define kSFIdentificationFingerprintThreshold_iPad_3			0.220
 #define kSFIdentificationFingerprintThreshold_iPad_4			0.251
 #define kSFIdentificationFingerprintThreshold_iPad_Mini			0.226
 
@@ -256,6 +256,9 @@
 	switch (hardwarePlatform) {
 		
 		case SFDeviceHardwarePlatform_iPhone_3GS:
+			fingerprintThreshold = kSFIdentificationFingerprintThreshold_iPhone_3GS;
+			break;
+			
 		case SFDeviceHardwarePlatform_iPhone_4:
 			fingerprintThreshold = kSFIdentificationFingerprintThreshold_iPhone_4;
 			break;
@@ -264,20 +267,22 @@
 			fingerprintThreshold = kSFIdentificationFingerprintThreshold_iPhone_4S;
 			break;
 			
+		case SFDeviceHardwarePlatform_iPod_Touch_5G:
 		case SFDeviceHardwarePlatform_iPhone_5:
 			fingerprintThreshold = kSFIdentificationFingerprintThreshold_iPhone_5;
 			break;
 			
 		case SFDeviceHardwarePlatform_iPod_Touch_4G:
-		case SFDeviceHardwarePlatform_iPod_Touch_5G:
 			fingerprintThreshold = kSFIdentificationFingerprintThreshold_iPod_Touch_4G;
 			break;
 		
 		case SFDeviceHardwarePlatform_iPad_2:
 			fingerprintThreshold = kSFIdentificationFingerprintThreshold_iPad_2;
 			break;
-			
+		
 		case SFDeviceHardwarePlatform_iPad_3:
+			fingerprintThreshold = kSFIdentificationFingerprintThreshold_iPad_3;
+			
 		case SFDeviceHardwarePlatform_iPad_4:
 			fingerprintThreshold = kSFIdentificationFingerprintThreshold_iPad_4;
 			break;
