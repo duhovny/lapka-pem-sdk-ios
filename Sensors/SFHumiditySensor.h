@@ -46,6 +46,7 @@ typedef enum {
 @property float K2;
 @property float K3;
 @property float K4;
+@property float K5;
 
 - (void)recalculateMeasures;
 

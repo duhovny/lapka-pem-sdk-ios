@@ -15,35 +15,41 @@
 #define kSFHumiditySensorTemperatureMeanSteps   50	// 1.0 sec
 #define kSFHumiditySensorHumidityMeanSteps		50	// 1.0 sec
 
-#define kSFHumiditySensorDefaultK1	104.0
-#define kSFHumiditySensorDefaultK2	 68.6
-#define kSFHumiditySensorDefaultK3	0.298
-#define kSFHumiditySensorDefaultK4	1.026
+#define kSFHumiditySensoriPhone4K1	122.0
+#define kSFHumiditySensoriPhone4K2	 77.4
+#define kSFHumiditySensoriPhone4K3	0.261
+#define kSFHumiditySensoriPhone4K4	0.982
+#define kSFHumiditySensoriPhone4K5	 1.26
 
-#define kSFHumiditySensoriPhone5K1	103.4
-#define kSFHumiditySensoriPhone5K2	 68.5
-#define kSFHumiditySensoriPhone5K3	0.241
-#define kSFHumiditySensoriPhone5K4	1.109
+#define kSFHumiditySensoriPhone5K1	122.0
+#define kSFHumiditySensoriPhone5K2	 77.4
+#define kSFHumiditySensoriPhone5K3	0.261
+#define kSFHumiditySensoriPhone5K4	1.056
+#define kSFHumiditySensoriPhone5K5	 1.26
 
-#define kSFHumiditySensoriPad2K1	104.0
-#define kSFHumiditySensoriPad2K2	 64.4
-#define kSFHumiditySensoriPad2K3	0.294
-#define kSFHumiditySensoriPad2K4	1.026
+#define kSFHumiditySensoriPad2K1	109.9
+#define kSFHumiditySensoriPad2K2	 66.5
+#define kSFHumiditySensoriPad2K3	0.286
+#define kSFHumiditySensoriPad2K4	1.010
+#define kSFHumiditySensoriPad2K5	 1.33
 
-#define kSFHumiditySensoriPad4K1	157.7
-#define kSFHumiditySensoriPad4K2	 99.8
-#define kSFHumiditySensoriPad4K3	0.328
-#define kSFHumiditySensoriPad4K4	1.046
+#define kSFHumiditySensoriPad4K1	129.9
+#define kSFHumiditySensoriPad4K2	 85.6
+#define kSFHumiditySensoriPad4K3	0.318
+#define kSFHumiditySensoriPad4K4	0.986
+#define kSFHumiditySensoriPad4K5	 1.30
 
-#define kSFHumiditySensoriPadMiniK1	144.4
-#define kSFHumiditySensoriPadMiniK2	 91.6
-#define kSFHumiditySensoriPadMiniK3	0.319
-#define kSFHumiditySensoriPadMiniK4	1.095
+#define kSFHumiditySensoriPadMiniK1	126.6
+#define kSFHumiditySensoriPadMiniK2	 83.1
+#define kSFHumiditySensoriPadMiniK3	0.314
+#define kSFHumiditySensoriPadMiniK4	0.990
+#define kSFHumiditySensoriPadMiniK5	 1.32
 
-#define kSFHumiditySensoriPod4K1	103.5
-#define kSFHumiditySensoriPod4K2	 67.9
-#define kSFHumiditySensoriPod4K3	0.297
-#define kSFHumiditySensoriPod4K4	1.039
+#define kSFHumiditySensoriPod4K1	119.0
+#define kSFHumiditySensoriPod4K2	 75.6
+#define kSFHumiditySensoriPod4K3	0.311
+#define kSFHumiditySensoriPod4K4	0.994
+#define kSFHumiditySensoriPod4K5	 1.32
 
 
 @implementation SFHumiditySensor
@@ -70,38 +76,70 @@
 	if ((self = [super initWithSignalProcessor:aSignalProcessor]))
 	{
 		SFDeviceHardwarePlatform hardwarePlatform = [[SFSensorManager sharedManager] hardwarePlatform];
-		if (hardwarePlatform == SFDeviceHardwarePlatform_iPhone_5) {
-			self.K1 = kSFHumiditySensoriPhone5K1;
-			self.K2 = kSFHumiditySensoriPhone5K2;
-			self.K3 = kSFHumiditySensoriPhone5K3;
-			self.K4 = kSFHumiditySensoriPhone5K4;
-		} else if (hardwarePlatform == SFDeviceHardwarePlatform_iPad_2) {
-			self.K1 = kSFHumiditySensoriPad2K1;
-			self.K2 = kSFHumiditySensoriPad2K2;
-			self.K3 = kSFHumiditySensoriPad2K3;
-			self.K4 = kSFHumiditySensoriPad2K4;
-		} else if (hardwarePlatform == SFDeviceHardwarePlatform_iPad_3 ||
-				   hardwarePlatform == SFDeviceHardwarePlatform_iPad_4) {
-			self.K1 = kSFHumiditySensoriPad4K1;
-			self.K2 = kSFHumiditySensoriPad4K2;
-			self.K3 = kSFHumiditySensoriPad4K3;
-			self.K4 = kSFHumiditySensoriPad4K4;
-		} else if (hardwarePlatform == SFDeviceHardwarePlatform_iPad_Mini) {
-			self.K1 = kSFHumiditySensoriPadMiniK1;
-			self.K2 = kSFHumiditySensoriPadMiniK2;
-			self.K3 = kSFHumiditySensoriPadMiniK3;
-			self.K4 = kSFHumiditySensoriPadMiniK4;
-		} else if (hardwarePlatform == SFDeviceHardwarePlatform_iPod_Touch_4G ||
-				   hardwarePlatform == SFDeviceHardwarePlatform_iPod_Touch_5G) {
-			self.K1 = kSFHumiditySensoriPod4K1;
-			self.K2 = kSFHumiditySensoriPod4K2;
-			self.K3 = kSFHumiditySensoriPod4K3;
-			self.K4 = kSFHumiditySensoriPod4K4;
-		} else {
-			self.K1 = kSFHumiditySensorDefaultK1;
-			self.K2 = kSFHumiditySensorDefaultK2;
-			self.K3 = kSFHumiditySensorDefaultK3;
-			self.K4 = kSFHumiditySensorDefaultK4;
+		
+		switch (hardwarePlatform) {
+			case SFDeviceHardwarePlatform_iPhone_3GS:
+			case SFDeviceHardwarePlatform_iPhone_4:
+			case SFDeviceHardwarePlatform_iPhone_4S:
+			{
+				self.K1 = kSFHumiditySensoriPhone4K1;
+				self.K2 = kSFHumiditySensoriPhone4K2;
+				self.K3 = kSFHumiditySensoriPhone4K3;
+				self.K4 = kSFHumiditySensoriPhone4K4;
+				self.K5 = kSFHumiditySensoriPhone4K5;
+				break;
+			}
+				
+			case SFDeviceHardwarePlatform_iPhone_5:
+			{
+				self.K1 = kSFHumiditySensoriPhone5K1;
+				self.K2 = kSFHumiditySensoriPhone5K2;
+				self.K3 = kSFHumiditySensoriPhone5K3;
+				self.K4 = kSFHumiditySensoriPhone5K4;
+				self.K5 = kSFHumiditySensoriPhone5K5;
+				break;
+			}
+				
+			case SFDeviceHardwarePlatform_iPad_2:
+			{
+				self.K1 = kSFHumiditySensoriPad2K1;
+				self.K2 = kSFHumiditySensoriPad2K2;
+				self.K3 = kSFHumiditySensoriPad2K3;
+				self.K4 = kSFHumiditySensoriPad2K4;
+				self.K5 = kSFHumiditySensoriPad2K5;
+				break;
+			}
+				
+			case SFDeviceHardwarePlatform_iPad_3:
+			case SFDeviceHardwarePlatform_iPad_4:
+			{
+				self.K1 = kSFHumiditySensoriPad4K1;
+				self.K2 = kSFHumiditySensoriPad4K2;
+				self.K3 = kSFHumiditySensoriPad4K3;
+				self.K4 = kSFHumiditySensoriPad4K4;
+				self.K5 = kSFHumiditySensoriPad4K5;
+				break;
+			}
+				
+			case SFDeviceHardwarePlatform_iPad_Mini:
+			{
+				self.K1 = kSFHumiditySensoriPadMiniK1;
+				self.K2 = kSFHumiditySensoriPadMiniK2;
+				self.K3 = kSFHumiditySensoriPadMiniK3;
+				self.K4 = kSFHumiditySensoriPadMiniK4;
+				self.K5 = kSFHumiditySensoriPadMiniK5;
+				break;
+			}
+				
+			default:
+			{
+				self.K1 = kSFHumiditySensoriPhone4K1;
+				self.K2 = kSFHumiditySensoriPhone4K2;
+				self.K3 = kSFHumiditySensoriPhone4K3;
+				self.K4 = kSFHumiditySensoriPhone4K4;
+				self.K5 = kSFHumiditySensoriPhone4K5;
+				break;
+			}
 		}
 		
 	}
@@ -178,8 +216,14 @@
 	Float32 U2 = amplitude;
 	Float32 K1 = self.K1;
 	Float32 K2 = self.K2;
+	Float32 K5 = self.K5;
 	
 	Float32 T = K2 - K1 * (U2/U1);
+	
+	// under-zero temperature correction
+	
+	if (T < 0)
+		T *= K5;
 	
 	return T;
 }
