@@ -12,19 +12,35 @@
 #define kSFNitratesSensorCalibrationMeanSteps				  3	// 0.06 sec (0.04 wait + 0.02 measure)
 #define kSFNitratesSensorFirstTemperatureMeasureMeanSteps	200	// 4 sec
 #define kSFNitratesSensorTemperatureMeasureMeanSteps		 10	// 0.2 sec
-#define kSFNitratesSensorNitratesMeasureMeanSteps			 10	// 0.2 sec
+#define kSFNitratesSensorEmptyNitratesMeasureMeanSteps		 25	// 0.5 sec
+#define kSFNitratesSensorNitratesMeasureMeanSteps			200	// 4.0 sec
 
 #define kSFNitratesSensorSignalToNitratesCoef		395.37
 
-#define kSFNitratesSensorDefaultK1  26.0
-#define kSFNitratesSensorDefaultK2 205.0
-#define kSFNitratesSensorDefaultK3 118.0
-#define kSFNitratesSensorDefaultK4 0.012
+#define kSFNitratesSensoriPhone4K1		 26.0
+#define kSFNitratesSensoriPhone4K2		151.0
+#define kSFNitratesSensoriPhone4K3		 93.0
+#define kSFNitratesSensoriPhone4K4		0.000
 
-#define kSFNitratesSensoriPhone5K1  23.0
-#define kSFNitratesSensoriPhone5K2 205.0
-#define kSFNitratesSensoriPhone5K3 118.0
-#define kSFNitratesSensoriPhone5K4 0.000
+#define kSFNitratesSensoriPhone5K1		 23.0
+#define kSFNitratesSensoriPhone5K2		205.0
+#define kSFNitratesSensoriPhone5K3		118.0
+#define kSFNitratesSensoriPhone5K4		0.000
+
+#define kSFNitratesSensoriPad4K1		 26.0
+#define kSFNitratesSensoriPad4K2		164.0
+#define kSFNitratesSensoriPad4K3		100.0
+#define kSFNitratesSensoriPad4K4		0.000
+
+#define kSFNitratesSensoriPadMiniK1		 26.0
+#define kSFNitratesSensoriPadMiniK2		137.0
+#define kSFNitratesSensoriPadMiniK3		 80.0
+#define kSFNitratesSensoriPadMiniK4		0.000
+
+#define kSFNitratesSensoriPodTouch4K1	 26.0
+#define kSFNitratesSensoriPodTouch4K2	154.0
+#define kSFNitratesSensoriPodTouch4K3	 97.0
+#define kSFNitratesSensoriPodTouch4K4	0.000
 
 
 
@@ -52,11 +68,29 @@
 			self.K2 = kSFNitratesSensoriPhone5K2;
 			self.K3 = kSFNitratesSensoriPhone5K3;
 			self.K4 = kSFNitratesSensoriPhone5K4;
+		} else if (hardwarePlatform == SFDeviceHardwarePlatform_iPad_2 ||
+				   hardwarePlatform == SFDeviceHardwarePlatform_iPad_3 ||
+				   hardwarePlatform == SFDeviceHardwarePlatform_iPad_4) {
+			self.K1 = kSFNitratesSensoriPad4K1;
+			self.K2 = kSFNitratesSensoriPad4K2;
+			self.K3 = kSFNitratesSensoriPad4K3;
+			self.K4 = kSFNitratesSensoriPad4K4;
+		} else if (hardwarePlatform == SFDeviceHardwarePlatform_iPad_Mini) {
+			self.K1 = kSFNitratesSensoriPadMiniK1;
+			self.K2 = kSFNitratesSensoriPadMiniK2;
+			self.K3 = kSFNitratesSensoriPadMiniK3;
+			self.K4 = kSFNitratesSensoriPadMiniK4;
+		} else if (hardwarePlatform == SFDeviceHardwarePlatform_iPod_Touch_4G ||
+				   hardwarePlatform == SFDeviceHardwarePlatform_iPod_Touch_5G) {
+			self.K1 = kSFNitratesSensoriPodTouch4K1;
+			self.K2 = kSFNitratesSensoriPodTouch4K2;
+			self.K3 = kSFNitratesSensoriPodTouch4K3;
+			self.K4 = kSFNitratesSensoriPodTouch4K4;
 		} else {
-			self.K1 = kSFNitratesSensorDefaultK1;
-			self.K2 = kSFNitratesSensorDefaultK2;
-			self.K3 = kSFNitratesSensorDefaultK3;
-			self.K4 = kSFNitratesSensorDefaultK4;
+			self.K1 = kSFNitratesSensoriPhone4K1;
+			self.K2 = kSFNitratesSensoriPhone4K2;
+			self.K3 = kSFNitratesSensoriPhone4K3;
+			self.K4 = kSFNitratesSensoriPhone4K4;
 		}
 		
 	}
@@ -90,7 +124,7 @@
 
 - (void)setupForFirstTemperatureMeasurement {
 	
-	_state = SFNitratesSensorStateTemperatureMeasurement;
+	_state = SFNitratesSensorStateFirstTemperatureMeasurement;
 	
 	self.signalProcessor.leftAmplitude = kSFControlSignalBitZero;
 	self.signalProcessor.rightAmplitude = kSFControlSignalBitOne;
@@ -105,6 +139,16 @@
 	self.signalProcessor.leftAmplitude = kSFControlSignalBitZero;
 	self.signalProcessor.rightAmplitude = kSFControlSignalBitOne;
 	self.signalProcessor.fftAnalyzer.meanSteps = kSFNitratesSensorTemperatureMeasureMeanSteps;
+}
+
+
+- (void)setupForEmptyNitratesMeasurement {
+	
+	_state = SFNitratesSensorStateEmptyNitratesMeasurement;
+	
+	self.signalProcessor.leftAmplitude = kSFControlSignalBitOne;
+	self.signalProcessor.rightAmplitude = kSFControlSignalBitOne;
+	self.signalProcessor.fftAnalyzer.meanSteps = kSFNitratesSensorEmptyNitratesMeasureMeanSteps;
 }
 
 
@@ -136,8 +180,10 @@
 	
 	_temperature_level = 0;
 	_calibration_level = 0;
+	_empty_nitrates_level = 0;
 	_nitrates_level = 0;
 	
+	_empty_nitrates = 0;
 	_temperature = 0;
 	_nitrates = 0;
 	
@@ -190,6 +236,13 @@
 }
 
 
+- (void)measureNitrates {
+	
+	if (_state != SFNitratesSensorStateCalibrationComplete) return;
+	[self setupForNitratesMeasurement];
+}
+
+
 #pragma mark -
 #pragma mark Calculation
 
@@ -211,7 +264,7 @@
 }
 
 
-- (float)calculateNitrates {
+- (float)calculateNitratesWithNitratesLevel:(float)nitratesLevel {
 	
 	// coefficients
 	float K1 = _K1;
@@ -219,7 +272,7 @@
 	
 	// measurements
 	float U2 = _calibration_level;
-	float U3 = _nitrates_level;
+	float U3 = nitratesLevel;
 	
 	// temperature
 	float T = _temperature;
@@ -249,23 +302,45 @@
 			[self setupForCalibration];
 			break;
 			
-		case SFNitratesSensorStateCalibration:
+		case SFNitratesSensorStateCalibration: {
 			_calibration_level = amplitude;
 			[self setupForFirstTemperatureMeasurement];
 			break;
+		}
 			
-		case SFNitratesSensorStateTemperatureMeasurement:
+		case SFNitratesSensorStateFirstTemperatureMeasurement: {
+			_temperature_level = amplitude;
+			_temperature = [self calculateTemperature];
+			[self setupForEmptyNitratesMeasurement];
+			break;
+		}
+			
+		case SFNitratesSensorStateEmptyNitratesMeasurement: {
+			_empty_nitrates_level = amplitude;
+			_empty_nitrates = [self calculateNitratesWithNitratesLevel:_empty_nitrates_level];
+			NSLog(@"_empty_nitrates %g", _empty_nitrates);
+			[self.delegate nitratesSensorCalibrationComplete];
+			_state = SFNitratesSensorStateCalibrationComplete;
+			break;
+		}
+			
+		case SFNitratesSensorStateNitratesMeasurement: {
+			_nitrates_level = amplitude;
+			_nitrates = [self calculateNitratesWithNitratesLevel:_nitrates_level];
+			NSLog(@"_nitrates %g", _nitrates);
+			_nitrates = MAX(_nitrates - _empty_nitrates, 0);
+			NSLog(@"zeroed _nitrates %g", _nitrates);
+			[self.delegate nitratesSensorGotNitrates:_nitrates];
+			[self setupForTemperatureMeasurement];
+			break;
+		}
+			
+		case SFNitratesSensorStateTemperatureMeasurement: {
 			_temperature_level = amplitude;
 			_temperature = [self calculateTemperature];
 			[self setupForNitratesMeasurement];
 			break;
-			
-		case SFNitratesSensorStateNitratesMeasurement:
-			_nitrates_level = amplitude;
-			_nitrates = [self calculateNitrates];
-			[self.delegate nitratesSensorGotNitrates:_nitrates];
-			[self setupForTemperatureMeasurement];
-			break;
+		}
 			
 		default:
 			break;

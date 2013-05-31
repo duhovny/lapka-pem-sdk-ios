@@ -55,7 +55,7 @@ NSString *const SFSensorManagerNeedUserPermissionToSwitchToEU = @"SFSensorManage
 		// default
 		_activeMode = NO;
 		_currentSensorType = SFSensorTypeUnknown;
-		_hardwarePlatform = SFDeviceHardwarePlatform_Default;
+		_hardwarePlatform = SFDeviceHardwarePlatform_iPhone_5;
 	}
 	return self;
 }
@@ -120,7 +120,7 @@ NSString *const SFSensorManagerNeedUserPermissionToSwitchToEU = @"SFSensorManage
 		
 		if (_currentSensorType == SFSensorTypeUnknown) {
 			[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorManagerWillStartSensorIdentification object:nil];
-			float delayInSeconds = 0.1;
+			float delayInSeconds = 0.6;
 			dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
 			dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
 				[self.identificator identificate];
@@ -173,15 +173,6 @@ NSString *const SFSensorManagerNeedUserPermissionToSwitchToEU = @"SFSensorManage
 	} else {
 		[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorManagerDidRecognizeSensorPluggedInNotification object:nil];
 	}
-}
-
-
-- (void)identificatorDidRecognizeNotLapkaBeingPluggedIn {
-	
-	NSLog(@"identificatorDidRecognizeNotLapkaBeingPluggedIn");
-	[identificator abortIdentification];
-	
-	[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorManagerDidFinishSensorIdentification object:nil];
 }
 
 

@@ -11,11 +11,15 @@ typedef enum {
 	SFNitratesSensorStateOff = 0,
 	SFNitratesSensorStateSafeDelay,
 	SFNitratesSensorStateCalibration,
-	SFNitratesSensorStateTemperatureMeasurement,
-	SFNitratesSensorStateNitratesMeasurement
+	SFNitratesSensorStateFirstTemperatureMeasurement,
+	SFNitratesSensorStateEmptyNitratesMeasurement,
+	SFNitratesSensorStateCalibrationComplete,
+	SFNitratesSensorStateNitratesMeasurement,
+	SFNitratesSensorStateTemperatureMeasurement
 } SFNitratesSensorState;
 
 @protocol SFNitratesSensorDelegate <SFAbstractSensorDelegate>
+- (void)nitratesSensorCalibrationComplete;
 - (void)nitratesSensorGotNitrates:(float)nitrates;
 @end
 
@@ -31,8 +35,10 @@ typedef enum {
 
 @property (readonly) float calibration_level;
 @property (readonly) float temperature_level;
+@property (readonly) float empty_nitrates_level;
 @property (readonly) float nitrates_level;
 
+@property (readonly) float empty_nitrates;
 @property (readonly) float nitrates;
 @property (readonly) float temperature;
 
@@ -42,5 +48,6 @@ typedef enum {
 @property float K4;
 
 - (void)restart;
+- (void)measureNitrates;
 
 @end

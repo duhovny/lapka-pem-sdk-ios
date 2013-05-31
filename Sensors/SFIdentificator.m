@@ -4,12 +4,23 @@
 //
 
 #import "SFIdentificator.h"
+#import "SFSensorManager.h"
 #import "SFAudioSessionManager.h"
 
 #define kSFIdentificationMeanSteps		10
 #define kSFIdentificationStepsToSkip	 3
+#define kSFIdentificationNotHumToHumFingerprintThresholdCoef	1.51
 
-#define IDENTIFICATION_THRESHOLD_MINIMUM 0.0013
+#define kSFIdentificationFingerprintThreshold_iPhone_3GS		0.195
+#define kSFIdentificationFingerprintThreshold_iPhone_4			0.191
+#define kSFIdentificationFingerprintThreshold_iPhone_4S			0.225
+#define kSFIdentificationFingerprintThreshold_iPhone_5			0.074
+#define kSFIdentificationFingerprintThreshold_iPod_Touch_4G		0.127
+#define kSFIdentificationFingerprintThreshold_iPod_Touch_5G
+#define kSFIdentificationFingerprintThreshold_iPad_2			0.225
+#define kSFIdentificationFingerprintThreshold_iPad_3			0.220
+#define kSFIdentificationFingerprintThreshold_iPad_4			0.251
+#define kSFIdentificationFingerprintThreshold_iPad_Mini			0.226
 
 
 @interface SFIdentificator () <SFSignalProcessorDelegate> {
@@ -84,6 +95,9 @@
 	stepsToSkip = kSFIdentificationStepsToSkip;
 	identificationStep = 0;
 	
+	// remove european_preference anyway
+	[[NSUserDefaults standardUserDefaults] removeObjectForKey:@"european_preference"];
+	
 	// get european_preference
 	id european_preference = [[NSUserDefaults standardUserDefaults] objectForKey:@"european_preference"];
 	if (european_preference) {
@@ -135,9 +149,11 @@
 			repeatIdetificationOnEUVolume = NO;
 			if ([self.delegate respondsToSelector:@selector(identificatorAskToGrantPermissionToSwitchToEU)]) {
 				rememberedSensorTypeUntilEUSwitchPermissionGranted = sensorType;
+				/*
 				[self.delegate identificatorAskToGrantPermissionToSwitchToEU];
+				 */
 				// we gonna automatically grant permission to switch to EU for now
-//				[self userGrantedPermissionToSwitchToEU];
+				[self userGrantedPermissionToSwitchToEU];
 				return;
 			} else {
 				NSLog(@"Warning: Lapka sensor detected in EU mode, but we can't switch to EU because delegate doesn't response to identificatorAskToGrantPermissionToSwitchToEU method which is required if you plan to use Lapka with EU devices.");
@@ -146,26 +162,34 @@
 				return;
 			}
 		} else {
-			id european_preference = [[NSUserDefaults standardUserDefaults] objectForKey:@"european_preference"];
-			if (!european_preference) {
+			
+			if ([self isFingerprint:fingerprint passThresholdForSensorType:sensorType]) {
+				NSLog(@"Fingerprint passes threshold");
 				
-				// this is US device, set preference
-				NSLog(@"this is US device, set european_preference NO");
-				[[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"european_preference"];
+				id european_preference = [[NSUserDefaults standardUserDefaults] objectForKey:@"european_preference"];
+				if (!european_preference) {
+					
+					// this is US device, set preference
+					NSLog(@"this is US device, set european_preference NO");
+					[[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"european_preference"];
+					
+					if ([self.delegate respondsToSelector:@selector(identificatorDidRecognizeDeviceVolumeLimitState:)])
+						[self.delegate identificatorDidRecognizeDeviceVolumeLimitState:NO];
+				}
+				NSLog(@"Identification complete: %@", [SFIdentificator sensorTypeToString:sensorType]);
+				[self.delegate identificatorDidRecognizeSensor:sensorType];
+				identificationIsInProcess = NO;
+				return;
 				
-				if ([self.delegate respondsToSelector:@selector(identificatorDidRecognizeDeviceVolumeLimitState:)])
-					[self.delegate identificatorDidRecognizeDeviceVolumeLimitState:NO];
+			} else {
+				NSLog(@"Fingerprint doesn't pass threshold, continue identification");
 			}
-			NSLog(@"Identification complete: %@", [SFIdentificator sensorTypeToString:sensorType]);
-			[self.delegate identificatorDidRecognizeSensor:sensorType];
-			identificationIsInProcess = NO;
-			return;
 		}
 	}
 	
 	id european_preference = [[NSUserDefaults standardUserDefaults] objectForKey:@"european_preference"];
-	if (!repeatIdetificationOnEUVolume && !european_preference && [self sidlooksLikeDeviceIsEuropean:sensorID]) {
-		NSLog(@"SID looks like device is European, so repeat on EU level");
+	if (!repeatIdetificationOnEUVolume && !european_preference) {
+		NSLog(@"Repeat on EU level");
 		repeatIdetificationOnEUVolume = YES;
 		// restart identification
 		[self.signalProcessor stop];
@@ -204,24 +228,81 @@
 }
 
 
-- (void)handleIdentificationThresholdLessThanMinimum {
-	
-	NSLog(@"Identification threshold is less than minimum");
-	
-	// means this is not Lapka device, so tell delegate
-	if ([self.delegate respondsToSelector:@selector(identificatorDidRecognizeNotLapkaBeingPluggedIn)])
-		[self.delegate identificatorDidRecognizeNotLapkaBeingPluggedIn];
-}
-
-
 - (BOOL)sidlooksLikeDeviceIsEuropean:(SFSensorID)sid {
 	
+	// refactor: remove this method
 	BOOL looksLike = NO;
 	
 	if ( sid.bit00 && sid.bit01 && sid.bit10 && sid.bit11 )			// 1111 - Lapka unswer in US mode on EU device
 		looksLike = YES;
 	
 	return looksLike;
+}
+
+
+- (BOOL)isFingerprint:(SFSensorIdentificationFingerprint)fingerprintToCheck passThresholdForSensorType:(SFSensorType)sensorType {
+	
+	float fingerprintThreshold = [self fingerprintThresholdForSensorType:sensorType];
+	BOOL isFingerptintPassThreshold = (fingerprintToCheck.amplitude00 > fingerprintThreshold);
+	
+	return isFingerptintPassThreshold;
+}
+
+
+- (float)fingerprintThresholdForSensorType:(SFSensorType)sensorType {
+	
+	float fingerprintThreshold;
+	BOOL sensorIsHumidity = (sensorType == SFSensorTypeHumidity);
+	SFDeviceHardwarePlatform hardwarePlatform = [[SFSensorManager sharedManager] hardwarePlatform];
+	
+	switch (hardwarePlatform) {
+		
+		case SFDeviceHardwarePlatform_iPhone_3GS:
+			fingerprintThreshold = kSFIdentificationFingerprintThreshold_iPhone_3GS;
+			break;
+			
+		case SFDeviceHardwarePlatform_iPhone_4:
+			fingerprintThreshold = kSFIdentificationFingerprintThreshold_iPhone_4;
+			break;
+			
+		case SFDeviceHardwarePlatform_iPhone_4S:
+			fingerprintThreshold = kSFIdentificationFingerprintThreshold_iPhone_4S;
+			break;
+			
+		case SFDeviceHardwarePlatform_iPod_Touch_5G:
+		case SFDeviceHardwarePlatform_iPhone_5:
+			fingerprintThreshold = kSFIdentificationFingerprintThreshold_iPhone_5;
+			break;
+			
+		case SFDeviceHardwarePlatform_iPod_Touch_4G:
+			fingerprintThreshold = kSFIdentificationFingerprintThreshold_iPod_Touch_4G;
+			break;
+		
+		case SFDeviceHardwarePlatform_iPad_2:
+			fingerprintThreshold = kSFIdentificationFingerprintThreshold_iPad_2;
+			break;
+		
+		case SFDeviceHardwarePlatform_iPad_3:
+			fingerprintThreshold = kSFIdentificationFingerprintThreshold_iPad_3;
+			
+		case SFDeviceHardwarePlatform_iPad_4:
+			fingerprintThreshold = kSFIdentificationFingerprintThreshold_iPad_4;
+			break;
+			
+		case SFDeviceHardwarePlatform_iPad_Mini:
+			fingerprintThreshold = kSFIdentificationFingerprintThreshold_iPad_Mini;
+			break;
+			
+		default:
+			fingerprintThreshold = kSFIdentificationFingerprintThreshold_iPhone_5;
+			break;
+	}
+	
+	if (sensorIsHumidity) {
+		fingerprintThreshold *= kSFIdentificationNotHumToHumFingerprintThresholdCoef;
+	}
+	
+	return fingerprintThreshold;
 }
 
 
@@ -272,10 +353,6 @@
 					
 					// set identification threshold to one third of microphone level
 					identificationThreshold = amplitude * 1.0 / 3.0;
-					
-					if (identificationThreshold < IDENTIFICATION_THRESHOLD_MINIMUM) {
-						[self handleIdentificationThresholdLessThanMinimum];
-					}
 					
 					// tell delegate microphone level
 					if ([self.delegate respondsToSelector:@selector(identificatorDidRecognizeDeviceMicrophoneLevel:)])
