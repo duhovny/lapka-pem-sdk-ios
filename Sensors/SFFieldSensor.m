@@ -15,15 +15,18 @@
 
 #define kSFFieldSensorScaleCoef_Default		1.0
 #define kSFFieldSensorScaleCoef_iPhone4		1.0
+#define kSFFieldSensorScaleCoef_iPhone4S	0.8
 #define kSFFieldSensorScaleCoef_iPhone5		2.5
 #define kSFFieldSensorScaleCoef_iPad4		0.8
 #define kSFFieldSensorScaleCoef_iPadMini	0.8
 #define kSFFieldSensorScaleCoef_iPod4		1.6
 
 
-#define kSFFieldSensorDefaultHFUpCoef 0.0550
-#define kSFFieldSensorDefaultHFK1Coef 130.0
-#define kSFFieldSensorDefaultHFK2Coef 230.0
+#define kSFFieldSensorHF_K1 30.0
+#define kSFFieldSensorHF_K2  4.5
+
+#define kSFFieldSensorLF_K1  10.0
+#define kSFFieldSensorLF_K2 320.0
 
 #define kSF_PositiveLFFieldThreshold 0.0100
 
@@ -66,9 +69,10 @@
 		
 		_stepsToSkip = 0;
 		
-		self.hfUp = kSFFieldSensorDefaultHFUpCoef;
-		self.hfK1 = kSFFieldSensorDefaultHFK1Coef;
-		self.hfK2 = kSFFieldSensorDefaultHFK2Coef;
+		self.hf_K1 = kSFFieldSensorHF_K1;
+		self.hf_K2 = kSFFieldSensorHF_K2;
+		self.lf_K1 = kSFFieldSensorLF_K1;
+		self.lf_K2 = kSFFieldSensorLF_K2;
 		
 		
 		SFDeviceHardwarePlatform hardwarePlatform = [[SFSensorManager sharedManager] hardwarePlatform];
@@ -77,22 +81,27 @@
 				
 			case SFDeviceHardwarePlatform_iPhone_3GS:
 			case SFDeviceHardwarePlatform_iPhone_4:
+			{
+				self.scaleCoef = kSFFieldSensorScaleCoef_iPhone4;
+				break;
+			}
+				
 			case SFDeviceHardwarePlatform_iPhone_4S:
 			{
-				self.hfScale = kSFFieldSensorScaleCoef_iPhone4;
+				self.scaleCoef = kSFFieldSensorScaleCoef_iPhone4S;
 				break;
 			}
 				
 			case SFDeviceHardwarePlatform_iPhone_5:
 			case SFDeviceHardwarePlatform_iPod_Touch_5G:
 			{
-				self.hfScale = kSFFieldSensorScaleCoef_iPhone5;
+				self.scaleCoef = kSFFieldSensorScaleCoef_iPhone5;
 				break;
 			}
 				
 			case SFDeviceHardwarePlatform_iPod_Touch_4G:
 			{
-				self.hfScale = kSFFieldSensorScaleCoef_iPod4;
+				self.scaleCoef = kSFFieldSensorScaleCoef_iPod4;
 				break;
 			}
 			
@@ -100,19 +109,19 @@
 			case SFDeviceHardwarePlatform_iPad_3:
 			case SFDeviceHardwarePlatform_iPad_4:
 			{
-				self.hfScale = kSFFieldSensorScaleCoef_iPad4;
+				self.scaleCoef = kSFFieldSensorScaleCoef_iPad4;
 				break;
 			}
 				
 			case SFDeviceHardwarePlatform_iPad_Mini:
 			{
-				self.hfScale = kSFFieldSensorScaleCoef_iPadMini;
+				self.scaleCoef = kSFFieldSensorScaleCoef_iPadMini;
 				break;
 			}
 				
 			default:
 			{
-				self.hfScale = kSFFieldSensorScaleCoef_Default;
+				self.scaleCoef = kSFFieldSensorScaleCoef_Default;
 				break;
 			}
 		}
@@ -243,22 +252,25 @@
 
 - (float)calculateLowFrequencyFieldWithAmplitude:(Float32)amplitude {
 	
-	// scale
-	float value = amplitude * _hfScale;
+	float value = amplitude * _scaleCoef;
 	
-	return value;
+	float K1 = _lf_K1;
+	float K2 = _lf_K2;
+	
+	float U = (exp(K1 * value) - 1) * K2;
+	
+	return MAX(U, 0);
 }
 
 
 - (float)calculateHighFrequencyFieldWithAmplitude:(Float32)amplitude {
 	
-	// scale
-	float value = amplitude * _hfScale;
+	float value = amplitude * _scaleCoef;
 	
-	float Up = _hfUp;
-	float K1 = _hfK1;
-	float K2 = _hfK2;
-	float U = MIN(value, Up) * K1 + MAX(value - Up, 0) * K2;
+	float K1 = _hf_K1;
+	float K2 = _hf_K2;
+	
+	float U = (exp(K1 * value) - 1) * K2;
 	
 	return MAX(U, 0);
 }
