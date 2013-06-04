@@ -25,11 +25,6 @@
 @interface SFFieldSensor () {
 	int _stepsToSkip;
 	
-	// FFT Sign (for LF field only)
-	BOOL _fftSignEnabled;
-	BOOL _fftSignVerified;
-	float _fftLFFieldAngle;
-	
 	// FFT Zero Shift (for LF field only)
 	BOOL _fftZeroShiftEnabled;
 	float _fftLFFieldReal;
@@ -38,8 +33,6 @@
 	// FFT Vector Correction
 	BOOL _fftNoizeVectorCorrectionEnabled;
 }
-
-- (Float32)verifyFFTSignWithAmplitude:(Float32)amplitude;
 
 @end
 
@@ -153,9 +146,6 @@
 	lowFrequencyField = 0;
 	highFrequencyField = 0;
 	
-	_fftSignEnabled = NO;
-	_fftSignVerified = NO;
-	
 	self.signalProcessor.fftAnalyzer.realShift = 0;
 	self.signalProcessor.fftAnalyzer.imagShift = 0;
 	self.signalProcessor.fftAnalyzer.useZeroShift = NO;
@@ -176,7 +166,6 @@
 	
 	self.signalProcessor.leftAmplitude = kSFControlSignalBitOne;
 	self.signalProcessor.rightAmplitude = kSFControlSignalBitOne;
-	self.signalProcessor.fftAnalyzer.useSign = _fftSignEnabled;
 	self.signalProcessor.fftAnalyzer.useZeroShift = _fftZeroShiftEnabled;
 }
 
@@ -185,7 +174,6 @@
 	
 	self.signalProcessor.leftAmplitude = kSFControlSignalBitZero;
 	self.signalProcessor.rightAmplitude = kSFControlSignalBitOne;
-	self.signalProcessor.fftAnalyzer.useSign = NO;
 	self.signalProcessor.fftAnalyzer.useZeroShift = NO;
 }
 
@@ -220,7 +208,7 @@
 
 
 #pragma mark -
-#pragma mark FFT Sign
+#pragma mark FFT Zero Shift
 
 
 - (void)enableFFTZeroShiftForLowFrequencyField {
@@ -233,36 +221,6 @@
 	if (state == kSFFieldSensorStateLowFrequencyMeasurement) {
 		self.signalProcessor.fftAnalyzer.useZeroShift = _fftZeroShiftEnabled;
 	}
-}
-
-
-- (void)enableFFTSignForLowFrequencyField {
-	
-	if (_fftSignEnabled) return;
-	_fftSignEnabled = YES;
-	
-	[self.signalProcessor.fftAnalyzer setAngleShift:-_fftLFFieldAngle];
-}
-
-
-- (Float32)verifyFFTSignWithAmplitude:(Float32)amplitude {
-	
-	if (!_fftSignEnabled) return amplitude;
-	if (_fftSignVerified) return amplitude;
-	
-	if (ABS(amplitude) > kSF_PositiveLFFieldThreshold) {
-		// correct angle shift
-		float currentAngle = self.signalProcessor.fftAnalyzer.angle - self.signalProcessor.fftAnalyzer.angleShift;
-		float oppositeAngle = (currentAngle < 0) ? currentAngle + 180 : currentAngle - 180;
-		[self.signalProcessor.fftAnalyzer setAngleShift:-oppositeAngle];
-		
-		if (amplitude < 0)
-			amplitude = -amplitude;
-		
-		_fftSignVerified = YES;
-	}
-	
-	return amplitude;
 }
 
 
@@ -317,9 +275,7 @@
 		{
 			_fftLFFieldReal = self.signalProcessor.fftAnalyzer.real;
 			_fftLFFieldImag = self.signalProcessor.fftAnalyzer.imag;
-			_fftLFFieldAngle = self.signalProcessor.fftAnalyzer.angle;
-			if (!_fftSignVerified)
-				amplitude = [self verifyFFTSignWithAmplitude:amplitude];
+
 			lowFrequencyField = [self calculateLowFrequencyFieldWithAmplitude:amplitude];
 			[self.delegate fieldSensorDidUpdateLowFrequencyField:lowFrequencyField];
 			break;
@@ -359,9 +315,7 @@
 				float amplitude = self.signalProcessor.fftAnalyzer.amplitude;
 				_fftLFFieldReal = self.signalProcessor.fftAnalyzer.real;
 				_fftLFFieldImag = self.signalProcessor.fftAnalyzer.imag;
-				_fftLFFieldAngle = self.signalProcessor.fftAnalyzer.angle;
-				if (!_fftSignVerified)
-					amplitude = [self verifyFFTSignWithAmplitude:amplitude];
+
 				lowFrequencyField = [self calculateLowFrequencyFieldWithAmplitude:amplitude];
 				meanLowFrequencyField = lowFrequencyField;
 				

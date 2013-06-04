@@ -39,7 +39,6 @@
 @property (nonatomic, readonly) Float32 real;
 @property (nonatomic, readonly) Float32 imag;
 @property (nonatomic, readonly) Float32 angle;
-@property (nonatomic, assign) Float32 angleShift;
 
 @property (nonatomic, assign) Float32 realShift;
 @property (nonatomic, assign) Float32 imagShift;
@@ -51,7 +50,6 @@
 @property (nonatomic, assign) Float32 imagSignalMax;
 
 // refactor: this is so chip, please, analyze DC and do right math in near future, OK?
-@property (nonatomic, assign) BOOL useSign;
 @property (nonatomic, assign) BOOL useZeroShift;
 @property (nonatomic, assign) BOOL useNoizeVectorCorrection;
 

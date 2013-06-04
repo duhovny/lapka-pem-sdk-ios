@@ -23,8 +23,6 @@
 	if ((self = [super init])) {
 		
 		// Default
-		_useSign = NO;
-		_angleShift = 0;
 		_useZeroShift = NO;
 		_useNoizeVectorCorrection = NO;
 		
@@ -119,19 +117,10 @@
 	_imag = requiredImag;
 	
 	/* Angle */
-	
 	float angleInRadians = atan2f(requiredReal,requiredImag);
 	_angle = angleInRadians / M_PI * 180;
-		
-	_angle += _angleShift;
-	_angle = (_angle < -180) ? 360+_angle : _angle;
-	_angle = (_angle >  180) ? _angle-360 : _angle;
 	
-	if (_useSign) {
-		int sign = (ABS(_angle) < 90) ? -1 : 1;
-		amplitude = sign * sqrtf(requiredReal * requiredReal + requiredImag * requiredImag);
-		
-	} else if (_useNoizeVectorCorrection) {
+	if (_useNoizeVectorCorrection) {
 		
 		// Initialize extreme vectors
 		BOOL noizeAndSignalMaxVectorsAreNotInitialized = (_realNoize == 0) && (_imagNoize == 0) && (_realSignalMax == 0) && (_imagSignalMax == 0);
