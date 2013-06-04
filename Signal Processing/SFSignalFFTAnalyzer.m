@@ -151,9 +151,7 @@
 		if (signalToNoizeDistance > noizeToMaxDistance) {
 			_realSignalMax = _real;
 			_imagSignalMax = _imag;
-		}
-		
-		if (signalToMaxDistance > noizeToMaxDistance) {
+		} else if (signalToMaxDistance > noizeToMaxDistance) {
 			float zeroToMaxDistance = sqrtf(powf((_realSignalMax), 2) + powf((_imagSignalMax), 2));
 			float zeroToSignalDistance = sqrtf(powf((_real), 2) + powf((_imag), 2));
 			if (zeroToMaxDistance > zeroToSignalDistance) {
