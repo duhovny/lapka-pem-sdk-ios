@@ -29,7 +29,6 @@ typedef enum {
 @property (nonatomic, readonly) SFFieldSensorState state;
 @property (nonatomic, assign) BOOL measureLowFrequencyField;
 @property (nonatomic, assign) BOOL measureHighFrequencyField;
-@property (nonatomic, readonly) BOOL dualMode;
 @property (nonatomic, readonly) float smallestHighFrequencyAmplitude;
 
 @property (nonatomic, assign) float hfScale;

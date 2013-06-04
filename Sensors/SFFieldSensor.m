@@ -10,8 +10,7 @@
 #import "SFSensorManager.h"
 
 #define kSFFieldSensorFrequency 16000
-#define kSFFieldSensorDualModeMeanSteps 4		// 80ms (60ms delay + 20ms measure)
-#define kSFFieldSensorSingleModeMeanSteps 25
+#define kSFFieldSensorMeanSteps 25
 
 #define kSFFieldSensorDefaultHFScaleCoef 1.0
 #define kSFFieldSensorDefaultHFUpCoef 0.0550
@@ -103,23 +102,16 @@
 	
 	// setup signal processor according to state
 	self.signalProcessor.frequency = [self.signalProcessor optimizeFrequency:kSFFieldSensorFrequency];
-	if (self.dualMode) {
-		NSLog(@"SFieldSensor: dual mode");
-		self.signalProcessor.fftAnalyzer.meanSteps = kSFFieldSensorDualModeMeanSteps;
+	self.signalProcessor.fftAnalyzer.meanSteps = kSFFieldSensorMeanSteps;
+	if (measureLowFrequencyField) {
+		NSLog(@"SFieldSensor: low frequency");
 		[self setupSignalProcessorForLowFrequencyMeasure];
 		state = kSFFieldSensorStateLowFrequencyMeasurement;
-	} else {
-		self.signalProcessor.fftAnalyzer.meanSteps = kSFFieldSensorSingleModeMeanSteps;
-		if (measureLowFrequencyField) {
-			NSLog(@"SFieldSensor: single mode: low frequency");
-			[self setupSignalProcessorForLowFrequencyMeasure];
-			state = kSFFieldSensorStateLowFrequencyMeasurement;
-		} else if (measureHighFrequencyField) {
-			NSLog(@"SFieldSensor: single mode: high frequency");
-			_stepsToSkip = 1;
-			[self setupSignalProcessorForHighFrequencyMeasure];
-			state = kSFFieldSensorStateHighFrequencyMeasurement;
-		}
+	} else if (measureHighFrequencyField) {
+		NSLog(@"SFieldSensor: high frequency");
+		_stepsToSkip = 1;
+		[self setupSignalProcessorForHighFrequencyMeasure];
+		state = kSFFieldSensorStateHighFrequencyMeasurement;
 	}
 	
 	[self.signalProcessor start];
@@ -225,9 +217,7 @@
 - (void)signalProcessorDidUpdateAmplitude:(Float32)amplitude {
 	
 	if (_stepsToSkip > 0) return;
-	if (self.dualMode) return;
 	
-	// single mode
 	switch (state) {
 			
 		case kSFFieldSensorStateOff:
@@ -259,77 +249,29 @@
 		_stepsToSkip--;
 		return;
 	}
-	
-	if (self.dualMode) {
 		
-		switch (state) {
-				
-			case kSFFieldSensorStateOff:
-				NSLog(@"Warning: SFieldSensor get measure result when off.");
-				break;
-				
-			case kSFFieldSensorStateLowFrequencyMeasurement:
-			{
-				// last (not mean) amplitude value
-				float amplitude = self.signalProcessor.fftAnalyzer.amplitude;
-
-				lowFrequencyField = [self calculateLowFrequencyFieldWithAmplitude:amplitude];
-				meanLowFrequencyField = lowFrequencyField;
-				
-				[self.delegate fieldSensorDidUpdateLowFrequencyField:lowFrequencyField];
-				[self.delegate fieldSensorDidUpdateMeanLowFrequencyField:meanLowFrequencyField];
-				
-				// switch signal processor to high frequency
-				[self setupSignalProcessorForHighFrequencyMeasure];
-				state = kSFFieldSensorStateHighFrequencyMeasurement;
-				break;
-			}
-				
-			case kSFFieldSensorStateHighFrequencyMeasurement:
-			{
-				// last (not mean) amplitude value
-				float amplitude = self.signalProcessor.fftAnalyzer.amplitude;
-				highFrequencyField = [self calculateHighFrequencyFieldWithAmplitude:amplitude];
-				meanHighFrequencyField = highFrequencyField;
-				
-				[self.delegate fieldSensorDidUpdateHighFrequencyField:highFrequencyField];
-				[self.delegate fieldSensorDidUpdateMeanHighFrequencyField:meanHighFrequencyField];
-				
-				// switch signal processor to low frequency
-				[self setupSignalProcessorForLowFrequencyMeasure];
-				state = kSFFieldSensorStateLowFrequencyMeasurement;
-				break;
-			}
-				
-			default:
-				break;
+	switch (state) {
+			
+		case kSFFieldSensorStateOff:
+			NSLog(@"Warning: SFieldSensor get measure result when off.");
+			break;
+			
+		case kSFFieldSensorStateLowFrequencyMeasurement:
+		{
+			meanLowFrequencyField = [self calculateLowFrequencyFieldWithAmplitude:meanAmplitude];
+			[self.delegate fieldSensorDidUpdateMeanLowFrequencyField:meanLowFrequencyField];
+			break;
 		}
-		
-	} else { // single mode
-		
-		switch (state) {
-				
-			case kSFFieldSensorStateOff:
-				NSLog(@"Warning: SFieldSensor get measure result when off.");
-				break;
-				
-			case kSFFieldSensorStateLowFrequencyMeasurement:
-			{
-				meanLowFrequencyField = [self calculateLowFrequencyFieldWithAmplitude:meanAmplitude];
-				[self.delegate fieldSensorDidUpdateMeanLowFrequencyField:meanLowFrequencyField];
-				break;
-			}
-				
-			case kSFFieldSensorStateHighFrequencyMeasurement:
-			{
-				meanHighFrequencyField = [self calculateHighFrequencyFieldWithAmplitude:meanAmplitude];
-				[self.delegate fieldSensorDidUpdateMeanHighFrequencyField:meanHighFrequencyField];
-				break;
-			}
-				
-			default:
-				break;
+			
+		case kSFFieldSensorStateHighFrequencyMeasurement:
+		{
+			meanHighFrequencyField = [self calculateHighFrequencyFieldWithAmplitude:meanAmplitude];
+			[self.delegate fieldSensorDidUpdateMeanHighFrequencyField:meanHighFrequencyField];
+			break;
 		}
+			
+		default:
+			break;
 	}
 }
 
@@ -369,12 +311,6 @@
 	// switch low ON if you switching high OFF
 	if (!measureHighFrequencyField && !measureLowFrequencyField)
 		measureLowFrequencyField = YES;
-}
-
-
-- (BOOL)dualMode {
-	BOOL isDualMode = (measureLowFrequencyField && measureHighFrequencyField);
-	return isDualMode;
 }
 
 
