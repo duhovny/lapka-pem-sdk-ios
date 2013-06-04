@@ -23,12 +23,7 @@
 	if ((self = [super init])) {
 		
 		// Default
-		_useZeroShift = NO;
 		_useNoizeVectorCorrection = NO;
-		
-		_realShift = 0;
-		_imagShift = 0;
-		
 		_realNoize = 0;
 		_imagNoize = 0;
 		_realSignalMax = 0;
@@ -105,20 +100,13 @@
 	
 	/* FFT Parts */
 	
-	double requiredReal = fft_complex_split.realp[required_bin];
-	double requiredImag = fft_complex_split.imagp[required_bin];
-	
-	if (_useZeroShift) {
-		requiredReal += _realShift;
-		requiredImag += _imagShift;
-	}
-	
-	_real = requiredReal;
-	_imag = requiredImag;
+	_real = fft_complex_split.realp[required_bin];
+	_imag = fft_complex_split.imagp[required_bin];
 	
 	/* Angle */
-	float angleInRadians = atan2f(requiredReal,requiredImag);
+	float angleInRadians = atan2f(_real,_imag);
 	_angle = angleInRadians / M_PI * 180;
+	
 	
 	if (_useNoizeVectorCorrection) {
 		
@@ -158,7 +146,7 @@
 		amplitude = noizeToSignalDistance;
 		
 	} else {
-		amplitude = sqrtf(requiredReal * requiredReal + requiredImag * requiredImag);
+		amplitude = sqrtf(_real * _real + _imag * _imag);
 	}
 	
 	[delegate fftAnalyzerDidUpdateAmplitude:amplitude];

@@ -48,6 +48,4 @@ typedef enum {
 - (void)disableFFTNoizeVectorCorrection;
 - (void)resetFFTNoizeVectorCorrection;
 
-- (void)enableFFTZeroShiftForLowFrequencyField;
-
 @end

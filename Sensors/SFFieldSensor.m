@@ -24,13 +24,6 @@
 
 @interface SFFieldSensor () {
 	int _stepsToSkip;
-	
-	// FFT Zero Shift (for LF field only)
-	BOOL _fftZeroShiftEnabled;
-	float _fftLFFieldReal;
-	float _fftLFFieldImag;
-	
-	// FFT Vector Correction
 	BOOL _fftNoizeVectorCorrectionEnabled;
 }
 
@@ -141,16 +134,11 @@
 - (void)switchOff {
 	
 	[self.signalProcessor stop];
+	
 	state = kSFFieldSensorStateOff;
 	isOn = NO;
 	lowFrequencyField = 0;
 	highFrequencyField = 0;
-	
-	self.signalProcessor.fftAnalyzer.realShift = 0;
-	self.signalProcessor.fftAnalyzer.imagShift = 0;
-	self.signalProcessor.fftAnalyzer.useZeroShift = NO;
-	
-	_fftZeroShiftEnabled = NO;
 	
 	[super switchOff];
 }
@@ -166,7 +154,6 @@
 	
 	self.signalProcessor.leftAmplitude = kSFControlSignalBitOne;
 	self.signalProcessor.rightAmplitude = kSFControlSignalBitOne;
-	self.signalProcessor.fftAnalyzer.useZeroShift = _fftZeroShiftEnabled;
 }
 
 
@@ -174,7 +161,6 @@
 	
 	self.signalProcessor.leftAmplitude = kSFControlSignalBitZero;
 	self.signalProcessor.rightAmplitude = kSFControlSignalBitOne;
-	self.signalProcessor.fftAnalyzer.useZeroShift = NO;
 }
 
 
@@ -202,25 +188,6 @@
 	self.signalProcessor.fftAnalyzer.imagSignalMax = 0;
 	self.signalProcessor.fftAnalyzer.realNoize = 0;
 	self.signalProcessor.fftAnalyzer.imagNoize = 0;
-}
-
-
-
-
-#pragma mark -
-#pragma mark FFT Zero Shift
-
-
-- (void)enableFFTZeroShiftForLowFrequencyField {
-	
-	self.signalProcessor.fftAnalyzer.realShift -= _fftLFFieldReal;
-	self.signalProcessor.fftAnalyzer.imagShift -= _fftLFFieldImag;
-	
-	_fftZeroShiftEnabled = YES;
-	
-	if (state == kSFFieldSensorStateLowFrequencyMeasurement) {
-		self.signalProcessor.fftAnalyzer.useZeroShift = _fftZeroShiftEnabled;
-	}
 }
 
 
@@ -273,9 +240,6 @@
 			
 		case kSFFieldSensorStateLowFrequencyMeasurement:
 		{
-			_fftLFFieldReal = self.signalProcessor.fftAnalyzer.real;
-			_fftLFFieldImag = self.signalProcessor.fftAnalyzer.imag;
-
 			lowFrequencyField = [self calculateLowFrequencyFieldWithAmplitude:amplitude];
 			[self.delegate fieldSensorDidUpdateLowFrequencyField:lowFrequencyField];
 			break;
@@ -313,8 +277,6 @@
 			{
 				// last (not mean) amplitude value
 				float amplitude = self.signalProcessor.fftAnalyzer.amplitude;
-				_fftLFFieldReal = self.signalProcessor.fftAnalyzer.real;
-				_fftLFFieldImag = self.signalProcessor.fftAnalyzer.imag;
 
 				lowFrequencyField = [self calculateLowFrequencyFieldWithAmplitude:amplitude];
 				meanLowFrequencyField = lowFrequencyField;
