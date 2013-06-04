@@ -12,7 +12,15 @@
 #define kSFFieldSensorFrequency 16000
 #define kSFFieldSensorMeanSteps 25
 
-#define kSFFieldSensorDefaultHFScaleCoef 1.0
+
+#define kSFFieldSensorScaleCoef_Default		1.0
+#define kSFFieldSensorScaleCoef_iPhone4		1.0
+#define kSFFieldSensorScaleCoef_iPhone5		2.5
+#define kSFFieldSensorScaleCoef_iPad4		0.8
+#define kSFFieldSensorScaleCoef_iPadMini	0.8
+#define kSFFieldSensorScaleCoef_iPod4		1.6
+
+
 #define kSFFieldSensorDefaultHFUpCoef 0.0550
 #define kSFFieldSensorDefaultHFK1Coef 130.0
 #define kSFFieldSensorDefaultHFK2Coef 230.0
@@ -58,10 +66,56 @@
 		
 		_stepsToSkip = 0;
 		
-		self.hfScale = kSFFieldSensorDefaultHFScaleCoef;
 		self.hfUp = kSFFieldSensorDefaultHFUpCoef;
 		self.hfK1 = kSFFieldSensorDefaultHFK1Coef;
 		self.hfK2 = kSFFieldSensorDefaultHFK2Coef;
+		
+		
+		SFDeviceHardwarePlatform hardwarePlatform = [[SFSensorManager sharedManager] hardwarePlatform];
+		
+		switch (hardwarePlatform) {
+				
+			case SFDeviceHardwarePlatform_iPhone_3GS:
+			case SFDeviceHardwarePlatform_iPhone_4:
+			case SFDeviceHardwarePlatform_iPhone_4S:
+			{
+				self.hfScale = kSFFieldSensorScaleCoef_iPhone4;
+				break;
+			}
+				
+			case SFDeviceHardwarePlatform_iPhone_5:
+			case SFDeviceHardwarePlatform_iPod_Touch_5G:
+			{
+				self.hfScale = kSFFieldSensorScaleCoef_iPhone5;
+				break;
+			}
+				
+			case SFDeviceHardwarePlatform_iPod_Touch_4G:
+			{
+				self.hfScale = kSFFieldSensorScaleCoef_iPod4;
+				break;
+			}
+			
+			case SFDeviceHardwarePlatform_iPad_2:
+			case SFDeviceHardwarePlatform_iPad_3:
+			case SFDeviceHardwarePlatform_iPad_4:
+			{
+				self.hfScale = kSFFieldSensorScaleCoef_iPad4;
+				break;
+			}
+				
+			case SFDeviceHardwarePlatform_iPad_Mini:
+			{
+				self.hfScale = kSFFieldSensorScaleCoef_iPadMini;
+				break;
+			}
+				
+			default:
+			{
+				self.hfScale = kSFFieldSensorScaleCoef_Default;
+				break;
+			}
+		}
 		
 	}
 	return self;
@@ -189,7 +243,9 @@
 
 - (float)calculateLowFrequencyFieldWithAmplitude:(Float32)amplitude {
 	
-	float value = amplitude;
+	// scale
+	float value = amplitude * _hfScale;
+	
 	return value;
 }
 
