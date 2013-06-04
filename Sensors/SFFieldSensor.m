@@ -34,6 +34,9 @@
 	BOOL _fftZeroShiftEnabled;
 	float _fftLFFieldReal;
 	float _fftLFFieldImag;
+	
+	// FFT Vector Correction
+	BOOL _fftNoizeVectorCorrectionEnabled;
 }
 
 - (Float32)verifyFFTSignWithAmplitude:(Float32)amplitude;
@@ -66,7 +69,7 @@
 	if ((self = [super initWithSignalProcessor:aSignalProcessor]))
 	{
 		// default values
-		self.measureLowFrequencyField = YES;
+		self.measureLowFrequencyField = NO;
 		self.measureHighFrequencyField = YES;
 		
 		_stepsToSkip = 0;
@@ -184,6 +187,33 @@
 	self.signalProcessor.rightAmplitude = kSFControlSignalBitOne;
 	self.signalProcessor.fftAnalyzer.useSign = NO;
 	self.signalProcessor.fftAnalyzer.useZeroShift = NO;
+}
+
+
+#pragma mark -
+#pragma mark FFT Noize Vector Correction
+
+
+- (void)enableFFTNoizeVectorCorrection {
+	
+	_fftNoizeVectorCorrectionEnabled = YES;
+	self.signalProcessor.fftAnalyzer.useNoizeVectorCorrection = YES;
+}
+
+
+- (void)disableFFTNoizeVectorCorrection {
+	
+	_fftNoizeVectorCorrectionEnabled = NO;
+	self.signalProcessor.fftAnalyzer.useNoizeVectorCorrection = NO;
+}
+
+
+- (void)resetFFTNoizeVectorCorrection {
+	
+	self.signalProcessor.fftAnalyzer.realSignalMax = 0;
+	self.signalProcessor.fftAnalyzer.imagSignalMax = 0;
+	self.signalProcessor.fftAnalyzer.realNoize = 0;
+	self.signalProcessor.fftAnalyzer.imagNoize = 0;
 }
 
 

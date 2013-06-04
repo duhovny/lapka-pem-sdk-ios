@@ -26,9 +26,15 @@
 		_useSign = NO;
 		_angleShift = 0;
 		_useZeroShift = NO;
+		_useNoizeVectorCorrection = NO;
 		
 		_realShift = 0;
 		_imagShift = 0;
+		
+		_realNoize = 0;
+		_imagNoize = 0;
+		_realSignalMax = 0;
+		_imagSignalMax = 0;
 		
 		// Set the size of FFT.
 		n = numberOfFrames;
@@ -124,6 +130,46 @@
 	if (_useSign) {
 		int sign = (ABS(_angle) < 90) ? -1 : 1;
 		amplitude = sign * sqrtf(requiredReal * requiredReal + requiredImag * requiredImag);
+		
+	} else if (_useNoizeVectorCorrection) {
+		
+		// Initialize extreme vectors
+		BOOL noizeAndSignalMaxVectorsAreNotInitialized = (_realNoize == 0) && (_imagNoize == 0) && (_realSignalMax == 0) && (_imagSignalMax == 0);
+		if (noizeAndSignalMaxVectorsAreNotInitialized) {
+			_realNoize = _real;
+			_imagNoize = _imag;
+			_realSignalMax = _real;
+			_imagSignalMax = _imag;
+		}
+		
+		// calc distances
+		float signalToNoizeDistance = sqrtf(powf((_real - _realNoize), 2) + powf((_imag - _imagNoize), 2));
+		float signalToMaxDistance = sqrtf(powf((_real - _realSignalMax), 2) + powf((_imag - _imagSignalMax), 2));
+		float noizeToMaxDistance = sqrtf(powf((_realNoize - _realSignalMax), 2) + powf((_imagNoize - _imagSignalMax), 2));
+		
+		// update extreme vectors
+		if (signalToNoizeDistance > noizeToMaxDistance) {
+			_realSignalMax = _real;
+			_imagSignalMax = _imag;
+		}
+		
+		if (signalToMaxDistance > noizeToMaxDistance) {
+			float zeroToMaxDistance = sqrtf(powf((_realSignalMax), 2) + powf((_imagSignalMax), 2));
+			float zeroToSignalDistance = sqrtf(powf((_real), 2) + powf((_imag), 2));
+			if (zeroToMaxDistance > zeroToSignalDistance) {
+				_realNoize = _real;
+				_imagNoize = _imag;
+			} else {
+				_realNoize = _realSignalMax;
+				_imagNoize = _imagSignalMax;
+				_realSignalMax = _real;
+				_imagSignalMax = _imag;
+			}
+		}
+		
+		float noizeToSignalDistance = sqrtf(powf((_realNoize - _real), 2) + powf((_imagNoize - _imag), 2));
+		amplitude = noizeToSignalDistance;
+		
 	} else {
 		amplitude = sqrtf(requiredReal * requiredReal + requiredImag * requiredImag);
 	}

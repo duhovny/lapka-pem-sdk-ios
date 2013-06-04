@@ -43,6 +43,10 @@ typedef enum {
 @property (nonatomic, readonly) float meanLowFrequencyField;
 @property (nonatomic, readonly) float meanHighFrequencyField;
 
+- (void)enableFFTNoizeVectorCorrection;
+- (void)disableFFTNoizeVectorCorrection;
+- (void)resetFFTNoizeVectorCorrection;
+
 - (void)enableFFTZeroShiftForLowFrequencyField;
 - (void)enableFFTSignForLowFrequencyField;
 

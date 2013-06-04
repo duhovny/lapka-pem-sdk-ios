@@ -44,9 +44,16 @@
 @property (nonatomic, assign) Float32 realShift;
 @property (nonatomic, assign) Float32 imagShift;
 
+// noize vector correction extreme vectors
+@property (nonatomic, assign) Float32 realNoize;
+@property (nonatomic, assign) Float32 imagNoize;
+@property (nonatomic, assign) Float32 realSignalMax;
+@property (nonatomic, assign) Float32 imagSignalMax;
+
 // refactor: this is so chip, please, analyze DC and do right math in near future, OK?
 @property (nonatomic, assign) BOOL useSign;
 @property (nonatomic, assign) BOOL useZeroShift;
+@property (nonatomic, assign) BOOL useNoizeVectorCorrection;
 
 - (id)initWithNumberOfFrames:(UInt32)numberOfFrames;
 - (void)processFFTWithData:(Float32 *)data;
