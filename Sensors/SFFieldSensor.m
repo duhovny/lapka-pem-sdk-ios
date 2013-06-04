@@ -12,7 +12,6 @@
 #define kSFFieldSensorFrequency 16000
 #define kSFFieldSensorDualModeMeanSteps 4		// 80ms (60ms delay + 20ms measure)
 #define kSFFieldSensorSingleModeMeanSteps 25
-#define kSFFieldSensorDefaultSmallestMaxForHighFrequencyField 150.0
 
 #define kSFFieldSensorDefaultHFScaleCoef 1.0
 #define kSFFieldSensorDefaultHFUpCoef 0.0550
@@ -59,7 +58,6 @@
 		self.measureHighFrequencyField = YES;
 		
 		_stepsToSkip = 0;
-		_smallestHighFrequencyAmplitude = 0;
 		
 		self.hfScale = kSFFieldSensorDefaultHFScaleCoef;
 		self.hfUp = kSFFieldSensorDefaultHFUpCoef;
@@ -206,11 +204,8 @@
 
 - (float)calculateHighFrequencyFieldWithAmplitude:(Float32)amplitude {
 	
-	// shift by minimal value
-	float value = amplitude - _smallestHighFrequencyAmplitude;
-	
 	// scale
-	value = value * _hfScale;
+	float value = amplitude * _hfScale;
 	
 	float Up = _hfUp;
 	float K1 = _hfK1;
@@ -294,8 +289,6 @@
 			{
 				// last (not mean) amplitude value
 				float amplitude = self.signalProcessor.fftAnalyzer.amplitude;
-				if (amplitude < _smallestHighFrequencyAmplitude)
-					_smallestHighFrequencyAmplitude = amplitude;
 				highFrequencyField = [self calculateHighFrequencyFieldWithAmplitude:amplitude];
 				meanHighFrequencyField = highFrequencyField;
 				
@@ -329,8 +322,6 @@
 				
 			case kSFFieldSensorStateHighFrequencyMeasurement:
 			{
-				if (meanAmplitude < _smallestHighFrequencyAmplitude)
-					_smallestHighFrequencyAmplitude = meanAmplitude;
 				meanHighFrequencyField = [self calculateHighFrequencyFieldWithAmplitude:meanAmplitude];
 				[self.delegate fieldSensorDidUpdateMeanHighFrequencyField:meanHighFrequencyField];
 				break;
