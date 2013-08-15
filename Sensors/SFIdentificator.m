@@ -85,7 +85,11 @@
 
 - (void)identificate {
 	
-	if (![[SFAudioSessionManager sharedManager] audioRouteIsHeadsetInOut]) return;
+	if (![[SFAudioSessionManager sharedManager] audioRouteIsHeadsetInOut]) {
+		[self.delegate identificatorDidRecognizeSensor:SFSensorTypeUnknown];
+		return;
+	}
+	
 	if (identificationIsInProcess) return;
 	
 	identificationIsInProcess = YES;
