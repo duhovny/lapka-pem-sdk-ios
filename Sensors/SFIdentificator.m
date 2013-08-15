@@ -441,24 +441,24 @@
 	switch (sensorType) {
 			
 		case SFSensorTypeFields:
-			type = @"EMF";
+			type = NSLocalizedString(@"emf-sensor-name", nil);
 			break;
 			
 		case SFSensorTypeNitrates:
-			type = @"Organic";
+			type = NSLocalizedString(@"organic-sensor-name", nil);
 			break;
 			
 		case SFSensorTypeRadiation:
-			type = @"Radiation";
+			type = NSLocalizedString(@"radiation-sensor-name", nil);
 			break;
 			
 		case SFSensorTypeHumidity:
-			type = @"Humidity";
+			type = NSLocalizedString(@"humidity-sensor-name", nil);
 			break;
 			
 		case SFSensorTypeUnknown:
 		default:
-			type = @"Unknown";
+			type = NSLocalizedString(@"unknown-sensor-name", nil);
 			break;
 	}
 	
