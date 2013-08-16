@@ -445,26 +445,26 @@
 	switch (sensorType) {
 			
 		case SFSensorTypeFields:
-			type = NSLocalizedString(@"emf-sensor-name", nil);
+			type = @"EMF";
 			break;
 			
-		case SFSensorTypeNitrates:
-			type = NSLocalizedString(@"organic-sensor-name", nil);
-			break;
-			
-		case SFSensorTypeRadiation:
-			type = NSLocalizedString(@"radiation-sensor-name", nil);
-			break;
-			
-		case SFSensorTypeHumidity:
-			type = NSLocalizedString(@"humidity-sensor-name", nil);
-			break;
-			
-		case SFSensorTypeUnknown:
-		default:
-			type = NSLocalizedString(@"unknown-sensor-name", nil);
-			break;
-	}
+        case SFSensorTypeNitrates:
+            type = @"Organic";
+            break;
+            
+        case SFSensorTypeRadiation:
+            type = @"Radiation";
+            break;
+            
+        case SFSensorTypeHumidity:
+            type = @"Humidity";
+            break;
+            
+        case SFSensorTypeUnknown:
+        default:
+            type = @"Unknown";
+            break;
+    }
 	
 	return type;
 }
