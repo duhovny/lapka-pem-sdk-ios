@@ -125,7 +125,10 @@
 	self.signalProcessor.rightAmplitude = kSFIdentificationAmplitudeRightBitZero;
 	self.signalProcessor.leftAmplitude = kSFIdentificationAmplitudeLeftBitZero;
 	
-	[self.signalProcessor start];
+	if (![self.signalProcessor start]) {
+		[self.signalProcessor reboot];
+		[self.signalProcessor start];
+	}
 }
 
 
