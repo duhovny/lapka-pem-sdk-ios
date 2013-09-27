@@ -57,11 +57,11 @@
 #define kSFHumiditySensoriPad4K4		0.986
 #define kSFHumiditySensoriPad4K5		 1.30
 
-#define kSFHumiditySensoriPadMiniK1		122.0
-#define kSFHumiditySensoriPadMiniK2		 77.4
-#define kSFHumiditySensoriPadMiniK3		0.261
-#define kSFHumiditySensoriPadMiniK4		1.056
-#define kSFHumiditySensoriPadMiniK5		 1.26
+#define kSFHumiditySensoriPadMiniK1		126.6
+#define kSFHumiditySensoriPadMiniK2		 83.1
+#define kSFHumiditySensoriPadMiniK3		0.314
+#define kSFHumiditySensoriPadMiniK4		0.990
+#define kSFHumiditySensoriPadMiniK5		 1.32
 
 #define kSFHumiditySensoriPod4K1		119.0
 #define kSFHumiditySensoriPod4K2		 75.6
