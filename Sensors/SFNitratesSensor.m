@@ -32,9 +32,9 @@
 #define kSFNitratesSensoriPad4K3		100.0
 #define kSFNitratesSensoriPad4K4		0.000
 
-#define kSFNitratesSensoriPadMiniK1		 26.0
-#define kSFNitratesSensoriPadMiniK2		137.0
-#define kSFNitratesSensoriPadMiniK3		 80.0
+#define kSFNitratesSensoriPadMiniK1		 23.0
+#define kSFNitratesSensoriPadMiniK2		205.0
+#define kSFNitratesSensoriPadMiniK3		118.0
 #define kSFNitratesSensoriPadMiniK4		0.000
 
 #define kSFNitratesSensoriPodTouch4K1	 26.0
