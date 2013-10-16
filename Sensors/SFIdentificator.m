@@ -18,7 +18,7 @@
 #define kSFIdentificationFingerprintThreshold_iPod_Touch_4G		0.127
 #define kSFIdentificationFingerprintThreshold_iPad_2			0.225
 #define kSFIdentificationFingerprintThreshold_iPad_3			0.220
-#define kSFIdentificationFingerprintThreshold_iPad_4			0.251
+#define kSFIdentificationFingerprintThreshold_iPad_4			0.074
 #define kSFIdentificationFingerprintThreshold_iPad_Mini			0.074
 
 
