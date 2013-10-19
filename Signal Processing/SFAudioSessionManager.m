@@ -93,7 +93,8 @@ void propListener(	void *                  inClientData,
 				audioSessionManager->audioRouteIsHeadsetInOut = NO;
 			}
 			[[NSNotificationCenter defaultCenter] postNotificationName:SFAudioSessionDidChangeAudioRouteNotification object:audioSessionManager];
-		}		
+		}
+		CFRelease(newRoute);
 	}	
 }
 
