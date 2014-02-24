@@ -277,6 +277,8 @@
 			
 		case SFDeviceHardwarePlatform_iPod_Touch_5G:
 		case SFDeviceHardwarePlatform_iPhone_5:
+		case SFDeviceHardwarePlatform_iPhone_5C:
+		case SFDeviceHardwarePlatform_iPhone_5S:
 			fingerprintThreshold = kSFIdentificationFingerprintThreshold_iPhone_5;
 			break;
 			
@@ -296,6 +298,8 @@
 			break;
 			
 		case SFDeviceHardwarePlatform_iPad_Mini:
+		case SFDeviceHardwarePlatform_iPad_Mini_Retina:
+		case SFDeviceHardwarePlatform_iPad_Air:
 			fingerprintThreshold = kSFIdentificationFingerprintThreshold_iPad_Mini;
 			break;
 			

@@ -63,7 +63,9 @@
 	if ((self = [super initWithSignalProcessor:aSignalProcessor]))
 	{
 		SFDeviceHardwarePlatform hardwarePlatform = [[SFSensorManager sharedManager] hardwarePlatform];
-		if (hardwarePlatform == SFDeviceHardwarePlatform_iPhone_5) {
+		if (hardwarePlatform == SFDeviceHardwarePlatform_iPhone_5  ||
+			hardwarePlatform == SFDeviceHardwarePlatform_iPhone_5C ||
+			hardwarePlatform == SFDeviceHardwarePlatform_iPhone_5S) {
 			self.K1 = kSFNitratesSensoriPhone5K1;
 			self.K2 = kSFNitratesSensoriPhone5K2;
 			self.K3 = kSFNitratesSensoriPhone5K3;
@@ -75,7 +77,9 @@
 			self.K2 = kSFNitratesSensoriPad4K2;
 			self.K3 = kSFNitratesSensoriPad4K3;
 			self.K4 = kSFNitratesSensoriPad4K4;
-		} else if (hardwarePlatform == SFDeviceHardwarePlatform_iPad_Mini) {
+		} else if (hardwarePlatform == SFDeviceHardwarePlatform_iPad_Mini ||
+				   hardwarePlatform == SFDeviceHardwarePlatform_iPad_Mini_Retina ||
+				   hardwarePlatform == SFDeviceHardwarePlatform_iPad_Air) {
 			self.K1 = kSFNitratesSensoriPadMiniK1;
 			self.K2 = kSFNitratesSensoriPadMiniK2;
 			self.K3 = kSFNitratesSensoriPadMiniK3;
