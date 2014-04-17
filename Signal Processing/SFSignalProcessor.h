@@ -70,8 +70,9 @@ typedef enum {
 @property (nonatomic, assign) int scheduledLeftAmplitudeDelay;
 @property (nonatomic, assign) int scheduledRightAmplitudeDelay;
 
-- (void)start;
+- (BOOL)start;
 - (void)stop;
+- (void)reboot;
 
 - (void)setFrequency:(double)value;
 - (void)setAmplitude:(double)value;

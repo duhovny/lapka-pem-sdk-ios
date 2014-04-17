@@ -16,11 +16,10 @@
 #define kSFIdentificationFingerprintThreshold_iPhone_4S			0.225
 #define kSFIdentificationFingerprintThreshold_iPhone_5			0.074
 #define kSFIdentificationFingerprintThreshold_iPod_Touch_4G		0.127
-#define kSFIdentificationFingerprintThreshold_iPod_Touch_5G
 #define kSFIdentificationFingerprintThreshold_iPad_2			0.225
 #define kSFIdentificationFingerprintThreshold_iPad_3			0.220
-#define kSFIdentificationFingerprintThreshold_iPad_4			0.251
-#define kSFIdentificationFingerprintThreshold_iPad_Mini			0.226
+#define kSFIdentificationFingerprintThreshold_iPad_4			0.074
+#define kSFIdentificationFingerprintThreshold_iPad_Mini			0.074
 
 
 @interface SFIdentificator () <SFSignalProcessorDelegate> {
@@ -85,7 +84,11 @@
 
 - (void)identificate {
 	
-	if (![[SFAudioSessionManager sharedManager] audioRouteIsHeadsetInOut]) return;
+	if (![[SFAudioSessionManager sharedManager] audioRouteIsHeadsetInOut]) {
+		[self.delegate identificatorDidRecognizeSensor:SFSensorTypeUnknown];
+		return;
+	}
+	
 	if (identificationIsInProcess) return;
 	
 	identificationIsInProcess = YES;
@@ -121,7 +124,10 @@
 	self.signalProcessor.rightAmplitude = kSFIdentificationAmplitudeRightBitZero;
 	self.signalProcessor.leftAmplitude = kSFIdentificationAmplitudeLeftBitZero;
 	
-	[self.signalProcessor start];
+	if (![self.signalProcessor start]) {
+		[self.signalProcessor reboot];
+		[self.signalProcessor start];
+	}
 }
 
 
@@ -271,6 +277,8 @@
 			
 		case SFDeviceHardwarePlatform_iPod_Touch_5G:
 		case SFDeviceHardwarePlatform_iPhone_5:
+		case SFDeviceHardwarePlatform_iPhone_5C:
+		case SFDeviceHardwarePlatform_iPhone_5S:
 			fingerprintThreshold = kSFIdentificationFingerprintThreshold_iPhone_5;
 			break;
 			
@@ -290,6 +298,8 @@
 			break;
 			
 		case SFDeviceHardwarePlatform_iPad_Mini:
+		case SFDeviceHardwarePlatform_iPad_Mini_Retina:
+		case SFDeviceHardwarePlatform_iPad_Air:
 			fingerprintThreshold = kSFIdentificationFingerprintThreshold_iPad_Mini;
 			break;
 			
@@ -444,23 +454,23 @@
 			type = @"EMF";
 			break;
 			
-		case SFSensorTypeNitrates:
-			type = @"Organic";
-			break;
-			
-		case SFSensorTypeRadiation:
-			type = @"Radiation";
-			break;
-			
-		case SFSensorTypeHumidity:
-			type = @"Humidity";
-			break;
-			
-		case SFSensorTypeUnknown:
-		default:
-			type = @"Unknown";
-			break;
-	}
+        case SFSensorTypeNitrates:
+            type = @"Organic";
+            break;
+            
+        case SFSensorTypeRadiation:
+            type = @"Radiation";
+            break;
+            
+        case SFSensorTypeHumidity:
+            type = @"Humidity";
+            break;
+            
+        case SFSensorTypeUnknown:
+        default:
+            type = @"Unknown";
+            break;
+    }
 	
 	return type;
 }

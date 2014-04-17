@@ -39,8 +39,6 @@
 		// use the vector version to get 16-byte alignment.
 		fft_complex_split.realp = (Float32 *) malloc(nOver2 * sizeof(Float32));
 		fft_complex_split.imagp = (Float32 *) malloc(nOver2 * sizeof(Float32));
-		obtainedReal = (Float32 *) malloc(n * sizeof(Float32));
-		obtained_int = (int32_t *) malloc(n * sizeof(int32_t));
 		
 		if (fft_complex_split.realp == NULL || fft_complex_split.imagp == NULL) {
 			printf("SSignalFFTAnalyzer: malloc failed to allocate memory for the real FFT section of the sample.\n");
@@ -60,7 +58,6 @@
 	/* Free the allocated memory. */
 	
     vDSP_destroy_fftsetup(fft_setup);
-    free(obtainedReal);
     free(fft_complex_split.realp);
     free(fft_complex_split.imagp);
 }
@@ -88,11 +85,6 @@
     scale = (Float32) 1.0 / (2 * n);
     vDSP_vsmul(fft_complex_split.realp, 1, &scale, fft_complex_split.realp, 1, nOver2);
     vDSP_vsmul(fft_complex_split.imagp, 1, &scale, fft_complex_split.imagp, 1, nOver2);
-	
-	/* The output signal is now in a split real form. Use the function
-     * vDSP_ztoc to get a split real vector. */
-	
-    vDSP_ztoc(&fft_complex_split, 1, (COMPLEX *)obtainedReal, 2, nOver2);
 	
 	/* Find amplitude by frequency */
 	

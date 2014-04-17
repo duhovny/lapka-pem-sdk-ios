@@ -25,12 +25,16 @@ typedef enum {
 	SFDeviceHardwarePlatform_iPhone_4,
 	SFDeviceHardwarePlatform_iPhone_4S,
 	SFDeviceHardwarePlatform_iPhone_5,
+	SFDeviceHardwarePlatform_iPhone_5C,
+	SFDeviceHardwarePlatform_iPhone_5S,
 	SFDeviceHardwarePlatform_iPod_Touch_4G,
 	SFDeviceHardwarePlatform_iPod_Touch_5G,
 	SFDeviceHardwarePlatform_iPad_2,
 	SFDeviceHardwarePlatform_iPad_3,
 	SFDeviceHardwarePlatform_iPad_4,
-	SFDeviceHardwarePlatform_iPad_Mini
+	SFDeviceHardwarePlatform_iPad_Mini,
+	SFDeviceHardwarePlatform_iPad_Air,
+	SFDeviceHardwarePlatform_iPad_Mini_Retina
 } SFDeviceHardwarePlatform;
 
 @interface SFSensorManager : NSObject

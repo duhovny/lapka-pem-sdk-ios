@@ -305,12 +305,12 @@ OSStatus RenderAudio(
 }
 
 
-- (void)start {
+- (BOOL)start {
 	
 	NSLog(@"SSignalProcessor: start");
 	
 	OSErr err = AudioOutputUnitStart(audioUnit);
-	NSAssert1(err == noErr, @"Error start unit: %hd", err);
+	return (err == noErr);
 }
 
 
@@ -320,6 +320,15 @@ OSStatus RenderAudio(
 	
 	OSErr err = AudioOutputUnitStop(audioUnit);
 	NSAssert1(err == noErr, @"Error stop unit: %hd", err);
+}
+
+
+- (void)reboot {
+	
+	NSLog(@"SSignalProcessor: reboot");
+	
+	[self removeAudioUnit];
+	[self createAudioUnit];
 }
 
 

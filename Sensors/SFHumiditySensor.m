@@ -128,6 +128,8 @@
 			}
 				
 			case SFDeviceHardwarePlatform_iPhone_5:
+			case SFDeviceHardwarePlatform_iPhone_5C:
+			case SFDeviceHardwarePlatform_iPhone_5S:
 			case SFDeviceHardwarePlatform_iPod_Touch_5G:
 			{
 				self.K1 = kSFHumiditySensoriPhone5K1;
@@ -179,6 +181,8 @@
 			}
 				
 			case SFDeviceHardwarePlatform_iPad_Mini:
+			case SFDeviceHardwarePlatform_iPad_Mini_Retina:
+			case SFDeviceHardwarePlatform_iPad_Air:
 			{
 				self.K1 = kSFHumiditySensoriPadMiniK1;
 				self.K2 = kSFHumiditySensoriPadMiniK2;

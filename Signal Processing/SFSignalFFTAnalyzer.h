@@ -20,8 +20,6 @@
     uint32_t        log2n;
     uint32_t        n, nOver2;
     int32_t         stride;
-    Float32        *obtainedReal;
-	int32_t        *obtained_int;
     Float32         scale;
 	
 	double sumOfAmplitudes;
