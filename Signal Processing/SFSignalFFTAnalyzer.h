@@ -40,6 +40,8 @@
 
 // noize vector correction
 @property (nonatomic, assign) BOOL useNoizeVectorCorrection;
+@property (nonatomic, assign) Float32 realZero;
+@property (nonatomic, assign) Float32 imagZero;
 @property (nonatomic, assign) Float32 realNoize;
 @property (nonatomic, assign) Float32 imagNoize;
 @property (nonatomic, assign) Float32 realSignalMax;

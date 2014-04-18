@@ -24,6 +24,8 @@
 		
 		// Default
 		_useNoizeVectorCorrection = NO;
+		_realZero = 0;
+		_imagZero = 0;
 		_realNoize = 0;
 		_imagNoize = 0;
 		_realSignalMax = 0;
@@ -105,6 +107,8 @@
 		// Initialize extreme vectors
 		BOOL noizeAndSignalMaxVectorsAreNotInitialized = (_realNoize == 0) && (_imagNoize == 0) && (_realSignalMax == 0) && (_imagSignalMax == 0);
 		if (noizeAndSignalMaxVectorsAreNotInitialized) {
+			_realZero = _real;
+			_imagZero = _imag;
 			_realNoize = _real;
 			_imagNoize = _imag;
 			_realSignalMax = _real;
@@ -121,8 +125,8 @@
 			_realSignalMax = _real;
 			_imagSignalMax = _imag;
 		} else if (signalToMaxDistance > noizeToMaxDistance) {
-			float zeroToMaxDistance = sqrtf(powf((_realSignalMax), 2) + powf((_imagSignalMax), 2));
-			float zeroToSignalDistance = sqrtf(powf((_real), 2) + powf((_imag), 2));
+			float zeroToMaxDistance = sqrtf(powf((_realZero - _realSignalMax), 2) + powf((_imagZero - _imagSignalMax), 2));
+			float zeroToSignalDistance = sqrtf(powf((_realZero - _real), 2) + powf((_imagZero - _imag), 2));
 			if (zeroToMaxDistance > zeroToSignalDistance) {
 				_realNoize = _real;
 				_imagNoize = _imag;
