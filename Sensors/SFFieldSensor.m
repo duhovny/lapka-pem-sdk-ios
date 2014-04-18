@@ -10,33 +10,31 @@
 #import "SFSensorManager.h"
 
 #define kSFFieldSensorFrequency 16000
-#define kSFFieldSensorDualModeMeanSteps 4		// 80ms (60ms delay + 20ms measure)
-#define kSFFieldSensorSingleModeMeanSteps 25
-#define kSFFieldSensorDefaultSmallestMaxForHighFrequencyField 150.0
+#define kSFFieldSensorMeanSteps 25
 
-#define kSFFieldSensorDefaultHFScaleCoef 1.0
-#define kSFFieldSensorDefaultHFUpCoef 0.0550
-#define kSFFieldSensorDefaultHFK1Coef 130.0
-#define kSFFieldSensorDefaultHFK2Coef 230.0
+
+#define kSFFieldSensorScaleCoef_Default		1.0
+#define kSFFieldSensorScaleCoef_iPhone4		1.0
+#define kSFFieldSensorScaleCoef_iPhone4S	0.8
+#define kSFFieldSensorScaleCoef_iPhone5		2.5
+#define kSFFieldSensorScaleCoef_iPad4		0.8
+#define kSFFieldSensorScaleCoef_iPadMini	0.8
+#define kSFFieldSensorScaleCoef_iPod4		1.6
+
+
+#define kSFFieldSensorHF_K1 30.0
+#define kSFFieldSensorHF_K2  4.5
+
+#define kSFFieldSensorLF_K1  10.0
+#define kSFFieldSensorLF_K2 320.0
 
 #define kSF_PositiveLFFieldThreshold 0.0100
 
 
 @interface SFFieldSensor () {
 	int _stepsToSkip;
-	
-	// FFT Sign (for LF field only)
-	BOOL _fftSignEnabled;
-	BOOL _fftSignVerified;
-	float _fftLFFieldAngle;
-	
-	// FFT Zero Shift (for LF field only)
-	BOOL _fftZeroShiftEnabled;
-	float _fftLFFieldReal;
-	float _fftLFFieldImag;
+	BOOL _fftNoizeVectorCorrectionEnabled;
 }
-
-- (Float32)verifyFFTSignWithAmplitude:(Float32)amplitude;
 
 @end
 
@@ -66,16 +64,67 @@
 	if ((self = [super initWithSignalProcessor:aSignalProcessor]))
 	{
 		// default values
-		self.measureLowFrequencyField = YES;
+		self.measureLowFrequencyField = NO;
 		self.measureHighFrequencyField = YES;
 		
 		_stepsToSkip = 0;
-		_smallestHighFrequencyAmplitude = kSFFieldSensorDefaultSmallestMaxForHighFrequencyField;
 		
-		self.hfScale = kSFFieldSensorDefaultHFScaleCoef;
-		self.hfUp = kSFFieldSensorDefaultHFUpCoef;
-		self.hfK1 = kSFFieldSensorDefaultHFK1Coef;
-		self.hfK2 = kSFFieldSensorDefaultHFK2Coef;
+		self.hf_K1 = kSFFieldSensorHF_K1;
+		self.hf_K2 = kSFFieldSensorHF_K2;
+		self.lf_K1 = kSFFieldSensorLF_K1;
+		self.lf_K2 = kSFFieldSensorLF_K2;
+		
+		
+		SFDeviceHardwarePlatform hardwarePlatform = [[SFSensorManager sharedManager] hardwarePlatform];
+		
+		switch (hardwarePlatform) {
+				
+			case SFDeviceHardwarePlatform_iPhone_3GS:
+			case SFDeviceHardwarePlatform_iPhone_4:
+			{
+				self.scaleCoef = kSFFieldSensorScaleCoef_iPhone4;
+				break;
+			}
+				
+			case SFDeviceHardwarePlatform_iPhone_4S:
+			{
+				self.scaleCoef = kSFFieldSensorScaleCoef_iPhone4S;
+				break;
+			}
+				
+			case SFDeviceHardwarePlatform_iPhone_5:
+			case SFDeviceHardwarePlatform_iPod_Touch_5G:
+			{
+				self.scaleCoef = kSFFieldSensorScaleCoef_iPhone5;
+				break;
+			}
+				
+			case SFDeviceHardwarePlatform_iPod_Touch_4G:
+			{
+				self.scaleCoef = kSFFieldSensorScaleCoef_iPod4;
+				break;
+			}
+			
+			case SFDeviceHardwarePlatform_iPad_2:
+			case SFDeviceHardwarePlatform_iPad_3:
+			case SFDeviceHardwarePlatform_iPad_4:
+			{
+				self.scaleCoef = kSFFieldSensorScaleCoef_iPad4;
+				break;
+			}
+				
+			case SFDeviceHardwarePlatform_iPad_Mini:
+			{
+				self.scaleCoef = kSFFieldSensorScaleCoef_iPadMini;
+				break;
+			}
+				
+			default:
+			{
+				self.scaleCoef = kSFFieldSensorScaleCoef_Default;
+				break;
+			}
+		}
 		
 	}
 	return self;
@@ -116,23 +165,16 @@
 	
 	// setup signal processor according to state
 	self.signalProcessor.frequency = [self.signalProcessor optimizeFrequency:kSFFieldSensorFrequency];
-	if (self.dualMode) {
-		NSLog(@"SFieldSensor: dual mode");
-		self.signalProcessor.fftAnalyzer.meanSteps = kSFFieldSensorDualModeMeanSteps;
+	self.signalProcessor.fftAnalyzer.meanSteps = kSFFieldSensorMeanSteps;
+	if (measureLowFrequencyField) {
+		NSLog(@"SFieldSensor: low frequency");
 		[self setupSignalProcessorForLowFrequencyMeasure];
 		state = kSFFieldSensorStateLowFrequencyMeasurement;
-	} else {
-		self.signalProcessor.fftAnalyzer.meanSteps = kSFFieldSensorSingleModeMeanSteps;
-		if (measureLowFrequencyField) {
-			NSLog(@"SFieldSensor: single mode: low frequency");
-			[self setupSignalProcessorForLowFrequencyMeasure];
-			state = kSFFieldSensorStateLowFrequencyMeasurement;
-		} else if (measureHighFrequencyField) {
-			NSLog(@"SFieldSensor: single mode: high frequency");
-			_stepsToSkip = 1;
-			[self setupSignalProcessorForHighFrequencyMeasure];
-			state = kSFFieldSensorStateHighFrequencyMeasurement;
-		}
+	} else if (measureHighFrequencyField) {
+		NSLog(@"SFieldSensor: high frequency");
+		_stepsToSkip = 1;
+		[self setupSignalProcessorForHighFrequencyMeasure];
+		state = kSFFieldSensorStateHighFrequencyMeasurement;
 	}
 	
 	[self.signalProcessor start];
@@ -145,19 +187,11 @@
 - (void)switchOff {
 	
 	[self.signalProcessor stop];
+	
 	state = kSFFieldSensorStateOff;
 	isOn = NO;
 	lowFrequencyField = 0;
 	highFrequencyField = 0;
-	
-	_fftSignEnabled = NO;
-	_fftSignVerified = NO;
-	
-	self.signalProcessor.fftAnalyzer.realShift = 0;
-	self.signalProcessor.fftAnalyzer.imagShift = 0;
-	self.signalProcessor.fftAnalyzer.useZeroShift = NO;
-	
-	_fftZeroShiftEnabled = NO;
 	
 	[super switchOff];
 }
@@ -173,8 +207,6 @@
 	
 	self.signalProcessor.leftAmplitude = kSFControlSignalBitOne;
 	self.signalProcessor.rightAmplitude = kSFControlSignalBitOne;
-	self.signalProcessor.fftAnalyzer.useSign = _fftSignEnabled;
-	self.signalProcessor.fftAnalyzer.useZeroShift = _fftZeroShiftEnabled;
 }
 
 
@@ -182,57 +214,33 @@
 	
 	self.signalProcessor.leftAmplitude = kSFControlSignalBitZero;
 	self.signalProcessor.rightAmplitude = kSFControlSignalBitOne;
-	self.signalProcessor.fftAnalyzer.useSign = NO;
-	self.signalProcessor.fftAnalyzer.useZeroShift = NO;
 }
-
-
 
 
 #pragma mark -
-#pragma mark FFT Sign
+#pragma mark FFT Noize Vector Correction
 
 
-- (void)enableFFTZeroShiftForLowFrequencyField {
+- (void)enableFFTNoizeVectorCorrection {
 	
-	self.signalProcessor.fftAnalyzer.realShift -= _fftLFFieldReal;
-	self.signalProcessor.fftAnalyzer.imagShift -= _fftLFFieldImag;
-	
-	_fftZeroShiftEnabled = YES;
-	
-	if (state == kSFFieldSensorStateLowFrequencyMeasurement) {
-		self.signalProcessor.fftAnalyzer.useZeroShift = _fftZeroShiftEnabled;
-	}
+	_fftNoizeVectorCorrectionEnabled = YES;
+	self.signalProcessor.fftAnalyzer.useNoizeVectorCorrection = YES;
 }
 
 
-- (void)enableFFTSignForLowFrequencyField {
+- (void)disableFFTNoizeVectorCorrection {
 	
-	if (_fftSignEnabled) return;
-	_fftSignEnabled = YES;
-	
-	[self.signalProcessor.fftAnalyzer setAngleShift:-_fftLFFieldAngle];
+	_fftNoizeVectorCorrectionEnabled = NO;
+	self.signalProcessor.fftAnalyzer.useNoizeVectorCorrection = NO;
 }
 
 
-- (Float32)verifyFFTSignWithAmplitude:(Float32)amplitude {
+- (void)resetFFTNoizeVectorCorrection {
 	
-	if (!_fftSignEnabled) return amplitude;
-	if (_fftSignVerified) return amplitude;
-	
-	if (ABS(amplitude) > kSF_PositiveLFFieldThreshold) {
-		// correct angle shift
-		float currentAngle = self.signalProcessor.fftAnalyzer.angle - self.signalProcessor.fftAnalyzer.angleShift;
-		float oppositeAngle = (currentAngle < 0) ? currentAngle + 180 : currentAngle - 180;
-		[self.signalProcessor.fftAnalyzer setAngleShift:-oppositeAngle];
-		
-		if (amplitude < 0)
-			amplitude = -amplitude;
-		
-		_fftSignVerified = YES;
-	}
-	
-	return amplitude;
+	self.signalProcessor.fftAnalyzer.realSignalMax = 0;
+	self.signalProcessor.fftAnalyzer.imagSignalMax = 0;
+	self.signalProcessor.fftAnalyzer.realNoize = 0;
+	self.signalProcessor.fftAnalyzer.imagNoize = 0;
 }
 
 
@@ -244,23 +252,25 @@
 
 - (float)calculateLowFrequencyFieldWithAmplitude:(Float32)amplitude {
 	
-	float value = amplitude;
-	return value;
+	float value = amplitude * _scaleCoef;
+	
+	float K1 = _lf_K1;
+	float K2 = _lf_K2;
+	
+	float U = (exp(K1 * value) - 1) * K2;
+	
+	return MAX(U, 0);
 }
 
 
 - (float)calculateHighFrequencyFieldWithAmplitude:(Float32)amplitude {
 	
-	// shift by minimal value
-	float value = amplitude - _smallestHighFrequencyAmplitude;
+	float value = amplitude * _scaleCoef;
 	
-	// scale
-	value = value * _hfScale;
+	float K1 = _hf_K1;
+	float K2 = _hf_K2;
 	
-	float Up = _hfUp;
-	float K1 = _hfK1;
-	float K2 = _hfK2;
-	float U = MIN(value, Up) * K1 + MAX(value - Up, 0) * K2;
+	float U = (exp(K1 * value) - 1) * K2;
 	
 	return MAX(U, 0);
 }
@@ -275,9 +285,7 @@
 - (void)signalProcessorDidUpdateAmplitude:(Float32)amplitude {
 	
 	if (_stepsToSkip > 0) return;
-	if (self.dualMode) return;
 	
-	// single mode
 	switch (state) {
 			
 		case kSFFieldSensorStateOff:
@@ -285,11 +293,6 @@
 			
 		case kSFFieldSensorStateLowFrequencyMeasurement:
 		{
-			_fftLFFieldReal = self.signalProcessor.fftAnalyzer.real;
-			_fftLFFieldImag = self.signalProcessor.fftAnalyzer.imag;
-			_fftLFFieldAngle = self.signalProcessor.fftAnalyzer.angle;
-			if (!_fftSignVerified)
-				amplitude = [self verifyFFTSignWithAmplitude:amplitude];
 			lowFrequencyField = [self calculateLowFrequencyFieldWithAmplitude:amplitude];
 			[self.delegate fieldSensorDidUpdateLowFrequencyField:lowFrequencyField];
 			break;
@@ -314,85 +317,29 @@
 		_stepsToSkip--;
 		return;
 	}
-	
-	if (self.dualMode) {
 		
-		switch (state) {
-				
-			case kSFFieldSensorStateOff:
-				NSLog(@"Warning: SFieldSensor get measure result when off.");
-				break;
-				
-			case kSFFieldSensorStateLowFrequencyMeasurement:
-			{
-				// last (not mean) amplitude value
-				float amplitude = self.signalProcessor.fftAnalyzer.amplitude;
-				_fftLFFieldReal = self.signalProcessor.fftAnalyzer.real;
-				_fftLFFieldImag = self.signalProcessor.fftAnalyzer.imag;
-				_fftLFFieldAngle = self.signalProcessor.fftAnalyzer.angle;
-				if (!_fftSignVerified)
-					amplitude = [self verifyFFTSignWithAmplitude:amplitude];
-				lowFrequencyField = [self calculateLowFrequencyFieldWithAmplitude:amplitude];
-				meanLowFrequencyField = lowFrequencyField;
-				
-				[self.delegate fieldSensorDidUpdateLowFrequencyField:lowFrequencyField];
-				[self.delegate fieldSensorDidUpdateMeanLowFrequencyField:meanLowFrequencyField];
-				
-				// switch signal processor to high frequency
-				[self setupSignalProcessorForHighFrequencyMeasure];
-				state = kSFFieldSensorStateHighFrequencyMeasurement;
-				break;
-			}
-				
-			case kSFFieldSensorStateHighFrequencyMeasurement:
-			{
-				// last (not mean) amplitude value
-				float amplitude = self.signalProcessor.fftAnalyzer.amplitude;
-				if (amplitude < _smallestHighFrequencyAmplitude)
-					_smallestHighFrequencyAmplitude = amplitude;
-				highFrequencyField = [self calculateHighFrequencyFieldWithAmplitude:amplitude];
-				meanHighFrequencyField = highFrequencyField;
-				
-				[self.delegate fieldSensorDidUpdateHighFrequencyField:highFrequencyField];
-				[self.delegate fieldSensorDidUpdateMeanHighFrequencyField:meanHighFrequencyField];
-				
-				// switch signal processor to low frequency
-				[self setupSignalProcessorForLowFrequencyMeasure];
-				state = kSFFieldSensorStateLowFrequencyMeasurement;
-				break;
-			}
-				
-			default:
-				break;
+	switch (state) {
+			
+		case kSFFieldSensorStateOff:
+			NSLog(@"Warning: SFieldSensor get measure result when off.");
+			break;
+			
+		case kSFFieldSensorStateLowFrequencyMeasurement:
+		{
+			meanLowFrequencyField = [self calculateLowFrequencyFieldWithAmplitude:meanAmplitude];
+			[self.delegate fieldSensorDidUpdateMeanLowFrequencyField:meanLowFrequencyField];
+			break;
 		}
-		
-	} else { // single mode
-		
-		switch (state) {
-				
-			case kSFFieldSensorStateOff:
-				NSLog(@"Warning: SFieldSensor get measure result when off.");
-				break;
-				
-			case kSFFieldSensorStateLowFrequencyMeasurement:
-			{
-				meanLowFrequencyField = [self calculateLowFrequencyFieldWithAmplitude:meanAmplitude];
-				[self.delegate fieldSensorDidUpdateMeanLowFrequencyField:meanLowFrequencyField];
-				break;
-			}
-				
-			case kSFFieldSensorStateHighFrequencyMeasurement:
-			{
-				if (meanAmplitude < _smallestHighFrequencyAmplitude)
-					_smallestHighFrequencyAmplitude = meanAmplitude;
-				meanHighFrequencyField = [self calculateHighFrequencyFieldWithAmplitude:meanAmplitude];
-				[self.delegate fieldSensorDidUpdateMeanHighFrequencyField:meanHighFrequencyField];
-				break;
-			}
-				
-			default:
-				break;
+			
+		case kSFFieldSensorStateHighFrequencyMeasurement:
+		{
+			meanHighFrequencyField = [self calculateHighFrequencyFieldWithAmplitude:meanAmplitude];
+			[self.delegate fieldSensorDidUpdateMeanHighFrequencyField:meanHighFrequencyField];
+			break;
 		}
+			
+		default:
+			break;
 	}
 }
 
@@ -432,12 +379,6 @@
 	// switch low ON if you switching high OFF
 	if (!measureHighFrequencyField && !measureLowFrequencyField)
 		measureLowFrequencyField = YES;
-}
-
-
-- (BOOL)dualMode {
-	BOOL isDualMode = (measureLowFrequencyField && measureHighFrequencyField);
-	return isDualMode;
 }
 
 

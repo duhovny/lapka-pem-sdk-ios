@@ -33,18 +33,19 @@
 @property (nonatomic, readonly) Float32 meanAmplitude;
 @property (nonatomic, assign) int meanSteps;
 
-// test
+// fft values
 @property (nonatomic, readonly) Float32 real;
 @property (nonatomic, readonly) Float32 imag;
 @property (nonatomic, readonly) Float32 angle;
-@property (nonatomic, assign) Float32 angleShift;
 
-@property (nonatomic, assign) Float32 realShift;
-@property (nonatomic, assign) Float32 imagShift;
-
-// refactor: this is so chip, please, analyze DC and do right math in near future, OK?
-@property (nonatomic, assign) BOOL useSign;
-@property (nonatomic, assign) BOOL useZeroShift;
+// noize vector correction
+@property (nonatomic, assign) BOOL useNoizeVectorCorrection;
+@property (nonatomic, assign) Float32 realZero;
+@property (nonatomic, assign) Float32 imagZero;
+@property (nonatomic, assign) Float32 realNoize;
+@property (nonatomic, assign) Float32 imagNoize;
+@property (nonatomic, assign) Float32 realSignalMax;
+@property (nonatomic, assign) Float32 imagSignalMax;
 
 - (id)initWithNumberOfFrames:(UInt32)numberOfFrames;
 - (void)processFFTWithData:(Float32 *)data;

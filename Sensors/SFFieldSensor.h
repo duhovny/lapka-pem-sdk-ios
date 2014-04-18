@@ -29,13 +29,13 @@ typedef enum {
 @property (nonatomic, readonly) SFFieldSensorState state;
 @property (nonatomic, assign) BOOL measureLowFrequencyField;
 @property (nonatomic, assign) BOOL measureHighFrequencyField;
-@property (nonatomic, readonly) BOOL dualMode;
 @property (nonatomic, readonly) float smallestHighFrequencyAmplitude;
 
-@property (nonatomic, assign) float hfScale;
-@property (nonatomic, assign) float hfUp;
-@property (nonatomic, assign) float hfK1;
-@property (nonatomic, assign) float hfK2;
+@property (nonatomic, assign) float scaleCoef;
+@property (nonatomic, assign) float hf_K1;
+@property (nonatomic, assign) float hf_K2;
+@property (nonatomic, assign) float lf_K1;
+@property (nonatomic, assign) float lf_K2;
 
 // measures
 @property (nonatomic, readonly) float lowFrequencyField;
@@ -43,7 +43,9 @@ typedef enum {
 @property (nonatomic, readonly) float meanLowFrequencyField;
 @property (nonatomic, readonly) float meanHighFrequencyField;
 
-- (void)enableFFTZeroShiftForLowFrequencyField;
-- (void)enableFFTSignForLowFrequencyField;
+// noize vector correction
+- (void)enableFFTNoizeVectorCorrection;
+- (void)disableFFTNoizeVectorCorrection;
+- (void)resetFFTNoizeVectorCorrection;
 
 @end

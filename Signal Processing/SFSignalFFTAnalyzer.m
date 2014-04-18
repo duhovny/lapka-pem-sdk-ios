@@ -23,12 +23,13 @@
 	if ((self = [super init])) {
 		
 		// Default
-		_useSign = NO;
-		_angleShift = 0;
-		_useZeroShift = NO;
-		
-		_realShift = 0;
-		_imagShift = 0;
+		_useNoizeVectorCorrection = NO;
+		_realZero = 0;
+		_imagZero = 0;
+		_realNoize = 0;
+		_imagNoize = 0;
+		_realSignalMax = 0;
+		_imagSignalMax = 0;
 		
 		// Set the size of FFT.
 		n = numberOfFrames;
@@ -93,31 +94,55 @@
 	
 	/* FFT Parts */
 	
-	double requiredReal = fft_complex_split.realp[required_bin];
-	double requiredImag = fft_complex_split.imagp[required_bin];
-	
-	if (_useZeroShift) {
-		requiredReal += _realShift;
-		requiredImag += _imagShift;
-	}
-	
-	_real = requiredReal;
-	_imag = requiredImag;
+	_real = fft_complex_split.realp[required_bin];
+	_imag = fft_complex_split.imagp[required_bin];
 	
 	/* Angle */
-	
-	float angleInRadians = atan2f(requiredReal,requiredImag);
+	float angleInRadians = atan2f(_real,_imag);
 	_angle = angleInRadians / M_PI * 180;
-		
-	_angle += _angleShift;
-	_angle = (_angle < -180) ? 360+_angle : _angle;
-	_angle = (_angle >  180) ? _angle-360 : _angle;
 	
-	if (_useSign) {
-		int sign = (ABS(_angle) < 90) ? -1 : 1;
-		amplitude = sign * sqrtf(requiredReal * requiredReal + requiredImag * requiredImag);
+	
+	if (_useNoizeVectorCorrection) {
+		
+		// Initialize extreme vectors
+		BOOL noizeAndSignalMaxVectorsAreNotInitialized = (_realNoize == 0) && (_imagNoize == 0) && (_realSignalMax == 0) && (_imagSignalMax == 0);
+		if (noizeAndSignalMaxVectorsAreNotInitialized) {
+			_realZero = _real;
+			_imagZero = _imag;
+			_realNoize = _real;
+			_imagNoize = _imag;
+			_realSignalMax = _real;
+			_imagSignalMax = _imag;
+		}
+		
+		// calc distances
+		float signalToNoizeDistance = sqrtf(powf((_real - _realNoize), 2) + powf((_imag - _imagNoize), 2));
+		float signalToMaxDistance = sqrtf(powf((_real - _realSignalMax), 2) + powf((_imag - _imagSignalMax), 2));
+		float noizeToMaxDistance = sqrtf(powf((_realNoize - _realSignalMax), 2) + powf((_imagNoize - _imagSignalMax), 2));
+		
+		// update extreme vectors
+		if (signalToNoizeDistance > noizeToMaxDistance) {
+			_realSignalMax = _real;
+			_imagSignalMax = _imag;
+		} else if (signalToMaxDistance > noizeToMaxDistance) {
+			float zeroToMaxDistance = sqrtf(powf((_realZero - _realSignalMax), 2) + powf((_imagZero - _imagSignalMax), 2));
+			float zeroToSignalDistance = sqrtf(powf((_realZero - _real), 2) + powf((_imagZero - _imag), 2));
+			if (zeroToMaxDistance > zeroToSignalDistance) {
+				_realNoize = _real;
+				_imagNoize = _imag;
+			} else {
+				_realNoize = _realSignalMax;
+				_imagNoize = _imagSignalMax;
+				_realSignalMax = _real;
+				_imagSignalMax = _imag;
+			}
+		}
+		
+		float noizeToSignalDistance = sqrtf(powf((_realNoize - _real), 2) + powf((_imagNoize - _imag), 2));
+		amplitude = noizeToSignalDistance;
+		
 	} else {
-		amplitude = sqrtf(requiredReal * requiredReal + requiredImag * requiredImag);
+		amplitude = sqrtf(_real * _real + _imag * _imag);
 	}
 	
 	[delegate fftAnalyzerDidUpdateAmplitude:amplitude];

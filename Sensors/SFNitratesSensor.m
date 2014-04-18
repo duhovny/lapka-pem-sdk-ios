@@ -284,6 +284,9 @@
 	// nitrates
 	float N = (1 - 0.01 * (T - 20)) * K1 * (U2 - U3 - K4) / U3;
 	
+	// x4 as convertion to ppm NO3
+	N = N * 4.0;
+	
 	return N;
 }
 
