@@ -241,6 +241,8 @@
 	self.signalProcessor.fftAnalyzer.imagSignalMax = 0;
 	self.signalProcessor.fftAnalyzer.realNoize = 0;
 	self.signalProcessor.fftAnalyzer.imagNoize = 0;
+	self.signalProcessor.fftAnalyzer.realZero = 0;
+	self.signalProcessor.fftAnalyzer.imagZero = 0;
 }
 
 
