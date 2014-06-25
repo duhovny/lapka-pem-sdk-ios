@@ -5,6 +5,8 @@
 
 #import "SFAbstractSensor.h"
 
+extern int const SFHumiditySensorCalibrationDuration;
+
 typedef enum {
 	kSFHumiditySensorStateOff = 0,
 	kSFHumiditySensorStateResetting,

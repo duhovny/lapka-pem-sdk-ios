@@ -8,12 +8,17 @@
 #import "SFIdentificator.h"
 #import "SFSensorManager.h"
 
-#define kSFHumiditySensorResettingMeanSteps	   250	// 5 sec
-#define kSFHumiditySensorCalibratingMeanSteps	10	// 0.2 sec
-#define kSFHumiditySensorSecondResettingMeanSteps	25	// 0.5 sec
+#define kSFHumiditySensorResettingMeanSteps			250	// 5 sec
+#define kSFHumiditySensorCalibratingMeanSteps		 10	// 0.2 sec
+#define kSFHumiditySensorSecondResettingMeanSteps	 25	// 0.5 sec
 #define kSFHumiditySensorFirstTemperatureMeanSteps  200	// 4 sec
-#define kSFHumiditySensorTemperatureMeanSteps   50	// 1.0 sec
-#define kSFHumiditySensorHumidityMeanSteps		50	// 1.0 sec
+#define kSFHumiditySensorTemperatureMeanSteps		 50	// 1.0 sec
+#define kSFHumiditySensorHumidityMeanSteps			 50	// 1.0 sec
+
+int const SFHumiditySensorCalibrationDuration = (kSFHumiditySensorResettingMeanSteps +
+												 kSFHumiditySensorCalibratingMeanSteps +
+												 kSFHumiditySensorSecondResettingMeanSteps +
+												 kSFHumiditySensorFirstTemperatureMeanSteps) / 50;
 
 #define kSFHumiditySensoriPhone3GSK1	122.0
 #define kSFHumiditySensoriPhone3GSK2	 77.4
