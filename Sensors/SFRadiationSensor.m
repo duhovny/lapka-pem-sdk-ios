@@ -7,6 +7,7 @@
 #import "SFSignalImpulseDetector.h"
 #import "SFAudioSessionManager.h"
 #import "SFIdentificator.h"
+#import "SFSensorManager.h"
 
 #define kSFRadiationSensorFrequency		19000
 #define kSFRadiationSensorAmplitude		1.0
@@ -16,6 +17,13 @@
 #define kSFRadiationParticlesPerMinuteToMicrosievertsPerHourCoef 0.04
 #define kSFRadiationParticlesPerMinuteToMicrorentgensPerHourCoef 4.0
 #define SFRadiationSensorMeanAmplitudeToImpulseTresholdCoef 4.0
+
+#define RANDOM_0_1() ((random() / (float)0x7fffffff))
+
+
+@interface SFRadiationSensor ()
+@property (nonatomic, strong) NSTimer *particleSimulationTimer;
+@end
 
 
 @implementation SFRadiationSensor
@@ -52,6 +60,9 @@
 	
 	[self.timer invalidate];
 	self.timer = nil;
+	
+	[self.particleSimulationTimer invalidate];
+	self.particleSimulationTimer = nil;
 }
 
 
@@ -62,6 +73,20 @@
 - (void)switchOn {
 	
 	if (![self isPluggedIn]) {
+		
+		BOOL iamSimulated = [[SFSensorManager sharedManager] isSensorSimulated];
+		if (iamSimulated) {
+			
+			state = kSFRadiationSensorStateOn;
+			isOn = YES;
+			[super switchOn];
+			
+			self.timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(tick) userInfo:nil repeats:YES];
+			[self simulateParticleAndScheduleNext];
+			
+			return;
+		}
+		
 		NSLog(@"SFRadiationSensor is not plugged in. Not able to switch on.");
 		return;
 	}
@@ -292,6 +317,19 @@
 	
 	float microrentgensPerHour = kSFRadiationParticlesPerMinuteToMicrorentgensPerHourCoef * ppm;
 	return microrentgensPerHour;
+}
+
+
+#pragma mark -
+#pragma mark Simulate
+
+
+- (void)simulateParticleAndScheduleNext {
+	
+	[self signalProcessorDidRecognizeImpulse];
+	
+	float timeBeforeNextParticle = (60.0 / 8) * (1 + RANDOM_0_1());
+	self.particleSimulationTimer = [NSTimer scheduledTimerWithTimeInterval:timeBeforeNextParticle target:self selector:@selector(simulateParticleAndScheduleNext) userInfo:nil repeats:NO];
 }
 
 

@@ -42,6 +42,7 @@ typedef enum {
 @property (nonatomic, assign) BOOL activeMode;
 @property (nonatomic, readonly) SFSensorType currentSensorType;
 @property (nonatomic, assign) SFDeviceHardwarePlatform hardwarePlatform;
+@property (nonatomic, readonly) BOOL isSensorSimulated;
 
 + (SFSensorManager *)sharedManager;
 
@@ -64,6 +65,12 @@ typedef enum {
  * and don't know what is plugged in on wake up
  */
 - (void)simulateSensorPlugOut;
+
+/*
+ * sensor simulation — for debug only
+ * for unplug simulation, use simulateSensorPlugOut method
+ */
+- (void)simulateSensorWithSensorType:(SFSensorType)sensorType;
 
 
 @end

@@ -156,6 +156,8 @@ NSString *const SFSensorManagerNeedUserPermissionToSwitchToEU = @"SFSensorManage
 	
 	if (_currentSensorType == SFSensorTypeUnknown) return;
 	[self identificatorDidRecognizeSensor:SFSensorTypeUnknown];
+	
+	_isSensorSimulated = NO;
 }
 
 
@@ -165,10 +167,12 @@ NSString *const SFSensorManagerNeedUserPermissionToSwitchToEU = @"SFSensorManage
 
 - (void)identificatorDidRecognizeSensor:(SFSensorType)sensorType {
 	
+	BOOL sensorTypeHaveNotChanged = (sensorType == _currentSensorType);
+	_currentSensorType = sensorType;
+	
 	[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorManagerDidFinishSensorIdentification object:nil];
 	
-	if (_currentSensorType == sensorType) return;
-	_currentSensorType = sensorType;
+	if (sensorTypeHaveNotChanged) return;
 	
 	if (_currentSensorType == SFSensorTypeUnknown) {
 		[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorManagerDidRecognizeSensorPluggedOutNotification object:nil];
@@ -194,6 +198,22 @@ NSString *const SFSensorManagerNeedUserPermissionToSwitchToEU = @"SFSensorManage
 	[self updateCurrentState];
 }
 
+
+#pragma mark -
+#pragma mark Simulation
+
+
+- (void)simulateSensorWithSensorType:(SFSensorType)sensorType {
+	
+	if (_isSensorSimulated || _currentSensorType) return;
+	_isSensorSimulated = YES;
+	
+	[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorManagerWillStartSensorIdentification object:nil];
+	
+	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+		[self identificatorDidRecognizeSensor:sensorType];
+	});
+}
 
 
 @end
