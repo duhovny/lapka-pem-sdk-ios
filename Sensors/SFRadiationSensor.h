@@ -12,21 +12,11 @@ typedef enum {
 	kSFRadiationSensorStateOn
 } SFRadiationSensorState;
 
-@protocol SFRadiationSensorDelegate <SFAbstractSensorDelegate>
-- (void)radiationSensorDidUpdateRadiation:(float)radiation;
-@optional
-- (void)radiationSensorDidUpdateMaxSignalAmplitude:(float)maxAmplitude;
-- (void)radiationSensorDidUpdateImpulseTreshold:(float)impulseThreshold;
-- (void)radiationSensorDidRecognizeImpulse:(float)impulseAmplitude;
-- (void)radiationSensorDidReceiveParticle;
-@end
-
 
 @interface SFRadiationSensor : SFAbstractSensor
 
 // refactor: #senseframework move isOn to abstract sensor class
 @property (nonatomic, readonly) BOOL isOn;
-@property (nonatomic, assign) NSObject <SFRadiationSensorDelegate> *delegate;
 @property (nonatomic, readonly) SFRadiationSensorState state;
 
 @property (nonatomic, retain) NSTimer *timer;

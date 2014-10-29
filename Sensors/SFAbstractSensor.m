@@ -7,9 +7,14 @@
 #import "SFAudioSessionManager.h"
 #import "SFSensorManager.h"
 
+NSString *const SFSensorWillStartCalibration = @"SFSensorWillStartCalibration";
+NSString *const SFSensorDidCompleteCalibration = @"SFSensorDidCompleteCalibration";
+NSString *const SFSensorDidUpdateMeanValue = @"SFSensorDidUpdateMeanValue";
+NSString *const SFSensorDidUpdateValue = @"SFSensorDidUpdateValue";
+
+
 @implementation SFAbstractSensor
 @synthesize signalProcessor;
-@synthesize delegate;
 
 
 #define VOLUME_ADJUST_LIMIT 0.07
@@ -51,10 +56,6 @@
 	// don't forget to call super
 	
 	[UIApplication sharedApplication].idleTimerDisabled = YES;
-	
-	if ([self.delegate respondsToSelector:@selector(sensorDidSwitchOn:)]) {
-		[self.delegate sensorDidSwitchOn:self];
-	}
 }
 
 
@@ -64,9 +65,6 @@
 	// don't forget to call super
 	
 	[UIApplication sharedApplication].idleTimerDisabled = NO;
-	
-	if ([self.delegate respondsToSelector:@selector(sensorDidSwitchOff:)])
-		[self.delegate sensorDidSwitchOff:self];
 }
 
 

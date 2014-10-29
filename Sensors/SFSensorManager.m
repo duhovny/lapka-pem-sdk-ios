@@ -6,6 +6,10 @@
 #import "SFSensorManager.h"
 #import "SFIdentificator.h"
 #import "SFAudioSessionManager.h"
+#import "SFFieldSensor.h"
+#import "SFHumiditySensor.h"
+#import "SFRadiationSensor.h"
+#import "SFNitratesSensor.h"
 
 
 // Notifications
@@ -18,7 +22,9 @@ NSString *const SFSensorManagerNeedUserPermissionToSwitchToEU = @"SFSensorManage
 
 @interface SFSensorManager () <SFIdentificatorDelegate>
 
-@property (nonatomic, retain) SFIdentificator *identificator;
+@property (nonatomic, strong) SFIdentificator *identificator;
+@property (nonatomic, strong) SFAbstractSensor *sensor;
+@property (nonatomic, strong) SFSignalProcessor *signalProcessor;
 
 - (void)setupActiveMode;
 - (void)unsetupActiveMode;
@@ -103,6 +109,57 @@ NSString *const SFSensorManagerNeedUserPermissionToSwitchToEU = @"SFSensorManage
 
 
 #pragma mark -
+#pragma mark Sensor
+
+
+- (SFAbstractSensor *)currentSensor {
+	return _sensor;
+}
+
+
+- (void)createSensorWithType:(SFSensorType)sensorType {
+	
+	NSLog(@"create %@ sensor", [SFIdentificator sensorTypeToString:sensorType]);
+	
+	self.signalProcessor = [[SFSignalProcessor alloc] init];
+	
+	switch (sensorType) {
+		case SFSensorTypeFields:
+		{
+			self.sensor = [[SFFieldSensor alloc] initWithSignalProcessor:_signalProcessor];
+			break;
+		}
+		case SFSensorTypeNitrates:
+		{
+			self.sensor = [[SFNitratesSensor alloc] initWithSignalProcessor:_signalProcessor];
+			break;
+		}
+		case SFSensorTypeRadiation:
+		{
+			self.sensor = [[SFRadiationSensor alloc] initWithSignalProcessor:_signalProcessor];
+			break;
+		}
+		case SFSensorTypeHumidity:
+		{
+			self.sensor = [[SFHumiditySensor alloc] initWithSignalProcessor:_signalProcessor];
+			break;
+		}
+		default:
+			break;
+	}
+}
+
+
+- (void)removeSensor {
+
+	NSLog(@"remove sensor");
+	
+	self.sensor = nil;
+	self.signalProcessor = nil;
+}
+
+
+#pragma mark -
 #pragma mark Update
 
 
@@ -112,6 +169,9 @@ NSString *const SFSensorManagerNeedUserPermissionToSwitchToEU = @"SFSensorManage
 		
 		if (_currentSensorType != SFSensorTypeUnknown) {
 			_currentSensorType = SFSensorTypeUnknown;
+			
+			[self removeSensor];
+			
 			NSLog(@"remove european_preference");
 			[[NSUserDefaults standardUserDefaults] removeObjectForKey:@"european_preference"];
 			[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorManagerDidRecognizeSensorPluggedOutNotification object:nil];
@@ -175,8 +235,10 @@ NSString *const SFSensorManagerNeedUserPermissionToSwitchToEU = @"SFSensorManage
 	if (sensorTypeHaveNotChanged) return;
 	
 	if (_currentSensorType == SFSensorTypeUnknown) {
+		[self removeSensor];
 		[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorManagerDidRecognizeSensorPluggedOutNotification object:nil];
 	} else {
+		[self createSensorWithType:_currentSensorType];
 		[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorManagerDidRecognizeSensorPluggedInNotification object:nil];
 	}
 }

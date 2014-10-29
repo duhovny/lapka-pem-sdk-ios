@@ -18,19 +18,11 @@ typedef enum {
 	SFNitratesSensorStateTemperatureMeasurement
 } SFNitratesSensorState;
 
-@protocol SFNitratesSensorDelegate <SFAbstractSensorDelegate>
-- (void)nitratesSensorCalibrationComplete;
-- (void)nitratesSensorGotNitrates:(float)nitrates;
-@end
 
-
-@interface SFNitratesSensor : SFAbstractSensor {
-	
-}
+@interface SFNitratesSensor : SFAbstractSensor
 
 @property (nonatomic, readonly, getter = isPluggedIn) BOOL pluggedIn;
 @property (nonatomic, readonly) BOOL isOn;
-@property (nonatomic, assign) NSObject <SFNitratesSensorDelegate> *delegate;
 @property (nonatomic, readonly) SFNitratesSensorState state;
 
 @property (readonly) float calibration_level;

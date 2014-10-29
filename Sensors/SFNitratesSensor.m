@@ -42,13 +42,17 @@
 #define kSFNitratesSensoriPodTouch4K3	 97.0
 #define kSFNitratesSensoriPodTouch4K4	0.000
 
+#define RANDOM_0_1() ((random() / (float)0x7fffffff))
 
 
+
+@interface SFNitratesSensor ()
+@property (nonatomic, strong) NSTimer *simulationTimer;
+@end
 
 @implementation SFNitratesSensor
 
 @synthesize pluggedIn;
-@dynamic delegate;
 @synthesize isOn;
 
 
@@ -99,6 +103,12 @@
 		
 	}
 	return self;
+}
+
+
+- (void)dealloc {
+	[self.simulationTimer invalidate];
+	self.simulationTimer = nil;
 }
 
 
@@ -173,6 +183,19 @@
 - (void)switchOn {
 	
 	if (![self isPluggedIn]) {
+		
+		BOOL iamSimulated = [[SFSensorManager sharedManager] isSensorSimulated];
+		if (iamSimulated) {
+			
+			isOn = YES;
+			[super switchOn];
+			
+			[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorWillStartCalibration object:nil];
+			self.simulationTimer = [NSTimer scheduledTimerWithTimeInterval:5.0 target:self selector:@selector(simulateCalibrationComplete) userInfo:nil repeats:NO];
+			
+			return;
+		}
+		
 		NSLog(@"SFNitratesSensor is not plugged in. Not able to switch on.");
 		return;
 	}
@@ -209,6 +232,8 @@
 	isOn = YES;
 	[super switchOn];
 	
+	[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorWillStartCalibration object:nil];
+	
 	NSLog(@"SFNitratesSensor switched on");
 }
 
@@ -219,6 +244,9 @@
 		NSLog(@"SFNitratesSensor is already off.");
 		return;
 	}
+	
+	[self.simulationTimer invalidate];
+	self.simulationTimer = nil;
 	
 	[self.signalProcessor stop];
 	_state = SFNitratesSensorStateOff;
@@ -244,6 +272,11 @@
 	
 	if (_state != SFNitratesSensorStateCalibrationComplete) return;
 	[self setupForNitratesMeasurement];
+	
+	BOOL iamSimulated = [[SFSensorManager sharedManager] isSensorSimulated];
+	if (iamSimulated) {
+		self.simulationTimer = [NSTimer scheduledTimerWithTimeInterval:3.0 target:self selector:@selector(simulateMeasurementComplete) userInfo:nil repeats:NO];
+	}
 }
 
 
@@ -326,8 +359,8 @@
 			_empty_nitrates_level = amplitude;
 			_empty_nitrates = [self calculateNitratesWithNitratesLevel:_empty_nitrates_level];
 			NSLog(@"_empty_nitrates %g", _empty_nitrates);
-			[self.delegate nitratesSensorCalibrationComplete];
 			_state = SFNitratesSensorStateCalibrationComplete;
+			[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidCompleteCalibration object:nil];
 			break;
 		}
 			
@@ -337,7 +370,7 @@
 			NSLog(@"_nitrates %g", _nitrates);
 			_nitrates = MAX(_nitrates - _empty_nitrates, 0);
 			NSLog(@"zeroed _nitrates %g", _nitrates);
-			[self.delegate nitratesSensorGotNitrates:_nitrates];
+			[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateValue object:@(_nitrates)];
 			[self setupForTemperatureMeasurement];
 			break;
 		}
@@ -361,6 +394,28 @@
 
 - (BOOL)isPluggedIn {
 	return [[SFAudioSessionManager sharedManager] audioRouteIsHeadsetInOut];
+}
+
+
+#pragma mark -
+#pragma mark Simulation
+
+
+- (void)simulateCalibrationComplete {
+	
+	_empty_nitrates = 2.0 * RANDOM_0_1();
+	_state = SFNitratesSensorStateCalibrationComplete;
+	
+	[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidCompleteCalibration object:nil];
+}
+
+
+- (void)simulateMeasurementComplete {
+	
+	_nitrates = 60.0 * RANDOM_0_1();
+	_nitrates = MAX(_nitrates - _empty_nitrates, 0);
+	NSLog(@"_nitrates %g", _nitrates);
+	[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateValue object:@(_nitrates)];
 }
 
 

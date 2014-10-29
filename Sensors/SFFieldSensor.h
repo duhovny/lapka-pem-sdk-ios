@@ -13,19 +13,11 @@ typedef enum {
 	kSFFieldSensorStateHighFrequencyMeasurement
 } SFFieldSensorState;
 
-@protocol SFFieldSensorDelegate <SFAbstractSensorDelegate>
-- (void)fieldSensorDidUpdateLowFrequencyField:(float)field;
-- (void)fieldSensorDidUpdateHighFrequencyField:(float)field;
-- (void)fieldSensorDidUpdateMeanLowFrequencyField:(float)meanField;
-- (void)fieldSensorDidUpdateMeanHighFrequencyField:(float)meanField;
-@end
-
 
 @interface SFFieldSensor : SFAbstractSensor
 
 @property (nonatomic, readonly, getter = isPluggedIn) BOOL pluggedIn;
 @property (nonatomic, readonly) BOOL isOn;
-@property (nonatomic, assign) NSObject <SFFieldSensorDelegate> *delegate;
 @property (nonatomic, readonly) SFFieldSensorState state;
 @property (nonatomic, assign) BOOL measureLowFrequencyField;
 @property (nonatomic, assign) BOOL measureHighFrequencyField;

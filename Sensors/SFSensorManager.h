@@ -41,6 +41,7 @@ typedef enum {
 
 @property (nonatomic, assign) BOOL activeMode;
 @property (nonatomic, readonly) SFSensorType currentSensorType;
+@property (nonatomic, readonly) SFAbstractSensor *currentSensor;
 @property (nonatomic, assign) SFDeviceHardwarePlatform hardwarePlatform;
 @property (nonatomic, readonly) BOOL isSensorSimulated;
 

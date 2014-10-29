@@ -18,20 +18,10 @@ typedef enum {
 	kSFHumiditySensorStateTemperatureMeasurement
 } SFHumiditySensorState;
 
-@protocol SFHumiditySensorDelegate <SFAbstractSensorDelegate>
-@optional
-- (void)humiditySensorDidUpdateTemperature:(float)temperature;
-- (void)humiditySensorDidUpdateFirstTemperature:(float)temperature;
-- (void)humiditySensorDidUpdateCalibratingLevel:(float)calibratingLevel;
-- (void)humiditySensorDidUpdateSecondCalibratingLevel:(float)secondCalibratingLevel;
-- (void)humiditySensorDidUpdateMeanHumidity:(float)meanHumidity;
-- (void)humiditySensorDidUpdateHumidity:(float)humidity;
-@end
 
 @interface SFHumiditySensor : SFAbstractSensor
 
 @property (nonatomic, readonly) BOOL isOn;
-@property (nonatomic, assign) NSObject <SFHumiditySensorDelegate> *delegate;
 @property (nonatomic, readonly) SFHumiditySensorState state;
 
 @property (nonatomic, readonly) double humidity;

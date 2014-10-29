@@ -28,7 +28,6 @@
 
 @implementation SFRadiationSensor
 
-@dynamic delegate;
 @synthesize state;
 @synthesize isOn;
 
@@ -51,6 +50,7 @@
 	{
 		self.impulseThreshold = kSFRadiationImpulseTreshold;
 		self.signalProcessor.frequency = kSFRadiationSensorFrequency;
+		self.useSievert = YES;
 	}
 	return self;
 }
@@ -127,6 +127,9 @@
 
 - (void)switchOff {
 	
+	[self.particleSimulationTimer invalidate];
+	self.particleSimulationTimer = nil;
+	
 	[self.timer invalidate];
 	self.timer = nil;
 	
@@ -194,7 +197,7 @@
 
 - (void)reportRadiationLevelUpdate {
 	
-	[self.delegate radiationSensorDidUpdateRadiation:self.radiationLevel];
+	[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateValue object:@([self radiationLevel])];
 }
 
 
@@ -224,60 +227,16 @@
 	
 	particles++;
 	[self reportRadiationLevelUpdate];
-	
-	if ([self.delegate respondsToSelector:@selector(radiationSensorDidRecognizeImpulse:)])
-		[self.delegate radiationSensorDidRecognizeImpulse:self.signalProcessor.impulseDetector.impulseAmplitude];
-	
-	if ([self.delegate respondsToSelector:@selector(radiationSensorDidReceiveParticle)])
-		[self.delegate radiationSensorDidReceiveParticle];
 }
 
 
 - (void)signalProcessorDidUpdateMaxAmplitude:(Float32)maxAmplitude {
 	
-	switch (state) {
-			
-		case kSFRadiationSensorStateOff:
-			NSLog(@"Warning: SFRadiationSensor get measure result when off.");
-			break;
-			
-		case kSFRadiationSensorStateOn:
-		{
-//			NSLog(@"max: %f", maxAmplitude);
-			if ([self.delegate respondsToSelector:@selector(radiationSensorDidUpdateMaxSignalAmplitude:)])
-				[self.delegate radiationSensorDidUpdateMaxSignalAmplitude:maxAmplitude];
-			
-			break;
-		}
-			
-		default:
-			break;
-	}
 }
 
 
 - (void)signalProcessorDidUpdateMeanAmplitude:(Float32)meanAmplitude {
 	
-	switch (state) {
-			
-		case kSFRadiationSensorStateOff:
-			NSLog(@"Warning: SFRadiationSensor get something when off.");
-			break;
-			
-		case kSFRadiationSensorStateOn:
-		{	
-			impulseThreshold = meanAmplitude * SFRadiationSensorMeanAmplitudeToImpulseTresholdCoef;
-			self.signalProcessor.impulseDetector.threshold = impulseThreshold;
-			
-			if ([self.delegate respondsToSelector:@selector(radiationSensorDidUpdateImpulseTreshold:)])
-				[self.delegate radiationSensorDidUpdateImpulseTreshold:impulseThreshold];
-			
-			break;
-		}
-			
-		default:
-			break;
-	}
 }
 
 

@@ -30,12 +30,15 @@
 
 #define kSF_PositiveLFFieldThreshold 0.0100
 
+#define RANDOM_0_1() ((random() / (float)0x7fffffff))
+
 
 @interface SFFieldSensor () {
 	int _stepsToSkip;
 	BOOL _fftNoizeVectorCorrectionEnabled;
 }
-
+@property (nonatomic, strong) NSTimer *simulateValueTimer;
+@property (nonatomic, strong) NSTimer *simulateMeanValueTimer;
 @end
 
 
@@ -50,7 +53,6 @@
 @synthesize measureHighFrequencyField;
 @synthesize state;
 @synthesize isOn;
-@dynamic delegate;
 
 
 
@@ -131,6 +133,16 @@
 }
 
 
+- (void)dealloc {
+	
+	[_simulateMeanValueTimer invalidate];
+	self.simulateMeanValueTimer = nil;
+	
+	[_simulateValueTimer invalidate];
+	self.simulateValueTimer = nil;
+}
+
+
 
 
 #pragma mark -
@@ -140,6 +152,17 @@
 - (void)switchOn {
 	
 	if (![self isPluggedIn]) {
+		
+		BOOL iamSimulated = [[SFSensorManager sharedManager] isSensorSimulated];
+		if (iamSimulated) {
+			
+			isOn = YES;
+			self.simulateValueTimer = [NSTimer scheduledTimerWithTimeInterval:0.1 target:self selector:@selector(simulateDidUpdateValue) userInfo:nil repeats:YES];
+			self.simulateValueTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(simulateDidUpdateMeanValue) userInfo:nil repeats:YES];
+			[super switchOn];
+			return;
+		}
+		
 		NSLog(@"SFieldSensor is not plugged in. Not able to switch on.");
 		return;
 	}
@@ -185,6 +208,12 @@
 
 
 - (void)switchOff {
+	
+	[_simulateMeanValueTimer invalidate];
+	self.simulateMeanValueTimer = nil;
+	
+	[_simulateValueTimer invalidate];
+	self.simulateValueTimer = nil;
 	
 	[self.signalProcessor stop];
 	
@@ -296,14 +325,14 @@
 		case kSFFieldSensorStateLowFrequencyMeasurement:
 		{
 			lowFrequencyField = [self calculateLowFrequencyFieldWithAmplitude:amplitude];
-			[self.delegate fieldSensorDidUpdateLowFrequencyField:lowFrequencyField];
+			[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateValue object:@(lowFrequencyField)];
 			break;
 		}
 			
 		case kSFFieldSensorStateHighFrequencyMeasurement:
 		{
 			highFrequencyField = [self calculateHighFrequencyFieldWithAmplitude:amplitude];
-			[self.delegate fieldSensorDidUpdateHighFrequencyField:highFrequencyField];
+			[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateValue object:@(highFrequencyField)];
 			break;
 		}
 			
@@ -329,14 +358,14 @@
 		case kSFFieldSensorStateLowFrequencyMeasurement:
 		{
 			meanLowFrequencyField = [self calculateLowFrequencyFieldWithAmplitude:meanAmplitude];
-			[self.delegate fieldSensorDidUpdateMeanLowFrequencyField:meanLowFrequencyField];
+			[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateMeanValue object:@(meanLowFrequencyField)];
 			break;
 		}
 			
 		case kSFFieldSensorStateHighFrequencyMeasurement:
 		{
 			meanHighFrequencyField = [self calculateHighFrequencyFieldWithAmplitude:meanAmplitude];
-			[self.delegate fieldSensorDidUpdateMeanHighFrequencyField:meanHighFrequencyField];
+			[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateMeanValue object:@(meanHighFrequencyField)];
 			break;
 		}
 			
@@ -384,6 +413,22 @@
 }
 
 
+#pragma mark -
+#pragma mark Simulation
+
+
+- (void)simulateDidUpdateValue {
+	
+	float value = 1.2 + 2.0 * RANDOM_0_1();
+	[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateValue object:@(value)];
+}
+
+
+- (void)simulateDidUpdateMeanValue {
+	
+	float value = 1.2 + 2.0 * RANDOM_0_1();
+	[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateMeanValue object:@(value)];
+}
 
 
 @end

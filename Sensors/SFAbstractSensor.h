@@ -12,20 +12,16 @@
 #define kSFControlSignalBitZero	0.0
 #define kSFControlSignalBitOne	1.0
 
+extern NSString *const SFSensorWillStartCalibration;
+extern NSString *const SFSensorDidCompleteCalibration;
+extern NSString *const SFSensorDidUpdateMeanValue;
+extern NSString *const SFSensorDidUpdateValue;
 
-@class SFAbstractSensor;
-
-@protocol SFAbstractSensorDelegate <NSObject>
-@optional
-- (void)sensorDidSwitchOn:(SFAbstractSensor *)sensor;
-- (void)sensorDidSwitchOff:(SFAbstractSensor *)sensor;
-@end
 
 @interface SFAbstractSensor : NSObject <SFSignalProcessorDelegate>
 
 @property (nonatomic, retain) SFSignalProcessor *signalProcessor;
 @property (nonatomic, readonly, getter = isPluggedIn) BOOL pluggedIn;
-@property (nonatomic, assign) NSObject <SFAbstractSensorDelegate> *delegate;
 
 - (id)initWithSignalProcessor:(SFSignalProcessor *)aSignalProcessor;
 
