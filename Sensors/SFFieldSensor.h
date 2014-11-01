@@ -8,19 +8,23 @@
 
 
 typedef enum {
-	kSFFieldSensorStateOff = 0,
-	kSFFieldSensorStateLowFrequencyMeasurement,
-	kSFFieldSensorStateHighFrequencyMeasurement
+	SFFieldSensorStateOff,
+	SFFieldSensorStateCalibrating,
+	SFFieldSensorStateReady,
+	SFFieldSensorStateMeasuring
 } SFFieldSensorState;
+
+typedef enum {
+	SFFieldTypeLowFrequency,
+	SFFieldTypeHighFrequency
+} SFFieldType;
 
 
 @interface SFFieldSensor : SFAbstractSensor
 
-@property (nonatomic, readonly, getter = isPluggedIn) BOOL pluggedIn;
-@property (nonatomic, readonly) BOOL isOn;
 @property (nonatomic, readonly) SFFieldSensorState state;
-@property (nonatomic, assign) BOOL measureLowFrequencyField;
-@property (nonatomic, assign) BOOL measureHighFrequencyField;
+@property (nonatomic, readonly) SFFieldType fieldType;
+@property (nonatomic, readonly, getter = isPluggedIn) BOOL pluggedIn;
 @property (nonatomic, readonly) float smallestHighFrequencyAmplitude;
 
 @property (nonatomic, assign) float scaleCoef;
@@ -29,11 +33,13 @@ typedef enum {
 @property (nonatomic, assign) float lf_K1;
 @property (nonatomic, assign) float lf_K2;
 
-// measures
+// measure values
 @property (nonatomic, readonly) float lowFrequencyField;
 @property (nonatomic, readonly) float highFrequencyField;
 @property (nonatomic, readonly) float meanLowFrequencyField;
 @property (nonatomic, readonly) float meanHighFrequencyField;
+
+- (BOOL)updateWithFieldType:(SFFieldType)fieldType;
 
 // noize vector correction
 - (void)enableFFTNoizeVectorCorrection;

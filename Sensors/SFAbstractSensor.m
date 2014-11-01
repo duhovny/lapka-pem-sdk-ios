@@ -9,8 +9,16 @@
 
 NSString *const SFSensorWillStartCalibration = @"SFSensorWillStartCalibration";
 NSString *const SFSensorDidCompleteCalibration = @"SFSensorDidCompleteCalibration";
+NSString *const SFSensorWillStartMeasure = @"SFSensorWillStartMeasure";
+NSString *const SFSensorDidCompleteMeasure = @"SFSensorDidCompleteMeasure";
 NSString *const SFSensorDidUpdateMeanValue = @"SFSensorDidUpdateMeanValue";
 NSString *const SFSensorDidUpdateValue = @"SFSensorDidUpdateValue";
+
+
+@interface SFAbstractSensor ()
+@property (nonatomic, readonly) BOOL calibrated;
+- (void)calibrationComplete;
+@end
 
 
 @implementation SFAbstractSensor
@@ -47,23 +55,69 @@ NSString *const SFSensorDidUpdateValue = @"SFSensorDidUpdateValue";
 
 
 #pragma mark -
-#pragma mark ON/OFF
+#pragma mark Calibration
 
 
-- (void)switchOn {
+- (void)startCalibration {
 	
 	// override in real class
 	// don't forget to call super
 	
+	NSLog(@"Sensor will start calibration");
+	
+	dispatch_async(dispatch_get_main_queue(), ^{
+		[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorWillStartCalibration object:nil];
+	});
+}
+
+
+- (void)calibrationComplete {
+	
+	// override in real class
+	// don't forget to call super
+	
+	NSLog(@"Sensor did complete calibration");
+	
+	_calibrated = YES;
+	
+	dispatch_async(dispatch_get_main_queue(), ^{
+		[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidCompleteCalibration object:nil];
+	});
+}
+
+
+#pragma mark -
+#pragma mark Measure
+
+
+- (void)startMeasure {
+	
+	// override in real class
+	// don't forget to call super
+	
+	NSLog(@"Sensor will start mesure");
+	
+	if (!_calibrated) {
+		NSLog(@"Error: Sensor isn't calibrated — can't start measure");
+		return;
+	}
+	
+	dispatch_async(dispatch_get_main_queue(), ^{
+		[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorWillStartMeasure object:nil];
+	});
 	[UIApplication sharedApplication].idleTimerDisabled = YES;
 }
 
 
-- (void)switchOff {
+- (void)stopMeasure {
 	
 	// override in real class
 	// don't forget to call super
 	
+	NSLog(@"Sensor did finish measure");
+	dispatch_async(dispatch_get_main_queue(), ^{
+		[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidCompleteMeasure object:nil];
+	});
 	[UIApplication sharedApplication].idleTimerDisabled = NO;
 }
 
@@ -78,9 +132,9 @@ NSString *const SFSensorDidUpdateValue = @"SFSensorDidUpdateValue";
 	if ([[UIApplication sharedApplication] applicationState] != UIApplicationStateActive) return;
 	
 	if ([[SFAudioSessionManager sharedManager] audioRouteIsHeadsetInOut]) {
-		[self switchOn];
+		[self startMeasure];
 	} else {
-		[self switchOff];
+		[self stopMeasure];
 	}
 }
 

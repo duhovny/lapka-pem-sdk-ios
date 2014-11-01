@@ -129,11 +129,13 @@ OSStatus RenderAudio(
 
 
 @interface SFSignalProcessor (private)
+
 - (void)createAudioUnit;
 - (void)removeAudioUnit;
 
 // Utility
 - (int)convertSecondsToRenderSteps:(NSTimeInterval)seconds;
+
 @end
 
 
@@ -307,6 +309,9 @@ OSStatus RenderAudio(
 
 - (BOOL)start {
 	
+	if (_started) return NO;
+	_started = YES;
+	
 	NSLog(@"SSignalProcessor: start");
 	
 	OSErr err = AudioOutputUnitStart(audioUnit);
@@ -315,6 +320,9 @@ OSStatus RenderAudio(
 
 
 - (void)stop {
+	
+	if (!_started) return;
+	_started = NO;
 	
 	NSLog(@"SSignalProcessor: stop");
 	

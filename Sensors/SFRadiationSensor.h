@@ -7,28 +7,12 @@
 #import "SFAbstractSensor.h"
 
 
-typedef enum {
-	kSFRadiationSensorStateOff = 0,
-	kSFRadiationSensorStateOn
-} SFRadiationSensorState;
-
-
 @interface SFRadiationSensor : SFAbstractSensor
 
-// refactor: #senseframework move isOn to abstract sensor class
-@property (nonatomic, readonly) BOOL isOn;
-@property (nonatomic, readonly) SFRadiationSensorState state;
-
-@property (nonatomic, retain) NSTimer *timer;
-@property (nonatomic, assign) float time;
-@property (nonatomic, assign) float particles;
-@property (nonatomic, assign) float impulseThreshold;
+@property (nonatomic, readonly) float time;
+@property (nonatomic, readonly) float particles;
 @property (nonatomic, readonly) double particlesPerMinute;
 @property (nonatomic, readonly) double radiationLevel;
-// use Rentgen if NO
-@property (nonatomic, assign) BOOL useSievert;
-
-- (void)reset;
 
 - (float)convertParticlesPerMinutesToMicrosievertsPerHour:(float)ppm;
 - (float)convertParticlesPerMinutesToMicrorentgensPerHour:(float)ppm;

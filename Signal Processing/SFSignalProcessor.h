@@ -35,6 +35,8 @@ typedef enum {
 	AudioComponentInstance audioUnit;
 	double left_theta;
 	double right_theta;
+@private
+	BOOL _started;
 }
 
 @property (nonatomic, assign) NSObject <SFSignalProcessorDelegate> *delegate;

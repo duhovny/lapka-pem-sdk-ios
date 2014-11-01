@@ -14,6 +14,8 @@
 
 extern NSString *const SFSensorWillStartCalibration;
 extern NSString *const SFSensorDidCompleteCalibration;
+extern NSString *const SFSensorWillStartMeasure;
+extern NSString *const SFSensorDidCompleteMeasure;
 extern NSString *const SFSensorDidUpdateMeanValue;
 extern NSString *const SFSensorDidUpdateValue;
 
@@ -22,10 +24,12 @@ extern NSString *const SFSensorDidUpdateValue;
 
 @property (nonatomic, retain) SFSignalProcessor *signalProcessor;
 @property (nonatomic, readonly, getter = isPluggedIn) BOOL pluggedIn;
+@property (nonatomic, readonly) NSTimeInterval calibrationTime;
 
 - (id)initWithSignalProcessor:(SFSignalProcessor *)aSignalProcessor;
 
-- (void)switchOn;
-- (void)switchOff;
+- (void)startCalibration;
+- (void)startMeasure;
+- (void)stopMeasure;
 
 @end

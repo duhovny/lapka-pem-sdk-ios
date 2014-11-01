@@ -17,25 +17,24 @@
 #define kSFRadiationParticlesPerMinuteToMicrosievertsPerHourCoef 0.04
 #define kSFRadiationParticlesPerMinuteToMicrorentgensPerHourCoef 4.0
 #define SFRadiationSensorMeanAmplitudeToImpulseTresholdCoef 4.0
+#define kSFRadiationSensorCalibrationTime 4.0
 
 #define RANDOM_0_1() ((random() / (float)0x7fffffff))
 
 
+@interface SFAbstractSensor ()
+- (void)calibrationComplete;
+@end
+
+
 @interface SFRadiationSensor ()
-@property (nonatomic, strong) NSTimer *particleSimulationTimer;
+@property (nonatomic, retain) NSTimer *timer;
+@property (nonatomic, strong) NSTimer *calibrationTimer;
+@property (nonatomic, strong) NSTimer *simulationTimer;
 @end
 
 
 @implementation SFRadiationSensor
-
-@synthesize state;
-@synthesize isOn;
-
-@synthesize timer;
-@synthesize time;
-@synthesize particles;
-@synthesize impulseThreshold;
-
 
 
 #pragma mark -
@@ -48,9 +47,8 @@
 	
 	if ((self = [super initWithSignalProcessor:aSignalProcessor]))
 	{
-		self.impulseThreshold = kSFRadiationImpulseTreshold;
+		self.signalProcessor.impulseDetector.threshold = kSFRadiationImpulseTreshold;
 		self.signalProcessor.frequency = kSFRadiationSensorFrequency;
-		self.useSievert = YES;
 	}
 	return self;
 }
@@ -61,25 +59,42 @@
 	[self.timer invalidate];
 	self.timer = nil;
 	
-	[self.particleSimulationTimer invalidate];
-	self.particleSimulationTimer = nil;
+	[self.simulationTimer invalidate];
+	self.simulationTimer = nil;
+	
+	[self.calibrationTimer invalidate];
+	self.calibrationTimer = nil;
 }
 
 
 #pragma mark -
-#pragma mark ON/OFF
+#pragma mark Calibration
 
 
-- (void)switchOn {
+- (void)startCalibration {
+	
+	self.calibrationTimer = [NSTimer scheduledTimerWithTimeInterval:self.calibrationTime target:self selector:@selector(calibrationComplete) userInfo:nil repeats:NO];
+	[super startCalibration];
+}
+
+
+- (NSTimeInterval)calibrationTime {
+	return kSFRadiationSensorCalibrationTime;
+}
+
+
+#pragma mark -
+#pragma mark Measure
+
+
+- (void)startMeasure {
 	
 	if (![self isPluggedIn]) {
 		
 		BOOL iamSimulated = [[SFSensorManager sharedManager] isSensorSimulated];
 		if (iamSimulated) {
 			
-			state = kSFRadiationSensorStateOn;
-			isOn = YES;
-			[super switchOn];
+			[super startMeasure];
 			
 			self.timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(tick) userInfo:nil repeats:YES];
 			[self simulateParticleAndScheduleNext];
@@ -91,10 +106,7 @@
 		return;
 	}
 	
-	if ([self isOn]) {
-		NSLog(@"SFRadiationSensor is already on.");
-		return;
-	}
+	[super startMeasure];
 	
 	// set volume up
 	float outputVolume;
@@ -109,48 +121,32 @@
 	}
 	
 	// setup signal processor
-//	self.signalProcessor.frequency = kSFRadiationSensorFrequency;
 	self.signalProcessor.leftAmplitude = kSFControlSignalBitOne;
 	self.signalProcessor.rightAmplitude = kSFControlSignalBitOne;
 	self.signalProcessor.impulseDetectorEnabled = YES;
 	self.signalProcessor.fftAnalyzerEnabled = NO;
-	
 	[self.signalProcessor start];
-	state = kSFRadiationSensorStateOn;
-	isOn = YES;
 	
 	self.timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(tick) userInfo:nil repeats:YES];
-	
-	[super switchOn];
 }
 
 
-- (void)switchOff {
+- (void)stopMeasure {
 	
-	[self.particleSimulationTimer invalidate];
-	self.particleSimulationTimer = nil;
+	[self.calibrationTimer invalidate];
+	self.calibrationTimer = nil;
+	
+	[self.simulationTimer invalidate];
+	self.simulationTimer = nil;
 	
 	[self.timer invalidate];
 	self.timer = nil;
 	
 	[self.signalProcessor stop];
-	state = kSFRadiationSensorStateOff;
-	isOn = NO;
-	particles = 0;
-	time = 0;
+	_particles = 0;
+	_time = 0;
 	
-	[super switchOff];
-}
-
-
-- (void)reset {
-	
-	time = 0;
-	particles = 0;
-	
-	if (isOn) {
-		[self reportRadiationLevelUpdate];
-	}
+	[super stopMeasure];
 }
 
 
@@ -163,8 +159,8 @@
 	double value;
 	
 	if (time > 0) {
-		float minutes = time / 60.0;
-		value = particles / minutes;
+		float minutes = _time / 60.0;
+		value = _particles / minutes;
 	} else {
 		value = 0.0;
 	}
@@ -179,15 +175,8 @@
 
 - (double)radiationLevel {
 	
-	float level;
-	if (_useSievert) {
-		float microsievertsPerHour = [self convertParticlesPerMinutesToMicrosievertsPerHour:self.particlesPerMinute];
-		level = microsievertsPerHour;
-	} else {
-		float microrentgensPerHour = [self convertParticlesPerMinutesToMicrorentgensPerHour:self.particlesPerMinute];
-		level = microrentgensPerHour;
-	}
-	return level;
+	float microsievertsPerHour = [self convertParticlesPerMinutesToMicrosievertsPerHour:self.particlesPerMinute];
+	return microsievertsPerHour;
 }
 
 
@@ -207,7 +196,7 @@
 
 - (void)tick {
 	
-	time++;
+	_time++;
 	[self reportRadiationLevelUpdate];
 }
 
@@ -218,14 +207,14 @@
 
 - (void)signalProcessorDidRecognizeImpulse {
 	
-	if (time < kSFRadiationSensorSafeStartTime) {
+	if (_time < kSFRadiationSensorSafeStartTime) {
 		NSLog(@"~ r ignore particle at safe time");
 		return;
 	} else {
 		NSLog(@"~ r register particle");
 	}
 	
-	particles++;
+	_particles++;
 	[self reportRadiationLevelUpdate];
 }
 
@@ -237,17 +226,6 @@
 
 - (void)signalProcessorDidUpdateMeanAmplitude:(Float32)meanAmplitude {
 	
-}
-
-
-#pragma mark -
-#pragma mark Setters
-
-
-- (void)setImpulseThreshold:(float)value {
-	
-	impulseThreshold = value;
-	self.signalProcessor.impulseDetector.threshold = value;
 }
 
 
@@ -288,7 +266,7 @@
 	[self signalProcessorDidRecognizeImpulse];
 	
 	float timeBeforeNextParticle = (60.0 / 8) * (1 + RANDOM_0_1());
-	self.particleSimulationTimer = [NSTimer scheduledTimerWithTimeInterval:timeBeforeNextParticle target:self selector:@selector(simulateParticleAndScheduleNext) userInfo:nil repeats:NO];
+	self.simulationTimer = [NSTimer scheduledTimerWithTimeInterval:timeBeforeNextParticle target:self selector:@selector(simulateParticleAndScheduleNext) userInfo:nil repeats:NO];
 }
 
 

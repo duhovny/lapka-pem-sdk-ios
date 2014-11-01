@@ -21,7 +21,6 @@ typedef enum {
 
 @interface SFHumiditySensor : SFAbstractSensor
 
-@property (nonatomic, readonly) BOOL isOn;
 @property (nonatomic, readonly) SFHumiditySensorState state;
 
 @property (nonatomic, readonly) double humidity;

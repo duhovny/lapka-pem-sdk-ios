@@ -30,31 +30,26 @@
 
 #define kSF_PositiveLFFieldThreshold 0.0100
 
+#define kSFFieldSensorCalibrationTime 40.0
+
 #define RANDOM_0_1() ((random() / (float)0x7fffffff))
 
 
+@interface SFAbstractSensor ()
+- (void)calibrationComplete;
+@end
+
+
 @interface SFFieldSensor () {
-	int _stepsToSkip;
 	BOOL _fftNoizeVectorCorrectionEnabled;
 }
+@property (nonatomic, strong) NSTimer *calibrationTimer;
 @property (nonatomic, strong) NSTimer *simulateValueTimer;
 @property (nonatomic, strong) NSTimer *simulateMeanValueTimer;
 @end
 
 
 @implementation SFFieldSensor
-
-@synthesize pluggedIn;
-@synthesize lowFrequencyField;
-@synthesize highFrequencyField;
-@synthesize meanLowFrequencyField;
-@synthesize meanHighFrequencyField;
-@synthesize measureLowFrequencyField;
-@synthesize measureHighFrequencyField;
-@synthesize state;
-@synthesize isOn;
-
-
 
 
 #pragma mark -
@@ -66,10 +61,8 @@
 	if ((self = [super initWithSignalProcessor:aSignalProcessor]))
 	{
 		// default values
-		self.measureLowFrequencyField = NO;
-		self.measureHighFrequencyField = YES;
-		
-		_stepsToSkip = 0;
+		_fieldType = SFFieldTypeHighFrequency;
+		_state = SFFieldSensorStateOff;
 		
 		self.hf_K1 = kSFFieldSensorHF_K1;
 		self.hf_K2 = kSFFieldSensorHF_K2;
@@ -78,55 +71,7 @@
 		
 		
 		SFDeviceHardwarePlatform hardwarePlatform = [[SFSensorManager sharedManager] hardwarePlatform];
-		
-		switch (hardwarePlatform) {
-				
-			case SFDeviceHardwarePlatform_iPhone_3GS:
-			case SFDeviceHardwarePlatform_iPhone_4:
-			{
-				self.scaleCoef = kSFFieldSensorScaleCoef_iPhone4;
-				break;
-			}
-				
-			case SFDeviceHardwarePlatform_iPhone_4S:
-			{
-				self.scaleCoef = kSFFieldSensorScaleCoef_iPhone4S;
-				break;
-			}
-				
-			case SFDeviceHardwarePlatform_iPhone_5:
-			case SFDeviceHardwarePlatform_iPod_Touch_5G:
-			{
-				self.scaleCoef = kSFFieldSensorScaleCoef_iPhone5;
-				break;
-			}
-				
-			case SFDeviceHardwarePlatform_iPod_Touch_4G:
-			{
-				self.scaleCoef = kSFFieldSensorScaleCoef_iPod4;
-				break;
-			}
-			
-			case SFDeviceHardwarePlatform_iPad_2:
-			case SFDeviceHardwarePlatform_iPad_3:
-			case SFDeviceHardwarePlatform_iPad_4:
-			{
-				self.scaleCoef = kSFFieldSensorScaleCoef_iPad4;
-				break;
-			}
-				
-			case SFDeviceHardwarePlatform_iPad_Mini:
-			{
-				self.scaleCoef = kSFFieldSensorScaleCoef_iPadMini;
-				break;
-			}
-				
-			default:
-			{
-				self.scaleCoef = kSFFieldSensorScaleCoef_Default;
-				break;
-			}
-		}
+		_scaleCoef = [self scaleCoefficientForHardwarePlatform:hardwarePlatform];
 		
 	}
 	return self;
@@ -135,79 +80,8 @@
 
 - (void)dealloc {
 	
-	[_simulateMeanValueTimer invalidate];
-	self.simulateMeanValueTimer = nil;
-	
-	[_simulateValueTimer invalidate];
-	self.simulateValueTimer = nil;
-}
-
-
-
-
-#pragma mark -
-#pragma mark ON/OFF
-
-
-- (void)switchOn {
-	
-	if (![self isPluggedIn]) {
-		
-		BOOL iamSimulated = [[SFSensorManager sharedManager] isSensorSimulated];
-		if (iamSimulated) {
-			
-			isOn = YES;
-			self.simulateValueTimer = [NSTimer scheduledTimerWithTimeInterval:0.1 target:self selector:@selector(simulateDidUpdateValue) userInfo:nil repeats:YES];
-			self.simulateValueTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(simulateDidUpdateMeanValue) userInfo:nil repeats:YES];
-			[super switchOn];
-			return;
-		}
-		
-		NSLog(@"SFieldSensor is not plugged in. Not able to switch on.");
-		return;
-	}
-	
-	if ([self isOn]) {
-		NSLog(@"SFieldSensor is already on.");
-		return;
-	}
-	
-	// set volume up
-	float outputVolume;
-	id field_volume = [[NSUserDefaults standardUserDefaults] objectForKey:@"field_volume"];
-	id european_preference = [[NSUserDefaults standardUserDefaults] objectForKey:@"european_preference"];
-	if (field_volume) {
-		NSLog(@"SFFieldSensor: set specific field volume");
-		outputVolume = [[NSUserDefaults standardUserDefaults] floatForKey:@"field_volume"];
-		[[SFAudioSessionManager sharedManager] setHardwareOutputVolume:outputVolume];
-	} else if (european_preference) {
-		NSLog(@"SFFieldSensor: set current region volume");
-		outputVolume = [[SFAudioSessionManager sharedManager] currentRegionMaxVolume];
-		[[SFAudioSessionManager sharedManager] setHardwareOutputVolume:outputVolume];
-	}
-	
-	// setup signal processor according to state
-	self.signalProcessor.frequency = [self.signalProcessor optimizeFrequency:kSFFieldSensorFrequency];
-	self.signalProcessor.fftAnalyzer.meanSteps = kSFFieldSensorMeanSteps;
-	if (measureLowFrequencyField) {
-		NSLog(@"SFieldSensor: low frequency");
-		[self setupSignalProcessorForLowFrequencyMeasure];
-		state = kSFFieldSensorStateLowFrequencyMeasurement;
-	} else if (measureHighFrequencyField) {
-		NSLog(@"SFieldSensor: high frequency");
-		_stepsToSkip = 1;
-		[self setupSignalProcessorForHighFrequencyMeasure];
-		state = kSFFieldSensorStateHighFrequencyMeasurement;
-	}
-	
-	[self.signalProcessor start];
-	isOn = YES;
-	
-	[super switchOn];
-}
-
-
-- (void)switchOff {
+	[self.calibrationTimer invalidate];
+	self.calibrationTimer = nil;
 	
 	[_simulateMeanValueTimer invalidate];
 	self.simulateMeanValueTimer = nil;
@@ -216,13 +90,113 @@
 	self.simulateValueTimer = nil;
 	
 	[self.signalProcessor stop];
+}
+
+
+
+
+#pragma mark -
+#pragma mark Field Type
+
+
+- (BOOL)updateWithFieldType:(SFFieldType)fieldType {
 	
-	state = kSFFieldSensorStateOff;
-	isOn = NO;
-	lowFrequencyField = 0;
-	highFrequencyField = 0;
+	if (_state == SFFieldSensorStateOff ||
+		_state == SFFieldSensorStateReady)
+	{
+		_fieldType = fieldType;
+		[self setupSignalProcessorForFieldType:_fieldType];
+		return YES;
+	}
+	return NO;
+}
+
+
+
+
+#pragma mark -
+#pragma mark Calibration
+
+
+- (void)startCalibration {
 	
-	[super switchOff];
+	if (![self isPluggedIn]) {
+		
+		BOOL iamSimulated = [[SFSensorManager sharedManager] isSensorSimulated];
+		if (iamSimulated) {
+			
+			_state = SFFieldSensorStateCalibrating;
+			self.simulateValueTimer = [NSTimer scheduledTimerWithTimeInterval:0.1 target:self selector:@selector(simulateDidUpdateValue) userInfo:nil repeats:YES];
+			self.simulateMeanValueTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(simulateDidUpdateMeanValue) userInfo:nil repeats:YES];
+			self.calibrationTimer = [NSTimer scheduledTimerWithTimeInterval:self.calibrationTime target:self selector:@selector(calibrationComplete) userInfo:nil repeats:NO];
+			[super startCalibration];
+			return;
+		}
+		
+		NSLog(@"SFieldSensor is not plugged in. Not able to switch on.");
+		return;
+	}
+	
+	[self setOutputVolumeUp];
+	[self setupSignalProcessorForFieldType:_fieldType];
+	
+	[self.signalProcessor start];
+	_state = SFFieldSensorStateCalibrating;
+	
+	self.calibrationTimer = [NSTimer scheduledTimerWithTimeInterval:self.calibrationTime target:self selector:@selector(calibrationComplete) userInfo:nil repeats:NO];
+	[super startCalibration];
+}
+
+
+- (void)calibrationComplete {
+	
+	_state = SFFieldSensorStateReady;
+	[super calibrationComplete];
+}
+
+
+- (NSTimeInterval)calibrationTime {
+	return kSFFieldSensorCalibrationTime;
+}
+
+
+#pragma mark -
+#pragma mark Measure
+
+
+- (void)startMeasure {
+	
+	if (![self isPluggedIn]) {
+		
+		BOOL iamSimulated = [[SFSensorManager sharedManager] isSensorSimulated];
+		if (iamSimulated) {
+			
+			[super startMeasure];
+			_state = SFFieldSensorStateMeasuring;
+			return;
+		}
+		
+		NSLog(@"SFieldSensor is not plugged in. Not able to start measure.");
+		return;
+	}
+	
+	[super startMeasure];
+	
+	[self enableFFTNoizeVectorCorrection];
+	[self resetFFTNoizeVectorCorrection];
+	
+	_state = SFFieldSensorStateMeasuring;
+}
+
+
+- (void)stopMeasure {
+	
+	_state = SFFieldSensorStateReady;
+	
+	_lowFrequencyField = 0;
+	_highFrequencyField = 0;
+	
+	[super stopMeasure];
 }
 
 
@@ -232,17 +206,17 @@
 #pragma mark Signal Processor setup
 
 
-- (void)setupSignalProcessorForLowFrequencyMeasure {
+- (void)setupSignalProcessorForFieldType:(SFFieldType)fieldType {
 	
-	self.signalProcessor.leftAmplitude = kSFControlSignalBitOne;
-	self.signalProcessor.rightAmplitude = kSFControlSignalBitOne;
-}
-
-
-- (void)setupSignalProcessorForHighFrequencyMeasure {
-	
-	self.signalProcessor.leftAmplitude = kSFControlSignalBitZero;
-	self.signalProcessor.rightAmplitude = kSFControlSignalBitOne;
+	self.signalProcessor.frequency = [self.signalProcessor optimizeFrequency:kSFFieldSensorFrequency];
+	self.signalProcessor.fftAnalyzer.meanSteps = kSFFieldSensorMeanSteps;
+	if (_fieldType == SFFieldTypeLowFrequency) {
+		self.signalProcessor.leftAmplitude = kSFControlSignalBitOne;
+		self.signalProcessor.rightAmplitude = kSFControlSignalBitOne;
+	} else {
+		self.signalProcessor.leftAmplitude = kSFControlSignalBitZero;
+		self.signalProcessor.rightAmplitude = kSFControlSignalBitOne;
+	}
 }
 
 
@@ -315,24 +289,25 @@
 
 - (void)signalProcessorDidUpdateAmplitude:(Float32)amplitude {
 	
-	if (_stepsToSkip > 0) return;
+	if (_state != SFFieldSensorStateMeasuring) return;
 	
-	switch (state) {
+	switch (_fieldType) {
 			
-		case kSFFieldSensorStateOff:
-			break;
-			
-		case kSFFieldSensorStateLowFrequencyMeasurement:
+		case SFFieldTypeLowFrequency:
 		{
-			lowFrequencyField = [self calculateLowFrequencyFieldWithAmplitude:amplitude];
-			[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateValue object:@(lowFrequencyField)];
+			_lowFrequencyField = [self calculateLowFrequencyFieldWithAmplitude:amplitude];
+			dispatch_async(dispatch_get_main_queue(), ^{
+				[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateValue object:@(_lowFrequencyField)];
+			});
 			break;
 		}
 			
-		case kSFFieldSensorStateHighFrequencyMeasurement:
+		case SFFieldTypeHighFrequency:
 		{
-			highFrequencyField = [self calculateHighFrequencyFieldWithAmplitude:amplitude];
-			[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateValue object:@(highFrequencyField)];
+			_highFrequencyField = [self calculateHighFrequencyFieldWithAmplitude:amplitude];
+			dispatch_async(dispatch_get_main_queue(), ^{
+				[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateValue object:@(_highFrequencyField)];
+			});
 			break;
 		}
 			
@@ -344,28 +319,25 @@
 
 - (void)signalProcessorDidUpdateMeanAmplitude:(Float32)meanAmplitude {
 		
-	if (_stepsToSkip > 0) {
-		_stepsToSkip--;
-		return;
-	}
+	if (_state != SFFieldSensorStateMeasuring) return;
 		
-	switch (state) {
+	switch (_fieldType) {
 			
-		case kSFFieldSensorStateOff:
-			NSLog(@"Warning: SFieldSensor get measure result when off.");
-			break;
-			
-		case kSFFieldSensorStateLowFrequencyMeasurement:
+		case SFFieldTypeLowFrequency:
 		{
-			meanLowFrequencyField = [self calculateLowFrequencyFieldWithAmplitude:meanAmplitude];
-			[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateMeanValue object:@(meanLowFrequencyField)];
+			_meanLowFrequencyField = [self calculateLowFrequencyFieldWithAmplitude:meanAmplitude];
+			dispatch_async(dispatch_get_main_queue(), ^{
+				[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateMeanValue object:@(_meanLowFrequencyField)];
+			});
 			break;
 		}
 			
-		case kSFFieldSensorStateHighFrequencyMeasurement:
+		case SFFieldTypeHighFrequency:
 		{
-			meanHighFrequencyField = [self calculateHighFrequencyFieldWithAmplitude:meanAmplitude];
-			[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateMeanValue object:@(meanHighFrequencyField)];
+			_meanHighFrequencyField = [self calculateHighFrequencyFieldWithAmplitude:meanAmplitude];
+			dispatch_async(dispatch_get_main_queue(), ^{
+				[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateMeanValue object:@(_meanHighFrequencyField)];
+			});
 			break;
 		}
 			
@@ -390,26 +362,79 @@
 
 
 #pragma mark -
-#pragma mark Setters
+#pragma mark Utilities
 
 
-- (void)setMeasureLowFrequencyField:(BOOL)value {
+- (void)setOutputVolumeUp {
 	
-	measureLowFrequencyField = value;
-	
-	// switch high ON if you switching low OFF
-	if (!measureLowFrequencyField && !measureHighFrequencyField)
-		measureHighFrequencyField = YES;
+	float outputVolume;
+	id field_volume = [[NSUserDefaults standardUserDefaults] objectForKey:@"field_volume"];
+	id european_preference = [[NSUserDefaults standardUserDefaults] objectForKey:@"european_preference"];
+	if (field_volume) {
+		NSLog(@"SFFieldSensor: set specific field volume");
+		outputVolume = [[NSUserDefaults standardUserDefaults] floatForKey:@"field_volume"];
+		[[SFAudioSessionManager sharedManager] setHardwareOutputVolume:outputVolume];
+	} else if (european_preference) {
+		NSLog(@"SFFieldSensor: set current region volume");
+		outputVolume = [[SFAudioSessionManager sharedManager] currentRegionMaxVolume];
+		[[SFAudioSessionManager sharedManager] setHardwareOutputVolume:outputVolume];
+	}
 }
 
 
-- (void)setMeasureHighFrequencyField:(BOOL)value {
+- (float)scaleCoefficientForHardwarePlatform:(SFDeviceHardwarePlatform)hardwarePlatform {
 	
-	measureHighFrequencyField = value;
+	float scaleCoefficient;
 	
-	// switch low ON if you switching high OFF
-	if (!measureHighFrequencyField && !measureLowFrequencyField)
-		measureLowFrequencyField = YES;
+	switch (hardwarePlatform) {
+			
+		case SFDeviceHardwarePlatform_iPhone_3GS:
+		case SFDeviceHardwarePlatform_iPhone_4:
+		{
+			scaleCoefficient = kSFFieldSensorScaleCoef_iPhone4;
+			break;
+		}
+			
+		case SFDeviceHardwarePlatform_iPhone_4S:
+		{
+			scaleCoefficient = kSFFieldSensorScaleCoef_iPhone4S;
+			break;
+		}
+			
+		case SFDeviceHardwarePlatform_iPhone_5:
+		case SFDeviceHardwarePlatform_iPod_Touch_5G:
+		{
+			scaleCoefficient = kSFFieldSensorScaleCoef_iPhone5;
+			break;
+		}
+			
+		case SFDeviceHardwarePlatform_iPod_Touch_4G:
+		{
+			scaleCoefficient = kSFFieldSensorScaleCoef_iPod4;
+			break;
+		}
+			
+		case SFDeviceHardwarePlatform_iPad_2:
+		case SFDeviceHardwarePlatform_iPad_3:
+		case SFDeviceHardwarePlatform_iPad_4:
+		{
+			scaleCoefficient = kSFFieldSensorScaleCoef_iPad4;
+			break;
+		}
+			
+		case SFDeviceHardwarePlatform_iPad_Mini:
+		{
+			scaleCoefficient = kSFFieldSensorScaleCoef_iPadMini;
+			break;
+		}
+			
+		default:
+		{
+			scaleCoefficient = kSFFieldSensorScaleCoef_Default;
+			break;
+		}
+	}
+	return scaleCoefficient;
 }
 
 
@@ -419,15 +444,23 @@
 
 - (void)simulateDidUpdateValue {
 	
+	if (_state != SFFieldSensorStateMeasuring) return;
+	
 	float value = 1.2 + 2.0 * RANDOM_0_1();
-	[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateValue object:@(value)];
+	dispatch_async(dispatch_get_main_queue(), ^{
+		[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateValue object:@(value)];
+	});
 }
 
 
 - (void)simulateDidUpdateMeanValue {
 	
+	if (_state != SFFieldSensorStateMeasuring) return;
+	
 	float value = 1.2 + 2.0 * RANDOM_0_1();
-	[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateMeanValue object:@(value)];
+	dispatch_async(dispatch_get_main_queue(), ^{
+		[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateMeanValue object:@(value)];
+	});
 }
 
 

@@ -22,7 +22,6 @@ typedef enum {
 @interface SFNitratesSensor : SFAbstractSensor
 
 @property (nonatomic, readonly, getter = isPluggedIn) BOOL pluggedIn;
-@property (nonatomic, readonly) BOOL isOn;
 @property (nonatomic, readonly) SFNitratesSensorState state;
 
 @property (readonly) float calibration_level;
@@ -38,8 +37,5 @@ typedef enum {
 @property float K2;
 @property float K3;
 @property float K4;
-
-- (void)restart;
-- (void)measureNitrates;
 
 @end

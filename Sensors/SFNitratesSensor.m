@@ -16,6 +16,7 @@
 #define kSFNitratesSensorNitratesMeasureMeanSteps			200	// 4.0 sec
 
 #define kSFNitratesSensorSignalToNitratesCoef		395.37
+#define kSFNitratesSensorCalibrationTime 5.0
 
 #define kSFNitratesSensoriPhone4K1		 26.0
 #define kSFNitratesSensoriPhone4K2		151.0
@@ -46,14 +47,17 @@
 
 
 
+@interface SFAbstractSensor ()
+- (void)calibrationComplete;
+@end
+
+
 @interface SFNitratesSensor ()
 @property (nonatomic, strong) NSTimer *simulationTimer;
 @end
 
-@implementation SFNitratesSensor
 
-@synthesize pluggedIn;
-@synthesize isOn;
+@implementation SFNitratesSensor
 
 
 #pragma mark -
@@ -177,22 +181,18 @@
 
 
 #pragma mark -
-#pragma mark ON/OFF
+#pragma mark Calibration
 
 
-- (void)switchOn {
+- (void)startCalibration {
 	
 	if (![self isPluggedIn]) {
 		
 		BOOL iamSimulated = [[SFSensorManager sharedManager] isSensorSimulated];
 		if (iamSimulated) {
 			
-			isOn = YES;
-			[super switchOn];
-			
-			[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorWillStartCalibration object:nil];
-			self.simulationTimer = [NSTimer scheduledTimerWithTimeInterval:5.0 target:self selector:@selector(simulateCalibrationComplete) userInfo:nil repeats:NO];
-			
+			self.simulationTimer = [NSTimer scheduledTimerWithTimeInterval:self.calibrationTime target:self selector:@selector(simulateCalibrationComplete) userInfo:nil repeats:NO];
+			[super startCalibration];
 			return;
 		}
 		
@@ -200,75 +200,34 @@
 		return;
 	}
 	
-	if ([self isOn]) {
-		NSLog(@"SFNitratesSensor is already on.");
-		return;
-	}
-	
-	_temperature_level = 0;
-	_calibration_level = 0;
-	_empty_nitrates_level = 0;
-	_nitrates_level = 0;
-	
-	_empty_nitrates = 0;
-	_temperature = 0;
-	_nitrates = 0;
-	
-	// set volume up
-	float outputVolume;
-	id nitrat_volume = [[NSUserDefaults standardUserDefaults] objectForKey:@"nitrat_volume"];
-	id european_preference = [[NSUserDefaults standardUserDefaults] objectForKey:@"european_preference"];
-	if (nitrat_volume) {
-		outputVolume = [[NSUserDefaults standardUserDefaults] floatForKey:@"nitrat_volume"];
-		[[SFAudioSessionManager sharedManager] setHardwareOutputVolume:outputVolume];
-	} else if (european_preference) {
-		outputVolume = [[SFAudioSessionManager sharedManager] currentRegionMaxVolume];
-		[[SFAudioSessionManager sharedManager] setHardwareOutputVolume:outputVolume];
-	}
-	
+	[self reset];
+	[self setOutputVolumeUp];
 	[self setupForSafeDelay];
 	[self.signalProcessor start];
 	
-	isOn = YES;
-	[super switchOn];
-	
-	[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorWillStartCalibration object:nil];
-	
-	NSLog(@"SFNitratesSensor switched on");
+	[super startCalibration];
 }
 
 
-- (void)switchOff {
+- (void)calibrationComplete {
 	
-	if (![self isOn]) {
-		NSLog(@"SFNitratesSensor is already off.");
-		return;
-	}
-	
-	[self.simulationTimer invalidate];
-	self.simulationTimer = nil;
-	
-	[self.signalProcessor stop];
-	_state = SFNitratesSensorStateOff;
-	
-	isOn = NO;
-	[super switchOff];
-	
-	NSLog(@"SFNitratesSensor switched off");
+	_state = SFNitratesSensorStateCalibrationComplete;
+	[super calibrationComplete];
 }
 
 
-- (void)restart {
-	
-	if (![self isPluggedIn]) return;
-	if (![self isOn]) return;
-	
-	[self switchOff];
-	[self switchOn];
+- (NSTimeInterval)calibrationTime {
+	return kSFNitratesSensorCalibrationTime;
 }
 
 
-- (void)measureNitrates {
+#pragma mark -
+#pragma mark Measure
+
+
+- (void)startMeasure {
+	
+	[super startMeasure];
 	
 	if (_state != SFNitratesSensorStateCalibrationComplete) return;
 	[self setupForNitratesMeasurement];
@@ -277,6 +236,18 @@
 	if (iamSimulated) {
 		self.simulationTimer = [NSTimer scheduledTimerWithTimeInterval:3.0 target:self selector:@selector(simulateMeasurementComplete) userInfo:nil repeats:NO];
 	}
+}
+
+
+- (void)stopMeasure {
+	
+	[self.simulationTimer invalidate];
+	self.simulationTimer = nil;
+	
+	[self.signalProcessor stop];
+	_state = SFNitratesSensorStateOff;
+	
+	[super stopMeasure];
 }
 
 
@@ -359,8 +330,7 @@
 			_empty_nitrates_level = amplitude;
 			_empty_nitrates = [self calculateNitratesWithNitratesLevel:_empty_nitrates_level];
 			NSLog(@"_empty_nitrates %g", _empty_nitrates);
-			_state = SFNitratesSensorStateCalibrationComplete;
-			[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidCompleteCalibration object:nil];
+			[self calibrationComplete];
 			break;
 		}
 			
@@ -370,7 +340,10 @@
 			NSLog(@"_nitrates %g", _nitrates);
 			_nitrates = MAX(_nitrates - _empty_nitrates, 0);
 			NSLog(@"zeroed _nitrates %g", _nitrates);
-			[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateValue object:@(_nitrates)];
+			dispatch_async(dispatch_get_main_queue(), ^{
+				[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateValue object:@(_nitrates)];
+			});
+			[self stopMeasure];
 			[self setupForTemperatureMeasurement];
 			break;
 		}
@@ -398,15 +371,44 @@
 
 
 #pragma mark -
+#pragma mark Utilities
+
+
+- (void)reset {
+	
+	_temperature_level = 0;
+	_calibration_level = 0;
+	_empty_nitrates_level = 0;
+	_nitrates_level = 0;
+	_empty_nitrates = 0;
+	_temperature = 0;
+	_nitrates = 0;
+}
+
+
+- (void)setOutputVolumeUp {
+	
+	float outputVolume;
+	id nitrat_volume = [[NSUserDefaults standardUserDefaults] objectForKey:@"nitrat_volume"];
+	id european_preference = [[NSUserDefaults standardUserDefaults] objectForKey:@"european_preference"];
+	if (nitrat_volume) {
+		outputVolume = [[NSUserDefaults standardUserDefaults] floatForKey:@"nitrat_volume"];
+		[[SFAudioSessionManager sharedManager] setHardwareOutputVolume:outputVolume];
+	} else if (european_preference) {
+		outputVolume = [[SFAudioSessionManager sharedManager] currentRegionMaxVolume];
+		[[SFAudioSessionManager sharedManager] setHardwareOutputVolume:outputVolume];
+	}
+}
+
+
+#pragma mark -
 #pragma mark Simulation
 
 
 - (void)simulateCalibrationComplete {
 	
 	_empty_nitrates = 2.0 * RANDOM_0_1();
-	_state = SFNitratesSensorStateCalibrationComplete;
-	
-	[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidCompleteCalibration object:nil];
+	[self calibrationComplete];
 }
 
 
@@ -415,7 +417,10 @@
 	_nitrates = 60.0 * RANDOM_0_1();
 	_nitrates = MAX(_nitrates - _empty_nitrates, 0);
 	NSLog(@"_nitrates %g", _nitrates);
-	[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateValue object:@(_nitrates)];
+	dispatch_async(dispatch_get_main_queue(), ^{
+		[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateValue object:@(_nitrates)];
+	});
+	[self stopMeasure];
 }
 
 

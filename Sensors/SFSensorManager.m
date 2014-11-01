@@ -174,13 +174,17 @@ NSString *const SFSensorManagerNeedUserPermissionToSwitchToEU = @"SFSensorManage
 			
 			NSLog(@"remove european_preference");
 			[[NSUserDefaults standardUserDefaults] removeObjectForKey:@"european_preference"];
-			[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorManagerDidRecognizeSensorPluggedOutNotification object:nil];
+			dispatch_async(dispatch_get_main_queue(), ^{
+				[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorManagerDidRecognizeSensorPluggedOutNotification object:nil];
+			});
 		}
 	} else {
 		
 		if (_currentSensorType == SFSensorTypeUnknown) {
 			
-			[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorManagerWillStartSensorIdentification object:nil];
+			dispatch_async(dispatch_get_main_queue(), ^{
+				[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorManagerWillStartSensorIdentification object:nil];
+			});
 			
 			float delayInSeconds = 0.6;
 			dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
@@ -230,23 +234,31 @@ NSString *const SFSensorManagerNeedUserPermissionToSwitchToEU = @"SFSensorManage
 	BOOL sensorTypeHaveNotChanged = (sensorType == _currentSensorType);
 	_currentSensorType = sensorType;
 	
-	[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorManagerDidFinishSensorIdentification object:nil];
+	dispatch_async(dispatch_get_main_queue(), ^{
+		[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorManagerDidFinishSensorIdentification object:nil];
+	});
 	
 	if (sensorTypeHaveNotChanged) return;
 	
 	if (_currentSensorType == SFSensorTypeUnknown) {
 		[self removeSensor];
-		[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorManagerDidRecognizeSensorPluggedOutNotification object:nil];
+		dispatch_async(dispatch_get_main_queue(), ^{
+			[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorManagerDidRecognizeSensorPluggedOutNotification object:nil];
+		});
 	} else {
 		[self createSensorWithType:_currentSensorType];
-		[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorManagerDidRecognizeSensorPluggedInNotification object:nil];
+		dispatch_async(dispatch_get_main_queue(), ^{
+			[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorManagerDidRecognizeSensorPluggedInNotification object:nil];
+		});
 	}
 }
 
 
 - (void)identificatorAskToGrantPermissionToSwitchToEU {
 	
-	[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorManagerNeedUserPermissionToSwitchToEU object:nil];
+	dispatch_async(dispatch_get_main_queue(), ^{
+		[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorManagerNeedUserPermissionToSwitchToEU object:nil];
+	});
 }
 
 
@@ -270,7 +282,9 @@ NSString *const SFSensorManagerNeedUserPermissionToSwitchToEU = @"SFSensorManage
 	if (_isSensorSimulated || _currentSensorType) return;
 	_isSensorSimulated = YES;
 	
-	[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorManagerWillStartSensorIdentification object:nil];
+	dispatch_async(dispatch_get_main_queue(), ^{
+		[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorManagerWillStartSensorIdentification object:nil];
+	});
 	
 	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
 		[self identificatorDidRecognizeSensor:sensorType];
