@@ -16,7 +16,6 @@ NSString *const SFSensorDidUpdateValue = @"SFSensorDidUpdateValue";
 
 
 @interface SFAbstractSensor ()
-@property (nonatomic, readonly) BOOL calibrated;
 - (void)calibrationComplete;
 @end
 
@@ -95,12 +94,12 @@ NSString *const SFSensorDidUpdateValue = @"SFSensorDidUpdateValue";
 	// override in real class
 	// don't forget to call super
 	
-	NSLog(@"Sensor will start mesure");
-	
 	if (!_calibrated) {
 		NSLog(@"Error: Sensor isn't calibrated — can't start measure");
 		return;
 	}
+	
+	NSLog(@"Sensor will start mesure");
 	
 	dispatch_async(dispatch_get_main_queue(), ^{
 		[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorWillStartMeasure object:nil];
@@ -115,6 +114,7 @@ NSString *const SFSensorDidUpdateValue = @"SFSensorDidUpdateValue";
 	// don't forget to call super
 	
 	NSLog(@"Sensor did finish measure");
+	
 	dispatch_async(dispatch_get_main_queue(), ^{
 		[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidCompleteMeasure object:nil];
 	});

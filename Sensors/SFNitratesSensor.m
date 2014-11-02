@@ -230,12 +230,15 @@
 	[super startMeasure];
 	
 	if (_state != SFNitratesSensorStateCalibrationComplete) return;
-	[self setupForNitratesMeasurement];
 	
 	BOOL iamSimulated = [[SFSensorManager sharedManager] isSensorSimulated];
 	if (iamSimulated) {
 		self.simulationTimer = [NSTimer scheduledTimerWithTimeInterval:3.0 target:self selector:@selector(simulateMeasurementComplete) userInfo:nil repeats:NO];
+		return;
 	}
+	
+	[self setupForNitratesMeasurement];
+	[self.signalProcessor start];
 }
 
 
@@ -245,7 +248,7 @@
 	self.simulationTimer = nil;
 	
 	[self.signalProcessor stop];
-	_state = SFNitratesSensorStateOff;
+	_state = SFNitratesSensorStateCalibrationComplete;
 	
 	[super stopMeasure];
 }
@@ -340,11 +343,11 @@
 			NSLog(@"_nitrates %g", _nitrates);
 			_nitrates = MAX(_nitrates - _empty_nitrates, 0);
 			NSLog(@"zeroed _nitrates %g", _nitrates);
+
 			dispatch_async(dispatch_get_main_queue(), ^{
 				[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateValue object:@(_nitrates)];
 			});
 			[self stopMeasure];
-			[self setupForTemperatureMeasurement];
 			break;
 		}
 			
@@ -408,6 +411,7 @@
 - (void)simulateCalibrationComplete {
 	
 	_empty_nitrates = 2.0 * RANDOM_0_1();
+	NSLog(@"_empty_nitrates %g", _empty_nitrates);
 	[self calibrationComplete];
 }
 

@@ -108,17 +108,7 @@
 	
 	[super startMeasure];
 	
-	// set volume up
-	float outputVolume;
-	id radiation_volume = [[NSUserDefaults standardUserDefaults] objectForKey:@"radiation_volume"];
-	id european_preference = [[NSUserDefaults standardUserDefaults] objectForKey:@"european_preference"];
-	if (radiation_volume) {
-		outputVolume = [[NSUserDefaults standardUserDefaults] floatForKey:@"radiation_volume"];
-		[[SFAudioSessionManager sharedManager] setHardwareOutputVolume:outputVolume];
-	} else if (european_preference) {
-		outputVolume = [[SFAudioSessionManager sharedManager] currentRegionMaxVolume];
-		[[SFAudioSessionManager sharedManager] setHardwareOutputVolume:outputVolume];
-	}
+	[self setOutputVolumeUp];
 	
 	// setup signal processor
 	self.signalProcessor.leftAmplitude = kSFControlSignalBitOne;
@@ -186,7 +176,9 @@
 
 - (void)reportRadiationLevelUpdate {
 	
-	[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateValue object:@([self radiationLevel])];
+	dispatch_async(dispatch_get_main_queue(), ^{
+		[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateValue object:@([self radiationLevel])];
+	});
 }
 
 
@@ -219,16 +211,6 @@
 }
 
 
-- (void)signalProcessorDidUpdateMaxAmplitude:(Float32)maxAmplitude {
-	
-}
-
-
-- (void)signalProcessorDidUpdateMeanAmplitude:(Float32)meanAmplitude {
-	
-}
-
-
 #pragma mark -
 #pragma mark Avaliability
 
@@ -236,6 +218,25 @@
 - (BOOL)isPluggedIn {
 	// refactor: this is not taking sensor type in account
 	return [[SFAudioSessionManager sharedManager] audioRouteIsHeadsetInOut];
+}
+
+
+#pragma mark -
+#pragma mark Utilities
+
+
+- (void)setOutputVolumeUp {
+
+	float outputVolume;
+	id radiation_volume = [[NSUserDefaults standardUserDefaults] objectForKey:@"radiation_volume"];
+	id european_preference = [[NSUserDefaults standardUserDefaults] objectForKey:@"european_preference"];
+	if (radiation_volume) {
+		outputVolume = [[NSUserDefaults standardUserDefaults] floatForKey:@"radiation_volume"];
+		[[SFAudioSessionManager sharedManager] setHardwareOutputVolume:outputVolume];
+	} else if (european_preference) {
+		outputVolume = [[SFAudioSessionManager sharedManager] currentRegionMaxVolume];
+		[[SFAudioSessionManager sharedManager] setHardwareOutputVolume:outputVolume];
+	}
 }
 
 

@@ -259,13 +259,38 @@ int const SFHumiditySensorCalibrationDuration = (kSFHumiditySensorResettingMeanS
 }
 
 
+- (void)calibrationComplete {
+	
+	[self.signalProcessor stop];
+	[super calibrationComplete];
+}
+
+
 #pragma mark -
 #pragma mark Measure
 
 
+- (void)startMeasure {
+	
+	[super startMeasure];
+	
+	// setup for measure (11 signal)
+	self.signalProcessor.leftAmplitude = kSFControlSignalBitOne;
+	self.signalProcessor.rightAmplitude = kSFControlSignalBitOne;
+	self.signalProcessor.fftAnalyzer.meanSteps = kSFHumiditySensorHumidityMeanSteps;
+	
+	[self.signalProcessor start];
+	
+	// go on
+	_state = kSFHumiditySensorStateHumidityMeasurement;
+}
+
+
 - (void)stopMeasure {
 	
+	[self.signalProcessor stop];
 	_state = kSFHumiditySensorStateOff;
+	
 	[super stopMeasure];
 }
 
@@ -363,7 +388,6 @@ int const SFHumiditySensorCalibrationDuration = (kSFHumiditySensorResettingMeanS
 	switch (_state) {
 			
 		case kSFHumiditySensorStateOff:
-			NSLog(@"Warning: SFHumiditySensor get measure result when off.");
 			break;
 		
 		case kSFHumiditySensorStateResetting:
@@ -438,14 +462,6 @@ int const SFHumiditySensorCalibrationDuration = (kSFHumiditySensorResettingMeanS
 			_temperature = [self calculateTemparatureWithAmplitude:amplitude trace:NO];
 			
 			[self calibrationComplete];
-			
-			// setup for measure (11 signal)
-			self.signalProcessor.leftAmplitude = kSFControlSignalBitOne;
-			self.signalProcessor.rightAmplitude = kSFControlSignalBitOne;
-			self.signalProcessor.fftAnalyzer.meanSteps = kSFHumiditySensorHumidityMeanSteps;
-			
-			// go on
-			_state = kSFHumiditySensorStateHumidityMeasurement;
 			
 			break;
 		}
