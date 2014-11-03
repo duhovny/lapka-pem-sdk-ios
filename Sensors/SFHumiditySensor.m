@@ -235,7 +235,7 @@ int const SFHumiditySensorCalibrationDuration = (kSFHumiditySensorResettingMeanS
 		BOOL iamSimulated = [[SFSensorManager sharedManager] isSensorSimulated];
 		if (iamSimulated) {
 			
-			self.simulationTimer = [NSTimer scheduledTimerWithTimeInterval:5.0 target:self selector:@selector(simulateCalibrationComplete) userInfo:nil repeats:NO];
+			self.simulationTimer = [NSTimer scheduledTimerWithTimeInterval:self.calibrationTime target:self selector:@selector(simulateCalibrationComplete) userInfo:nil repeats:NO];
 			[super startCalibration];
 			return;
 		}
@@ -263,6 +263,11 @@ int const SFHumiditySensorCalibrationDuration = (kSFHumiditySensorResettingMeanS
 	
 	[self.signalProcessor stop];
 	[super calibrationComplete];
+}
+
+
+- (NSTimeInterval)calibrationTime {
+	return SFHumiditySensorCalibrationDuration;
 }
 
 
