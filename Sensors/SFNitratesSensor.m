@@ -237,7 +237,7 @@
 		return;
 	}
 	
-	[self setupForNitratesMeasurement];
+	[self setupForTemperatureMeasurement];
 	[self.signalProcessor start];
 }
 
@@ -325,6 +325,7 @@
 		case SFNitratesSensorStateFirstTemperatureMeasurement: {
 			_temperature_level = amplitude;
 			_temperature = [self calculateTemperature];
+			NSLog(@"_temperature %g", _temperature);
 			[self setupForEmptyNitratesMeasurement];
 			break;
 		}
