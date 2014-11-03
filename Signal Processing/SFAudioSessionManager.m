@@ -67,7 +67,9 @@ void audioVolumeChangeListenerCallback (
 	SFAudioSessionManager *audioSessionManager = (__bridge SFAudioSessionManager *)inUserData;
 	audioSessionManager->hardwareOutputVolume = *(Float32 *)inData;
 	
-	[[NSNotificationCenter defaultCenter] postNotificationName:SFHardwareOutputVolumeDidChangeNotification object:audioSessionManager];
+	dispatch_async(dispatch_get_main_queue(), ^{
+		[[NSNotificationCenter defaultCenter] postNotificationName:SFHardwareOutputVolumeDidChangeNotification object:audioSessionManager];
+	});
 }
 
 
@@ -92,7 +94,9 @@ void propListener(	void *                  inClientData,
 			} else {
 				audioSessionManager->audioRouteIsHeadsetInOut = NO;
 			}
-			[[NSNotificationCenter defaultCenter] postNotificationName:SFAudioSessionDidChangeAudioRouteNotification object:audioSessionManager];
+			dispatch_async(dispatch_get_main_queue(), ^{
+				[[NSNotificationCenter defaultCenter] postNotificationName:SFAudioSessionDidChangeAudioRouteNotification object:audioSessionManager];
+			});
 		}
 		CFRelease(newRoute);
 	}	
