@@ -213,19 +213,6 @@ NSString *const SFSensorManagerNeedUserPermissionToSwitchToEU = @"SFSensorManage
 
 
 #pragma mark -
-#pragma mark Plug Out Simulation
-
-
-- (void)simulateSensorPlugOut {
-	
-	if (_currentSensorType == SFSensorTypeUnknown) return;
-	[self identificatorDidRecognizeSensor:SFSensorTypeUnknown];
-	
-	_isSensorSimulated = NO;
-}
-
-
-#pragma mark -
 #pragma mark Identificator Delegate
 
 
@@ -289,6 +276,21 @@ NSString *const SFSensorManagerNeedUserPermissionToSwitchToEU = @"SFSensorManage
 	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
 		[self identificatorDidRecognizeSensor:sensorType];
 	});
+}
+
+
+- (void)simulateSensorPlugOut {
+	
+	if (_currentSensorType == SFSensorTypeUnknown) return;
+	_currentSensorType = SFSensorTypeUnknown;
+	
+	[self removeSensor];
+	
+	dispatch_async(dispatch_get_main_queue(), ^{
+		[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorManagerDidRecognizeSensorPluggedOutNotification object:nil];
+	});
+	
+	_isSensorSimulated = NO;
 }
 
 
