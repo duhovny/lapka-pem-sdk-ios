@@ -365,15 +365,6 @@
 
 
 #pragma mark -
-#pragma mark Avaliability
-
-
-- (BOOL)isPluggedIn {
-	return [[SFAudioSessionManager sharedManager] audioRouteIsHeadsetInOut];
-}
-
-
-#pragma mark -
 #pragma mark Utilities
 
 

@@ -162,7 +162,6 @@ NSString *const SFSensorDidUpdateValue = @"SFSensorDidUpdateValue";
 
 
 - (BOOL)isPluggedIn {
-	// refactor: this is not taking sensor type in account
 	return [[SFAudioSessionManager sharedManager] audioRouteIsHeadsetInOut];
 }
 

@@ -524,16 +524,6 @@ int const SFHumiditySensorCalibrationDuration = (kSFHumiditySensorResettingMeanS
 
 
 #pragma mark -
-#pragma mark Avaliability
-
-
-- (BOOL)isPluggedIn {
-	// refactor: this is not taking sensor type in account, move to abstract in that case
-	return [[SFAudioSessionManager sharedManager] audioRouteIsHeadsetInOut];
-}
-
-
-#pragma mark -
 #pragma mark Utilities
 
 
