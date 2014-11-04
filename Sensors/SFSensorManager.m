@@ -196,22 +196,6 @@ NSString *const SFSensorManagerNeedUserPermissionToSwitchToEU = @"SFSensorManage
 
 
 #pragma mark -
-#pragma mark EU Switch Permission
-
-
-- (void)userGrantedPermissionToSwitchToEU {
-	
-	[_identificator userGrantedPermissionToSwitchToEU];
-}
-
-
-- (void)userProhibitedPermissionToSwitchToEU {
-	
-	[_identificator userProhibitedPermissionToSwitchToEU];
-}
-
-
-#pragma mark -
 #pragma mark Identificator Delegate
 
 
@@ -237,14 +221,6 @@ NSString *const SFSensorManagerNeedUserPermissionToSwitchToEU = @"SFSensorManage
 			[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorManagerDidRecognizeSensorPluggedInNotification object:nil];
 		});
 	}
-}
-
-
-- (void)identificatorAskToGrantPermissionToSwitchToEU {
-	
-	dispatch_async(dispatch_get_main_queue(), ^{
-		[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorManagerNeedUserPermissionToSwitchToEU object:nil];
-	});
 }
 
 

@@ -55,13 +55,6 @@ typedef enum {
 - (void)updateCurrentState;
 
 /*
- * use this methods to confirm user's permission grant/pfohibit
- * on SFSensorManagerNeedUserPermissionToSwitchToEU
- */
-- (void)userGrantedPermissionToSwitchToEU;
-- (void)userProhibitedPermissionToSwitchToEU;
-
-/*
  * use this method when app fall asleep with sensor
  * and don't know what is plugged in on wake up
  */

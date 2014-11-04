@@ -43,7 +43,6 @@ typedef struct {
 - (void)identificatorDidObtainSensorIdentificationFingerprint:(SFSensorIdentificationFingerprint)fingerprint;
 - (void)identificatorDidRecognizeDeviceVolumeLimitState:(BOOL)deviceVolumeIsLimited;
 - (void)identificatorDidRecognizeDeviceMicrophoneLevel:(float)microphoneLevel;
-- (void)identificatorAskToGrantPermissionToSwitchToEU;
 @end
 
 
@@ -57,8 +56,5 @@ typedef struct {
 - (void)abortIdentification;
 
 + (NSString *)sensorTypeToString:(SFSensorType)sensorType;
-
-- (void)userGrantedPermissionToSwitchToEU;
-- (void)userProhibitedPermissionToSwitchToEU;
 
 @end

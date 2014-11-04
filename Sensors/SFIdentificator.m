@@ -28,7 +28,6 @@
 	int stepsToSkip;
 	BOOL identificationIsInProcess;
 	BOOL repeatIdetificationOnEUVolume;
-	SFSensorType rememberedSensorTypeUntilEUSwitchPermissionGranted;
 }
 
 @property (nonatomic) SFSensorID sensorID;
@@ -144,23 +143,21 @@
 	SFSensorType sensorType = [self convertSensorIDtoSensorType:_sensorID];
 	
 	if (sensorType != SFSensorTypeUnknown) {
+		
 		// if known sensor detected
 		if (repeatIdetificationOnEUVolume) {
 			repeatIdetificationOnEUVolume = NO;
-			if ([self.delegate respondsToSelector:@selector(identificatorAskToGrantPermissionToSwitchToEU)]) {
-				rememberedSensorTypeUntilEUSwitchPermissionGranted = sensorType;
-				/*
-				[self.delegate identificatorAskToGrantPermissionToSwitchToEU];
-				 */
-				// we gonna automatically grant permission to switch to EU for now
-				[self userGrantedPermissionToSwitchToEU];
-				return;
-			} else {
-				NSLog(@"Warning: Lapka sensor detected in EU mode, but we can't switch to EU because delegate doesn't response to identificatorAskToGrantPermissionToSwitchToEU method which is required if you plan to use Lapka with EU devices.");
-				[self.delegate identificatorDidRecognizeSensor:SFSensorTypeUnknown];
-				identificationIsInProcess = NO;
-				return;
-			}
+			
+			[self.delegate identificatorDidRecognizeSensor:sensorType];
+			identificationIsInProcess = NO;
+			
+			[[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"european_preference"];
+			NSLog(@"this is EU device, set european_preference YES");
+			
+			if ([self.delegate respondsToSelector:@selector(identificatorDidRecognizeDeviceVolumeLimitState:)])
+				[self.delegate identificatorDidRecognizeDeviceVolumeLimitState:YES];
+			
+			return;
 		} else {
 			
 			if ([self isFingerprint:_fingerprint passThresholdForSensorType:sensorType]) {
@@ -307,34 +304,6 @@
 	}
 	
 	return fingerprintThreshold;
-}
-
-
-#pragma mark -
-#pragma mark Granted Switch To EU
-
-
-- (void)userGrantedPermissionToSwitchToEU {
-	
-	NSLog(@"User granted permission to switch to EU");
-	
-	[self.delegate identificatorDidRecognizeSensor:rememberedSensorTypeUntilEUSwitchPermissionGranted];
-	identificationIsInProcess = NO;
-	
-	[[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"european_preference"];
-	NSLog(@"this is EU device, set european_preference YES");
-	
-	if ([self.delegate respondsToSelector:@selector(identificatorDidRecognizeDeviceVolumeLimitState:)])
-		[self.delegate identificatorDidRecognizeDeviceVolumeLimitState:YES];
-}
-
-
-- (void)userProhibitedPermissionToSwitchToEU {
-	
-	NSLog(@"User prohibited permission to switch to EU");
-	
-	rememberedSensorTypeUntilEUSwitchPermissionGranted = SFSensorTypeUnknown;
-	identificationIsInProcess = NO;
 }
 
 
