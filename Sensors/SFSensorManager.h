@@ -39,10 +39,10 @@ typedef enum {
 
 @interface SFSensorManager : NSObject
 
-@property (nonatomic, assign) BOOL activeMode;
+@property (nonatomic) BOOL activeMode;
 @property (nonatomic, readonly) SFSensorType currentSensorType;
 @property (nonatomic, readonly) SFAbstractSensor *currentSensor;
-@property (nonatomic, assign) SFDeviceHardwarePlatform hardwarePlatform;
+@property (nonatomic) SFDeviceHardwarePlatform hardwarePlatform;
 @property (nonatomic, readonly) BOOL isSensorSimulated;
 
 + (SFSensorManager *)sharedManager;

@@ -49,9 +49,9 @@ typedef struct {
 
 @interface SFIdentificator : NSObject
 
-@property (atomic, retain) SFSignalProcessor *signalProcessor;
-@property (nonatomic, assign) NSObject <SFIdentificatorDelegate> *delegate;
-@property (nonatomic, assign) float identificationThreshold;
+@property (atomic, strong) SFSignalProcessor *signalProcessor;
+@property (nonatomic, weak) NSObject <SFIdentificatorDelegate> *delegate;
+@property (nonatomic) float identificationThreshold;
 
 - (void)identificate;
 - (void)abortIdentification;

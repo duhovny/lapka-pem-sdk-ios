@@ -33,7 +33,6 @@ NSString *const SFSensorManagerNeedUserPermissionToSwitchToEU = @"SFSensorManage
 
 
 @implementation SFSensorManager
-@synthesize identificator;
 
 
 #pragma mark -
@@ -202,13 +201,13 @@ NSString *const SFSensorManagerNeedUserPermissionToSwitchToEU = @"SFSensorManage
 
 - (void)userGrantedPermissionToSwitchToEU {
 	
-	[identificator userGrantedPermissionToSwitchToEU];
+	[_identificator userGrantedPermissionToSwitchToEU];
 }
 
 
 - (void)userProhibitedPermissionToSwitchToEU {
 	
-	[identificator userProhibitedPermissionToSwitchToEU];
+	[_identificator userProhibitedPermissionToSwitchToEU];
 }
 
 

@@ -31,8 +31,8 @@
 	SFSensorType rememberedSensorTypeUntilEUSwitchPermissionGranted;
 }
 
-@property (nonatomic, assign) SFSensorID sensorID;
-@property (nonatomic, assign) SFSensorIdentificationFingerprint fingerprint;
+@property (nonatomic) SFSensorID sensorID;
+@property (nonatomic) SFSensorIdentificationFingerprint fingerprint;
 
 - (void)identificationDidComplete;
 - (SFSensorType)convertSensorIDtoSensorType:(SFSensorID)sid;
@@ -43,12 +43,6 @@
 
 
 @implementation SFIdentificator
-
-@synthesize identificationThreshold;
-@synthesize signalProcessor;
-@synthesize fingerprint;
-@synthesize delegate;
-@synthesize sensorID;
 
 
 #pragma mark -
@@ -65,7 +59,7 @@
 		self.signalProcessor.delegate = self;
 		
 		// default values
-		identificationThreshold = SFSensorIdentificationThreshold;
+		_identificationThreshold = SFSensorIdentificationThreshold;
 		
 	}
 	return self;
@@ -145,9 +139,9 @@
 	[self.signalProcessor stop];
 	
 	if ([self.delegate respondsToSelector:@selector(identificatorDidObtainSensorIdentificationFingerprint:)])
-		[self.delegate identificatorDidObtainSensorIdentificationFingerprint:fingerprint];
+		[self.delegate identificatorDidObtainSensorIdentificationFingerprint:_fingerprint];
 	
-	SFSensorType sensorType = [self convertSensorIDtoSensorType:sensorID];
+	SFSensorType sensorType = [self convertSensorIDtoSensorType:_sensorID];
 	
 	if (sensorType != SFSensorTypeUnknown) {
 		// if known sensor detected
@@ -169,7 +163,7 @@
 			}
 		} else {
 			
-			if ([self isFingerprint:fingerprint passThresholdForSensorType:sensorType]) {
+			if ([self isFingerprint:_fingerprint passThresholdForSensorType:sensorType]) {
 				NSLog(@"Fingerprint passes threshold");
 				
 				id european_preference = [[NSUserDefaults standardUserDefaults] objectForKey:@"european_preference"];
@@ -362,7 +356,7 @@
 				if (stepsToSkip == 0) {
 					
 					// set identification threshold to one third of microphone level
-					identificationThreshold = amplitude * 1.0 / 3.0;
+					_identificationThreshold = amplitude * 1.0 / 3.0;
 					
 					// tell delegate microphone level
 					if ([self.delegate respondsToSelector:@selector(identificatorDidRecognizeDeviceMicrophoneLevel:)])
@@ -372,14 +366,14 @@
 				return;
 			}
 			
-			BOOL bit = (amplitude >= identificationThreshold);
+			BOOL bit = (amplitude >= _identificationThreshold);
 			
 			switch (identificationStep) {
 					
 				// 00
 				case 0: {
-					sensorID.bit00 = bit;
-					fingerprint.amplitude00 = amplitude;
+					_sensorID.bit00 = bit;
+					_fingerprint.amplitude00 = amplitude;
 					// 01 setup
 					self.signalProcessor.rightAmplitude = kSFIdentificationAmplitudeRightBitZero;
 					self.signalProcessor.leftAmplitude = kSFIdentificationAmplitudeLeftBitOne;
@@ -388,8 +382,8 @@
 					
 				// 01
 				case 1: {
-					sensorID.bit01 = bit;
-					fingerprint.amplitude01 = amplitude;
+					_sensorID.bit01 = bit;
+					_fingerprint.amplitude01 = amplitude;
 					// 10 setup
 					self.signalProcessor.rightAmplitude = kSFIdentificationAmplitudeRightBitOne;
 					self.signalProcessor.leftAmplitude = kSFIdentificationAmplitudeLeftBitZero;
@@ -398,8 +392,8 @@
 					
 				// 10
 				case 2: {
-					sensorID.bit10 = bit;
-					fingerprint.amplitude10 = amplitude;
+					_sensorID.bit10 = bit;
+					_fingerprint.amplitude10 = amplitude;
 					// 11 setup
 					self.signalProcessor.rightAmplitude = kSFIdentificationAmplitudeRightBitOne;
 					self.signalProcessor.leftAmplitude = kSFIdentificationAmplitudeLeftBitOne;
@@ -408,8 +402,8 @@
 					
 				// 11
 				case 3: {
-					sensorID.bit11 = bit;
-					fingerprint.amplitude11 = amplitude;
+					_sensorID.bit11 = bit;
+					_fingerprint.amplitude11 = amplitude;
 					// done
 					[self identificationDidComplete];
 					return;

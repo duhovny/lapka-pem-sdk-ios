@@ -27,11 +27,11 @@ typedef enum {
 @property (nonatomic, readonly, getter = isPluggedIn) BOOL pluggedIn;
 @property (nonatomic, readonly) float smallestHighFrequencyAmplitude;
 
-@property (nonatomic, assign) float scaleCoef;
-@property (nonatomic, assign) float hf_K1;
-@property (nonatomic, assign) float hf_K2;
-@property (nonatomic, assign) float lf_K1;
-@property (nonatomic, assign) float lf_K2;
+@property (nonatomic) float scaleCoef;
+@property (nonatomic) float hf_K1;
+@property (nonatomic) float hf_K2;
+@property (nonatomic) float lf_K1;
+@property (nonatomic) float lf_K2;
 
 // measure values
 @property (nonatomic, readonly) float lowFrequencyField;

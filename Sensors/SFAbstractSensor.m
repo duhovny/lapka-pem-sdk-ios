@@ -7,6 +7,9 @@
 #import "SFAudioSessionManager.h"
 #import "SFSensorManager.h"
 
+#define VOLUME_ADJUST_LIMIT 0.07
+
+
 NSString *const SFSensorWillStartCalibration = @"SFSensorWillStartCalibration";
 NSString *const SFSensorDidCompleteCalibration = @"SFSensorDidCompleteCalibration";
 NSString *const SFSensorWillStartMeasure = @"SFSensorWillStartMeasure";
@@ -21,10 +24,6 @@ NSString *const SFSensorDidUpdateValue = @"SFSensorDidUpdateValue";
 
 
 @implementation SFAbstractSensor
-@synthesize signalProcessor;
-
-
-#define VOLUME_ADJUST_LIMIT 0.07
 
 
 #pragma mark -

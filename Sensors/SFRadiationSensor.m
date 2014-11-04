@@ -28,7 +28,7 @@
 
 
 @interface SFRadiationSensor ()
-@property (nonatomic, retain) NSTimer *timer;
+@property (nonatomic, strong) NSTimer *timer;
 @property (nonatomic, strong) NSTimer *calibrationTimer;
 @property (nonatomic, strong) NSTimer *simulationTimer;
 @end

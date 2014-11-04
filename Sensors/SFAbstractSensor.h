@@ -22,7 +22,7 @@ extern NSString *const SFSensorDidUpdateValue;
 
 @interface SFAbstractSensor : NSObject <SFSignalProcessorDelegate>
 
-@property (nonatomic, retain) SFSignalProcessor *signalProcessor;
+@property (nonatomic, strong) SFSignalProcessor *signalProcessor;
 @property (nonatomic, readonly, getter = isPluggedIn) BOOL pluggedIn;
 @property (nonatomic, readonly) NSTimeInterval calibrationTime;
 @property (nonatomic, readonly, getter=isCalibrated) BOOL calibrated;
