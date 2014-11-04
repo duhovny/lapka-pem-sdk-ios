@@ -24,6 +24,9 @@ typedef enum {
 @property (nonatomic, readonly, getter = isPluggedIn) BOOL pluggedIn;
 @property (nonatomic, readonly) SFNitratesSensorState state;
 
+@property (nonatomic) float productCoefficient;
+@property (nonatomic) BOOL reduceSmallValueToZero;
+
 @property (readonly) float calibration_level;
 @property (readonly) float temperature_level;
 @property (readonly) float empty_nitrates_level;

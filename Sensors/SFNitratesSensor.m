@@ -17,6 +17,7 @@
 
 #define kSFNitratesSensorSignalToNitratesCoef		395.37
 #define kSFNitratesSensorCalibrationTime 5.0
+#define kSFNitratesSensorNonZeroThreshold 2.0
 
 #define kSFNitratesSensoriPhone4K1		 26.0
 #define kSFNitratesSensoriPhone4K2		151.0
@@ -105,6 +106,9 @@
 			self.K4 = kSFNitratesSensoriPhone4K4;
 		}
 		
+		// default
+		self.reduceSmallValueToZero = YES;
+		self.productCoefficient = 1.0;
 	}
 	return self;
 }
@@ -341,9 +345,15 @@
 		case SFNitratesSensorStateNitratesMeasurement: {
 			_nitrates_level = amplitude;
 			_nitrates = [self calculateNitratesWithNitratesLevel:_nitrates_level];
-			NSLog(@"_nitrates %g", _nitrates);
+			NSLog(@"nitrates: %g", _nitrates);
 			_nitrates = MAX(_nitrates - _empty_nitrates, 0);
-			NSLog(@"zeroed _nitrates %g", _nitrates);
+			NSLog(@"zeroed nitrates: %g", _nitrates);
+			if (_reduceSmallValueToZero && _nitrates < kSFNitratesSensorNonZeroThreshold) {
+				NSLog(@"nitrates value %.2f is too small, reduced to zero.", _nitrates);
+				_nitrates = 0;
+			}
+			_nitrates *= _productCoefficient;
+			NSLog(@"nitrates with %.1f product coef: %.2f", _productCoefficient, _nitrates);
 
 			dispatch_async(dispatch_get_main_queue(), ^{
 				[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateValue object:@(_nitrates)];
