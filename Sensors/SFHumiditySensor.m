@@ -18,7 +18,7 @@
 int const SFHumiditySensorCalibrationDuration = (kSFHumiditySensorResettingMeanSteps +
 												 kSFHumiditySensorCalibratingMeanSteps +
 												 kSFHumiditySensorSecondResettingMeanSteps +
-												 kSFHumiditySensorFirstTemperatureMeanSteps) / 50;
+												 kSFHumiditySensorFirstTemperatureMeanSteps) / 42;
 
 #define kSFHumiditySensoriPhone3GSK1	122.0
 #define kSFHumiditySensoriPhone3GSK2	 77.4
