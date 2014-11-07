@@ -16,8 +16,8 @@ extern NSString *const SFSensorWillStartCalibration;
 extern NSString *const SFSensorDidCompleteCalibration;
 extern NSString *const SFSensorWillStartMeasure;
 extern NSString *const SFSensorDidCompleteMeasure;
-extern NSString *const SFSensorDidUpdateMeanValue;
 extern NSString *const SFSensorDidUpdateValue;
+extern NSString *const SFSensorDidUpdateIntermediateValue;
 
 
 @interface SFAbstractSensor : NSObject <SFSignalProcessorDelegate>

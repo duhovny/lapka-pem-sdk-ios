@@ -297,7 +297,7 @@
 		{
 			_lowFrequencyField = [self calculateLowFrequencyFieldWithAmplitude:amplitude];
 			dispatch_async(dispatch_get_main_queue(), ^{
-				[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateValue object:@(_lowFrequencyField)];
+				[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateIntermediateValue object:@(_lowFrequencyField)];
 			});
 			break;
 		}
@@ -306,7 +306,7 @@
 		{
 			_highFrequencyField = [self calculateHighFrequencyFieldWithAmplitude:amplitude];
 			dispatch_async(dispatch_get_main_queue(), ^{
-				[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateValue object:@(_highFrequencyField)];
+				[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateIntermediateValue object:@(_highFrequencyField)];
 			});
 			break;
 		}
@@ -327,7 +327,7 @@
 		{
 			_meanLowFrequencyField = [self calculateLowFrequencyFieldWithAmplitude:meanAmplitude];
 			dispatch_async(dispatch_get_main_queue(), ^{
-				[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateMeanValue object:@(_meanLowFrequencyField)];
+				[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateValue object:@(_meanLowFrequencyField)];
 			});
 			break;
 		}
@@ -336,7 +336,7 @@
 		{
 			_meanHighFrequencyField = [self calculateHighFrequencyFieldWithAmplitude:meanAmplitude];
 			dispatch_async(dispatch_get_main_queue(), ^{
-				[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateMeanValue object:@(_meanHighFrequencyField)];
+				[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateValue object:@(_meanHighFrequencyField)];
 			});
 			break;
 		}
@@ -434,7 +434,7 @@
 	
 	float value = 1.2 + 2.0 * RANDOM_0_1();
 	dispatch_async(dispatch_get_main_queue(), ^{
-		[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateValue object:@(value)];
+		[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateIntermediateValue object:@(value)];
 	});
 }
 
@@ -445,7 +445,7 @@
 	
 	float value = 1.2 + 2.0 * RANDOM_0_1();
 	dispatch_async(dispatch_get_main_queue(), ^{
-		[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateMeanValue object:@(value)];
+		[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateValue object:@(value)];
 	});
 }
 

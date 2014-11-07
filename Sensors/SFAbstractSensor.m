@@ -14,8 +14,8 @@ NSString *const SFSensorWillStartCalibration = @"SFSensorWillStartCalibration";
 NSString *const SFSensorDidCompleteCalibration = @"SFSensorDidCompleteCalibration";
 NSString *const SFSensorWillStartMeasure = @"SFSensorWillStartMeasure";
 NSString *const SFSensorDidCompleteMeasure = @"SFSensorDidCompleteMeasure";
-NSString *const SFSensorDidUpdateMeanValue = @"SFSensorDidUpdateMeanValue";
 NSString *const SFSensorDidUpdateValue = @"SFSensorDidUpdateValue";
+NSString *const SFSensorDidUpdateIntermediateValue = @"SFSensorDidUpdateIntermediateValue";
 
 
 @interface SFAbstractSensor ()
