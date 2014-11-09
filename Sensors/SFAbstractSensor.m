@@ -161,7 +161,7 @@ NSString *const SFSensorDidUpdateIntermediateValue = @"SFSensorDidUpdateIntermed
 
 
 - (BOOL)isPluggedIn {
-	return [[SFAudioSessionManager sharedManager] audioRouteIsHeadsetInOut] || [[SFSensorManager sharedManager] isSensorSimulated];
+	return [[SFAudioSessionManager sharedManager] audioRouteIsHeadsetInOut];
 }
 
 
