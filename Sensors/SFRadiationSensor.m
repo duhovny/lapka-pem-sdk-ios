@@ -211,6 +211,13 @@
 }
 
 
+- (void)signalProcessorDidUpdateMeanAmplitude:(Float32)meanAmplitude {
+	
+	float impulseThreshold = meanAmplitude * SFRadiationSensorMeanAmplitudeToImpulseTresholdCoef;
+	self.signalProcessor.impulseDetector.threshold = impulseThreshold;
+}
+
+
 #pragma mark -
 #pragma mark Utilities
 
