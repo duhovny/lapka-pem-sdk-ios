@@ -16,7 +16,7 @@
 #define kSFNitratesSensorNitratesMeasureMeanSteps			200	// 4.0 sec
 
 #define kSFNitratesSensorSignalToNitratesCoef		395.37
-#define kSFNitratesSensorCalibrationTime 5.0
+#define kSFNitratesSensorCalibrationTime  9.5
 #define kSFNitratesSensorNonZeroThreshold 2.0
 
 #define kSFNitratesSensoriPhone4K1		 26.0
