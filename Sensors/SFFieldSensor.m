@@ -148,6 +148,39 @@
 }
 
 
+- (void)cancelCalibration {
+	
+	if (![self isPluggedIn]) {
+		
+		BOOL iamSimulated = [[SFSensorManager sharedManager] isSensorSimulated];
+		if (iamSimulated) {
+			
+			_state = SFFieldSensorStateOff;
+			
+			[self.calibrationTimer invalidate];
+			self.calibrationTimer = nil;
+			
+			[_simulateMeanValueTimer invalidate];
+			self.simulateMeanValueTimer = nil;
+			
+			[_simulateValueTimer invalidate];
+			self.simulateValueTimer = nil;
+			
+			[super cancelCalibration];
+		}
+		return;
+	}
+	
+	[self.calibrationTimer invalidate];
+	self.calibrationTimer = nil;
+	
+	[self.signalProcessor stop];
+	_state = SFFieldSensorStateOff;
+	
+	[super cancelCalibration];
+}
+
+
 - (void)calibrationComplete {
 	
 	_state = SFFieldSensorStateReady;
@@ -447,6 +480,36 @@
 	dispatch_async(dispatch_get_main_queue(), ^{
 		[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateValue object:@(value)];
 	});
+}
+
+
+#pragma mark -
+#pragma mark State
+
+
+- (SFSensorState)sensorState {
+	
+	SFSensorState sensorState = SFSensorStateOff;
+	switch (_state) {
+			
+		case SFFieldSensorStateCalibrating:
+			sensorState = SFSensorStateCalibrating;
+			break;
+			
+		case SFFieldSensorStateMeasuring:
+			sensorState = SFSensorStateMeasuring;
+			break;
+			
+		case SFFieldSensorStateReady:
+			sensorState = SFSensorStateReady;
+			break;
+			
+		default:
+			sensorState = SFSensorStateOff;
+			break;
+	}
+	
+	return sensorState;
 }
 
 

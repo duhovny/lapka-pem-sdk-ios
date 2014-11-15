@@ -14,6 +14,7 @@ typedef enum {
 	kSFHumiditySensorStateSecondResetting,
 	kSFHumiditySensorStateSecondCalibrateMeasurement,
 	kSFHumiditySensorStateFirstTemperatureMeasurement,
+	kSFHumiditySensorStateCalibrationComplete,
 	kSFHumiditySensorStateHumidityMeasurement,
 	kSFHumiditySensorStateTemperatureMeasurement
 } SFHumiditySensorState;

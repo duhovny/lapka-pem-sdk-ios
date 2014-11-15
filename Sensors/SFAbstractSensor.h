@@ -14,10 +14,18 @@
 
 extern NSString *const SFSensorWillStartCalibration;
 extern NSString *const SFSensorDidCompleteCalibration;
+extern NSString *const SFSensorDidCancelCalibration;
 extern NSString *const SFSensorWillStartMeasure;
 extern NSString *const SFSensorDidCompleteMeasure;
 extern NSString *const SFSensorDidUpdateValue;
 extern NSString *const SFSensorDidUpdateIntermediateValue;
+
+typedef enum {
+	SFSensorStateOff,
+	SFSensorStateCalibrating,
+	SFSensorStateReady,
+	SFSensorStateMeasuring
+} SFSensorState;
 
 
 @interface SFAbstractSensor : NSObject <SFSignalProcessorDelegate>
@@ -26,10 +34,12 @@ extern NSString *const SFSensorDidUpdateIntermediateValue;
 @property (nonatomic, readonly, getter = isPluggedIn) BOOL pluggedIn;
 @property (nonatomic, readonly) NSTimeInterval calibrationTime;
 @property (nonatomic, readonly, getter=isCalibrated) BOOL calibrated;
+@property (nonatomic, readonly) SFSensorState sensorState;
 
 - (id)initWithSignalProcessor:(SFSignalProcessor *)aSignalProcessor;
 
 - (void)startCalibration;
+- (void)cancelCalibration;
 - (void)startMeasure;
 - (void)stopMeasure;
 

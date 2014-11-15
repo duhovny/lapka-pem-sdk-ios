@@ -213,6 +213,30 @@
 }
 
 
+- (void)cancelCalibration {
+	
+	if (![self isPluggedIn]) {
+		
+		BOOL iamSimulated = [[SFSensorManager sharedManager] isSensorSimulated];
+		if (iamSimulated) {
+			
+			_state = SFNitratesSensorStateOff;
+			
+			[self.simulationTimer invalidate];
+			self.simulationTimer = nil;
+			
+			[super cancelCalibration];
+		}
+		return;
+	}
+	
+	_state = SFNitratesSensorStateOff;
+	[self.signalProcessor stop];
+	
+	[super cancelCalibration];
+}
+
+
 - (void)calibrationComplete {
 	
 	_state = SFNitratesSensorStateCalibrationComplete;
@@ -427,6 +451,40 @@
 		[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateValue object:@(_nitrates)];
 	});
 	[self stopMeasure];
+}
+
+
+#pragma mark -
+#pragma mark State
+
+
+- (SFSensorState)sensorState {
+	
+	SFSensorState sensorState = SFSensorStateOff;
+	switch (_state) {
+			
+		case SFNitratesSensorStateSafeDelay:
+		case SFNitratesSensorStateCalibration:
+		case SFNitratesSensorStateFirstTemperatureMeasurement:
+		case SFNitratesSensorStateEmptyNitratesMeasurement:
+			sensorState = SFSensorStateCalibrating;
+			break;
+			
+		case SFNitratesSensorStateNitratesMeasurement:
+		case SFNitratesSensorStateTemperatureMeasurement:
+			sensorState = SFSensorStateMeasuring;
+			break;
+			
+		case SFNitratesSensorStateCalibrationComplete:
+			sensorState = SFSensorStateReady;
+			break;
+			
+		default:
+			sensorState = SFSensorStateOff;
+			break;
+	}
+	
+	return sensorState;
 }
 
 

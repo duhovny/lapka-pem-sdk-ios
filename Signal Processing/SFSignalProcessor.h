@@ -35,14 +35,13 @@ typedef enum {
 	AudioComponentInstance audioUnit;
 	double left_theta;
 	double right_theta;
-@private
-	BOOL _started;
 }
 
 @property (nonatomic, assign) NSObject <SFSignalProcessorDelegate> *delegate;
 @property (nonatomic, retain) SFSignalFFTAnalyzer *fftAnalyzer;
 @property (nonatomic, retain) SFSignalImpulseDetector *impulseDetector;
 @property (nonatomic, assign) BOOL antiphase;
+@property (nonatomic, readonly, getter=isStarted) BOOL started;
 
 // you can set frequency separately for each channel and analyzer
 // or use setFrequency method to set all three to one value

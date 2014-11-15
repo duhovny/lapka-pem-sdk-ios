@@ -259,9 +259,38 @@ int const SFHumiditySensorCalibrationDuration = (kSFHumiditySensorResettingMeanS
 }
 
 
+- (void)cancelCalibration {
+	
+	if (![self isPluggedIn]) {
+		
+		BOOL iamSimulated = [[SFSensorManager sharedManager] isSensorSimulated];
+		if (iamSimulated) {
+			
+			_state = kSFHumiditySensorStateOff;
+			
+			[self.simulationTimer invalidate];
+			self.simulationTimer = nil;
+			
+			[super cancelCalibration];
+		}
+		return;
+	}
+	
+	[self.simulationTimer invalidate];
+	self.simulationTimer = nil;
+	
+	[self.signalProcessor stop];	
+	_state = kSFHumiditySensorStateOff;
+	
+	[super cancelCalibration];
+}
+
+
 - (void)calibrationComplete {
 	
 	[self.signalProcessor stop];
+	_state = kSFHumiditySensorStateCalibrationComplete;
+	
 	[super calibrationComplete];
 }
 
@@ -577,6 +606,41 @@ int const SFHumiditySensorCalibrationDuration = (kSFHumiditySensorResettingMeanS
 	});
 	
 	self.simulationTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(simulateHumidityMeasure) userInfo:nil repeats:NO];
+}
+
+
+#pragma mark -
+#pragma mark State
+
+
+- (SFSensorState)sensorState {
+	
+	SFSensorState sensorState = SFSensorStateOff;
+	switch (_state) {
+			
+		case kSFHumiditySensorStateResetting:
+		case kSFHumiditySensorStateCalibrateMeasurement:
+		case kSFHumiditySensorStateSecondResetting:
+		case kSFHumiditySensorStateSecondCalibrateMeasurement:
+		case kSFHumiditySensorStateFirstTemperatureMeasurement:
+			sensorState = SFSensorStateCalibrating;
+			break;
+			
+		case kSFHumiditySensorStateHumidityMeasurement:
+		case kSFHumiditySensorStateTemperatureMeasurement:
+			sensorState = SFSensorStateMeasuring;
+			break;
+			
+		case kSFHumiditySensorStateCalibrationComplete:
+			sensorState = SFSensorStateReady;
+			break;
+			
+		default:
+			sensorState = SFSensorStateOff;
+			break;
+	}
+	
+	return sensorState;
 }
 
 

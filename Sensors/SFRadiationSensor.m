@@ -78,6 +78,24 @@
 }
 
 
+- (void)cancelCalibration {
+	
+	[self.calibrationTimer invalidate];
+	self.calibrationTimer = nil;
+	
+	[super cancelCalibration];
+}
+
+
+- (void)calibrationComplete {
+	
+	[self.calibrationTimer invalidate];
+	self.calibrationTimer = nil;
+
+	[super calibrationComplete];
+}
+
+
 - (NSTimeInterval)calibrationTime {
 	return kSFRadiationSensorCalibrationTime;
 }
@@ -265,6 +283,27 @@
 	
 	float timeBeforeNextParticle = (60.0 / 8) * (1 + RANDOM_0_1());
 	self.simulationTimer = [NSTimer scheduledTimerWithTimeInterval:timeBeforeNextParticle target:self selector:@selector(simulateParticleAndScheduleNext) userInfo:nil repeats:NO];
+}
+
+
+#pragma mark -
+#pragma mark State
+
+
+- (SFSensorState)sensorState {
+	
+	SFSensorState sensorState = SFSensorStateOff;
+	
+	if (self.calibrationTimer)
+		sensorState = SFSensorStateCalibrating;
+	
+	else if (![self.signalProcessor isStarted])
+		sensorState = SFSensorStateReady;
+	
+	else
+		sensorState = SFSensorStateMeasuring;
+	
+	return sensorState;
 }
 
 

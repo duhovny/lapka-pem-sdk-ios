@@ -12,6 +12,7 @@
 
 NSString *const SFSensorWillStartCalibration = @"SFSensorWillStartCalibration";
 NSString *const SFSensorDidCompleteCalibration = @"SFSensorDidCompleteCalibration";
+NSString *const SFSensorDidCancelCalibration = @"SFSensorDidCancelCalibration";
 NSString *const SFSensorWillStartMeasure = @"SFSensorWillStartMeasure";
 NSString *const SFSensorDidCompleteMeasure = @"SFSensorDidCompleteMeasure";
 NSString *const SFSensorDidUpdateValue = @"SFSensorDidUpdateValue";
@@ -65,6 +66,20 @@ NSString *const SFSensorDidUpdateIntermediateValue = @"SFSensorDidUpdateIntermed
 	
 	dispatch_async(dispatch_get_main_queue(), ^{
 		[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorWillStartCalibration object:nil];
+	});
+}
+
+
+- (void)cancelCalibration {
+	
+	// override in real class
+	// don't forget to call
+	// [super cancelCalibration];
+	
+	NSLog(@"Sensor did cancel calibration");
+	
+	dispatch_async(dispatch_get_main_queue(), ^{
+		[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidCancelCalibration object:nil];
 	});
 }
 
@@ -162,6 +177,17 @@ NSString *const SFSensorDidUpdateIntermediateValue = @"SFSensorDidUpdateIntermed
 
 - (BOOL)isPluggedIn {
 	return [[SFAudioSessionManager sharedManager] audioRouteIsHeadsetInOut];
+}
+
+
+#pragma mark -
+#pragma mark State
+
+
+- (SFSensorState)sensorState {
+	
+	NSLog(@"Warning: sensorState should be overrided");
+	return SFSensorStateOff;
 }
 
 
