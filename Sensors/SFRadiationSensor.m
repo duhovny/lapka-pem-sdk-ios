@@ -297,7 +297,7 @@
 	if (self.calibrationTimer)
 		sensorState = SFSensorStateCalibrating;
 	
-	else if (![self.signalProcessor isStarted])
+	else if (!self.timer)
 		sensorState = SFSensorStateReady;
 	
 	else

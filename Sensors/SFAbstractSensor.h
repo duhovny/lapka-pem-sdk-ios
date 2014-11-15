@@ -40,6 +40,7 @@ typedef enum {
 
 - (void)startCalibration;
 - (void)cancelCalibration;
+- (void)resetCalibration;
 - (void)startMeasure;
 - (void)stopMeasure;
 

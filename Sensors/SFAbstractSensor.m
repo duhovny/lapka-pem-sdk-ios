@@ -84,6 +84,12 @@ NSString *const SFSensorDidUpdateIntermediateValue = @"SFSensorDidUpdateIntermed
 }
 
 
+- (void)resetCalibration {
+	
+	_calibrated = NO;
+}
+
+
 - (void)calibrationComplete {
 	
 	// override in real class
