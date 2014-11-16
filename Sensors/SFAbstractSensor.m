@@ -119,6 +119,9 @@ NSString *const SFSensorDidUpdateIntermediateValue = @"SFSensorDidUpdateIntermed
 		return;
 	}
 	
+	if (_measuring) return;
+	_measuring = YES;
+	
 	NSLog(@"Sensor will start mesure");
 	
 	dispatch_async(dispatch_get_main_queue(), ^{
@@ -132,6 +135,9 @@ NSString *const SFSensorDidUpdateIntermediateValue = @"SFSensorDidUpdateIntermed
 	
 	// override in real class
 	// don't forget to call super
+	
+	if (!_measuring) return;
+	_measuring = NO;
 	
 	NSLog(@"Sensor did finish measure");
 	

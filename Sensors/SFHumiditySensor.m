@@ -308,6 +308,20 @@ int const SFHumiditySensorCalibrationDuration = (kSFHumiditySensorResettingMeanS
 	
 	[super startMeasure];
 	
+	if (![self isPluggedIn]) {
+		
+		BOOL iamSimulated = [[SFSensorManager sharedManager] isSensorSimulated];
+		if (iamSimulated) {
+			
+			_state = kSFHumiditySensorStateHumidityMeasurement;
+			self.simulationTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(simulateHumidityMeasure) userInfo:nil repeats:NO];
+			return;
+		}
+		
+		NSLog(@"SFHumiditySensor is not plugged in. Not able to start measure.");
+		return;
+	}
+	
 	// setup for measure (11 signal)
 	self.signalProcessor.leftAmplitude = kSFControlSignalBitOne;
 	self.signalProcessor.rightAmplitude = kSFControlSignalBitOne;
@@ -331,8 +345,7 @@ int const SFHumiditySensorCalibrationDuration = (kSFHumiditySensorResettingMeanS
 
 - (void)didUpdateValue {
 	
-	if (_state == kSFHumiditySensorStateHumidityMeasurement ||
-		_state == kSFHumiditySensorStateTemperatureMeasurement)
+	if (self.isMeasuring)
 	{
 		dispatch_async(dispatch_get_main_queue(), ^{
 			[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateValue object:nil];
@@ -405,13 +418,11 @@ int const SFHumiditySensorCalibrationDuration = (kSFHumiditySensorResettingMeanS
 	// update temperature value
 	_temperature = [self calculateTemparatureWithAmplitude:_temperatureLevel trace:NO];
 	
-	// notify
-	dispatch_async(dispatch_get_main_queue(), ^{
-		[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateValue object:nil];
-	});
-	
 	// update humidity
 	_humidity = [self calculateHumidityWithTemparature:_temperature amplitude:_humidityLevel trace:NO];
+	
+	// notify
+	[self didUpdateValue];
 }
 
 
@@ -583,17 +594,15 @@ int const SFHumiditySensorCalibrationDuration = (kSFHumiditySensorResettingMeanS
 - (void)simulateCalibrationComplete {
 	
 	[self calibrationComplete];
-	self.simulationTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(simulateHumidityMeasure) userInfo:nil repeats:NO];
 }
 
 
 - (void)simulateHumidityMeasure {
 	
 	_humidity = 55.0 + 5.0 * RANDOM_0_1();
-	dispatch_async(dispatch_get_main_queue(), ^{
-		[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateValue object:nil];
-	});
+	[self didUpdateValue];
 	
+	_state = kSFHumiditySensorStateTemperatureMeasurement;
 	self.simulationTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(simulateTemperatureMeasure) userInfo:nil repeats:NO];
 }
 
@@ -601,10 +610,9 @@ int const SFHumiditySensorCalibrationDuration = (kSFHumiditySensorResettingMeanS
 - (void)simulateTemperatureMeasure {
 	
 	_temperature = 25.0 + 2.0 * RANDOM_0_1();
-	dispatch_async(dispatch_get_main_queue(), ^{
-		[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateValue object:nil];
-	});
+	[self didUpdateValue];
 	
+	_state = kSFHumiditySensorStateHumidityMeasurement;
 	self.simulationTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(simulateHumidityMeasure) userInfo:nil repeats:NO];
 }
 
@@ -628,7 +636,7 @@ int const SFHumiditySensorCalibrationDuration = (kSFHumiditySensorResettingMeanS
 			
 		case kSFHumiditySensorStateHumidityMeasurement:
 		case kSFHumiditySensorStateTemperatureMeasurement:
-			sensorState = SFSensorStateMeasuring;
+			sensorState = self.isMeasuring ? SFSensorStateMeasuring : SFSensorStateReady;
 			break;
 			
 		case kSFHumiditySensorStateCalibrationComplete:

@@ -34,6 +34,7 @@ typedef enum {
 @property (nonatomic, readonly, getter = isPluggedIn) BOOL pluggedIn;
 @property (nonatomic, readonly) NSTimeInterval calibrationTime;
 @property (nonatomic, readonly, getter=isCalibrated) BOOL calibrated;
+@property (nonatomic, readonly, getter=isMeasuring) BOOL measuring;
 @property (nonatomic, readonly) SFSensorState sensorState;
 
 - (id)initWithSignalProcessor:(SFSignalProcessor *)aSignalProcessor;
