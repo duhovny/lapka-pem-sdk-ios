@@ -126,7 +126,7 @@
 		if (iamSimulated) {
 			
 			_state = SFFieldSensorStateCalibrating;
-			self.simulateValueTimer = [NSTimer scheduledTimerWithTimeInterval:0.1 target:self selector:@selector(simulateDidUpdateValue) userInfo:nil repeats:YES];
+			self.simulateValueTimer = [NSTimer scheduledTimerWithTimeInterval:0.05 target:self selector:@selector(simulateDidUpdateValue) userInfo:nil repeats:YES];
 			self.simulateMeanValueTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(simulateDidUpdateMeanValue) userInfo:nil repeats:YES];
 			self.calibrationTimer = [NSTimer scheduledTimerWithTimeInterval:self.calibrationTime target:self selector:@selector(calibrationComplete) userInfo:nil repeats:NO];
 			[super startCalibration];
@@ -465,7 +465,7 @@
 	
 	if (_state != SFFieldSensorStateMeasuring) return;
 	
-	float value = 1.2 + 2.0 * RANDOM_0_1();
+	float value = 0.2 + 0.2 * RANDOM_0_1();
 	dispatch_async(dispatch_get_main_queue(), ^{
 		[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateIntermediateValue object:@(value)];
 	});
@@ -476,7 +476,7 @@
 	
 	if (_state != SFFieldSensorStateMeasuring) return;
 	
-	float value = 1.2 + 2.0 * RANDOM_0_1();
+	float value = 0.25 + 0.1 * RANDOM_0_1();
 	dispatch_async(dispatch_get_main_queue(), ^{
 		[[NSNotificationCenter defaultCenter] postNotificationName:SFSensorDidUpdateValue object:@(value)];
 	});
