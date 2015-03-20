@@ -153,6 +153,8 @@ NSString *const SFSensorManagerNeedUserPermissionToSwitchToEU = @"SFSensorManage
 
 	NSLog(@"remove sensor");
 	
+	[_sensor stopMeasure];
+	
 	self.sensor = nil;
 	self.signalProcessor = nil;
 }
