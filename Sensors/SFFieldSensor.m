@@ -51,6 +51,8 @@
 
 @implementation SFFieldSensor
 
+@dynamic pluggedIn;
+
 
 #pragma mark -
 #pragma mark Lifecycle

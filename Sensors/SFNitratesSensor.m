@@ -60,6 +60,8 @@
 
 @implementation SFNitratesSensor
 
+@dynamic pluggedIn;
+
 
 #pragma mark -
 #pragma mark Lifecycle
