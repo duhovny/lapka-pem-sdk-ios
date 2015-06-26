@@ -21,7 +21,6 @@ typedef enum {
 
 @interface SFNitratesSensor : SFAbstractSensor
 
-@property (nonatomic, readonly, getter = isPluggedIn) BOOL pluggedIn;
 @property (nonatomic, readonly) SFNitratesSensorState state;
 
 @property (nonatomic) float productCoefficient;

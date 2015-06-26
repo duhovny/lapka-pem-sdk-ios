@@ -24,7 +24,6 @@ typedef enum {
 
 @property (nonatomic, readonly) SFFieldSensorState state;
 @property (nonatomic, readonly) SFFieldType fieldType;
-@property (nonatomic, readonly, getter = isPluggedIn) BOOL pluggedIn;
 @property (nonatomic, readonly) float smallestHighFrequencyAmplitude;
 
 @property (nonatomic) float scaleCoef;
