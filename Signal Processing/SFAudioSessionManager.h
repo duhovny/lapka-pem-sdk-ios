@@ -31,6 +31,9 @@ extern NSString *const SFAudioSessionDidChangeAudioRouteNotification;
 - (void)activateAudioSession;
 - (void)deactivateAudioSession;
 
+- (void)setAudioSessionAudioCategoryToMediaPlayback;
+- (void)setAudioSessionAudioCategoryToPlayAndRecord;
+
 - (void)setHardwareOutputVolumeToRegionMaxValue;
 
 @end

@@ -180,6 +180,28 @@ void propListener(	void *                  inClientData,
 
 
 #pragma mark -
+#pragma mark Audio Category
+
+
+- (void)setAudioSessionAudioCategoryToMediaPlayback {
+    
+    if (!activated) return;
+    
+    UInt32 sessionCategory = kAudioSessionCategory_MediaPlayback;
+    AudioSessionSetProperty(kAudioSessionProperty_AudioCategory, sizeof(sessionCategory), &sessionCategory);
+}
+
+
+- (void)setAudioSessionAudioCategoryToPlayAndRecord {
+    
+    if (!activated) return;
+    
+    UInt32 sessionCategory = kAudioSessionCategory_PlayAndRecord;
+    AudioSessionSetProperty(kAudioSessionProperty_AudioCategory, sizeof(sessionCategory), &sessionCategory);
+}
+
+
+#pragma mark -
 #pragma mark Hardware Output Volume
 
 
